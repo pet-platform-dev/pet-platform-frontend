@@ -870,6 +870,22 @@ form {
   border-radius: 20px;
   box-shadow: 0 4px 14px #453c2a04;
 }
+.listing-card-link {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  border-radius: inherit;
+}
+.listing-card-link:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+.listing-card-link:hover h2 {
+  color: var(--accent);
+}
 .listing-visual {
   position: relative;
   aspect-ratio: 16/10;
@@ -1091,6 +1107,189 @@ form {
   .skeleton-block,
   .skeleton-line {
     animation: none;
+  }
+}
+
+.listing-detail-shell {
+  max-width: 1144px;
+  margin: 0 auto;
+  padding: 46px 24px 80px;
+}
+.listing-back-link {
+  display: inline-block;
+  margin-bottom: 28px;
+  font-size: 13px;
+}
+.listing-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 30px 40px;
+  align-items: start;
+}
+.listing-detail-grid > * {
+  min-width: 0;
+}
+.listing-detail-media {
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid #e4dfd4;
+}
+.listing-detail-media .listing-visual {
+  aspect-ratio: 5/4;
+}
+.listing-detail-media .listing-no-photo {
+  font-size: 12px;
+  right: 24px;
+  bottom: 24px;
+}
+.listing-detail-summary {
+  padding: 23px 0 8px;
+  overflow-wrap: anywhere;
+}
+.listing-detail-summary h1 {
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin: 12px 0 21px;
+}
+.listing-detail-summary .listing-type {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.listing-detail-metadata {
+  font-size: 17px;
+  color: #51584c;
+  margin: 12px 0;
+}
+.listing-detail-location {
+  font-size: 14px;
+  color: #64685d;
+  line-height: 1.6;
+  margin: 0 0 25px;
+}
+.listing-detail-price {
+  font-size: clamp(27px, 3vw, 36px);
+  font-weight: 650;
+  line-height: 1.25;
+  color: var(--accent);
+  border-top: 1px solid #e4dfd4;
+  padding-top: 23px;
+  margin: 0 0 16px;
+}
+.listing-detail-name {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+.listing-detail-name span {
+  color: #51584c;
+}
+.listing-detail-date {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 20px 0 0;
+}
+.listing-detail-panel {
+  background: #fffdf9;
+  border: 1px solid #e4dfd4;
+  border-radius: 20px;
+  padding: 28px;
+  overflow-wrap: anywhere;
+}
+.listing-detail-panel h2 {
+  font-size: 22px;
+  line-height: 1.3;
+  margin: 0 0 18px;
+}
+.listing-detail-description .eyebrow {
+  margin: 0 0 12px;
+}
+.listing-detail-title {
+  color: #51584c;
+  font-size: 16px;
+  font-weight: 550;
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+.listing-description-text {
+  white-space: pre-wrap;
+  line-height: 1.85;
+  font-size: 15px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.listing-detail-sidebar {
+  display: grid;
+  gap: 20px;
+}
+.listing-detail-facts {
+  margin: 0;
+  font-size: 13px;
+}
+.listing-detail-facts > div {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee9df;
+}
+.listing-detail-facts > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.listing-detail-facts dt {
+  color: var(--muted);
+}
+.listing-detail-facts dd {
+  margin: 0;
+  line-height: 1.5;
+}
+.listing-seller-panel {
+  background: #eef0e8;
+}
+.listing-seller-name {
+  font-size: 20px;
+  font-weight: 550;
+  margin: 0 0 8px;
+}
+.listing-seller-designation {
+  color: #64685d;
+  font-size: 13px;
+  margin: 0;
+}
+.listing-detail-state h1 {
+  font-size: clamp(25px, 4vw, 36px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.listing-detail-skeleton .listing-detail-media {
+  aspect-ratio: 5/4;
+}
+.listing-detail-skeleton .skeleton-name {
+  height: 40px;
+  margin: 24px 0;
+}
+@media (max-width: 760px) {
+  .listing-detail-shell {
+    padding: 28px 20px 55px;
+  }
+  .listing-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+  .listing-detail-summary {
+    padding-top: 0;
+  }
+  .listing-detail-summary h1 {
+    font-size: 30px;
+    letter-spacing: -0.6px;
+  }
+  .listing-detail-panel {
+    padding: 22px;
+  }
+  .listing-detail-state {
+    padding: 40px 18px;
   }
 }
 @media (max-width: 1000px) {

@@ -1,4 +1,14 @@
 import type { Listing } from "./listing";
+import { breedLabel } from "@/entities/breed/model";
+import { speciesLabel } from "@/entities/species/model";
+
+export function listingHeading(
+  pet: Pick<Listing["pet"], "breed" | "species">,
+): string {
+  return pet.breed
+    ? breedLabel(pet.breed)
+    : `${speciesLabel(pet.species.slug)} · Породу не вказано`;
+}
 export const listingTypeLabels = {
   SALE: "Продаж",
   FREE: "Безкоштовно",
