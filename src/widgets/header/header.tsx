@@ -12,6 +12,9 @@ export function Header() {
         лапа<span className="brand-dot">.</span>
       </Link>
       <nav aria-label="Основна навігація">
+        <Link className="nav-link" href="/listings">
+          Оголошення
+        </Link>
         {isPending ? (
           <span className="muted">Зачекайте…</span>
         ) : data ? (

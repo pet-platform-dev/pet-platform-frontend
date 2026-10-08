@@ -11,6 +11,9 @@ import type { User } from "@/entities/user/model";
 import { clearSession, currentUser, signOut } from "@/shared/api/client";
 
 export const sessionKey = ["current-user"] as const;
+export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
+  return ["current-user", "my-pets", "pet"].includes(String(queryKey[0]));
+}
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [client] = useState(
     () =>
@@ -24,7 +27,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       clearSession();
       client.removeQueries({ queryKey: ["my-pets"] });
       client.removeQueries({ queryKey: ["pet"] });
-      void client.cancelQueries();
+      void client.cancelQueries({
+        predicate: isSessionQuery,
+      });
       if (event.data === "logout") {
         client.setQueryData(sessionKey, null);
       } else {
@@ -32,7 +37,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       }
     };
     const expire = () => {
-      void client.cancelQueries();
+      void client.cancelQueries({
+        predicate: isSessionQuery,
+      });
       client.removeQueries({ queryKey: ["my-pets"] });
       client.removeQueries({ queryKey: ["pet"] });
       client.setQueryData(sessionKey, null);
