@@ -2,20 +2,20 @@
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import type { Pet } from "@/entities/pet/model";
 import type { Location } from "@/entities/location/model";
-import {
-  listingLocation,
-  listingTypeLabels,
-} from "@/entities/listing/model/presentation";
+import { listingTypeLabels } from "@/entities/listing/model/presentation";
 import type { CreateListingFormInput } from "../model/schema";
+import { LocationSelector } from "@/entities/location/location-selector";
 import { petOptionLabel } from "../model/presentation";
 export function CreateListingFields({
   form,
   pets,
-  locations,
+  location,
+  onLocation,
 }: {
   form: UseFormReturn<CreateListingFormInput>;
   pets: Pet[];
-  locations: Location[];
+  location: Location | null;
+  onLocation: (location: Location | null) => void;
 }) {
   const type = useWatch({ control: form.control, name: "type" });
   const error = (field: keyof CreateListingFormInput) =>
@@ -71,22 +71,17 @@ export function CreateListingFields({
         </div>
         {message("type")}
       </fieldset>
-      <div className="field">
-        <label htmlFor="locationId">Місце</label>
-        <select
-          id="locationId"
-          {...form.register("locationId")}
-          {...attrs("locationId")}
-        >
-          <option value="">Оберіть місце</option>
-          {locations.map((location) => (
-            <option key={location.id} value={location.id}>
-              {listingLocation(location)}
-            </option>
-          ))}
-        </select>
-        {message("locationId")}
-      </div>
+      <LocationSelector
+        selected={location}
+        error={error("locationId")}
+        onSelect={(value) => {
+          onLocation(value);
+          form.setValue("locationId", value?.id ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }}
+      />
       <div className="field">
         <label htmlFor="title">Заголовок</label>
         <input

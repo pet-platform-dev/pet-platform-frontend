@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRef, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -14,13 +14,8 @@ import {
 } from "../model/schema";
 import { createListingError } from "../model/presentation";
 import { CreateListingFields } from "./create-listing-fields";
-export function CreateListingForm({
-  pets,
-  locations,
-}: {
-  pets: Pet[];
-  locations: Location[];
-}) {
+export function CreateListingForm({ pets }: { pets: Pet[] }) {
+  const [location, setLocation] = useState<Location | null>(null);
   const form = useForm<CreateListingFormInput>({
     resolver: zodResolver(createListingFormSchema),
     defaultValues: {
@@ -44,7 +39,7 @@ export function CreateListingForm({
           form.setError("petId", { message: "Оберіть тварину зі списку" });
           return;
         }
-        if (!locations.some((location) => location.id === input.locationId)) {
+        if (!location || location.id !== input.locationId) {
           form.setError("locationId", { message: "Оберіть місце зі списку" });
           return;
         }
@@ -92,7 +87,12 @@ export function CreateListingForm({
       </p>
       <form onSubmit={submit} noValidate aria-busy={pending}>
         <fieldset disabled={pending}>
-          <CreateListingFields form={form} pets={pets} locations={locations} />
+          <CreateListingFields
+            form={form}
+            pets={pets}
+            location={location}
+            onLocation={setLocation}
+          />
           <p className="listing-draft-note">
             Оголошення буде створене як чернетка.
           </p>

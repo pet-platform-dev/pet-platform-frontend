@@ -2,16 +2,11 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getOwnPetChoices } from "@/entities/pet/api/get-own-pet-choices";
-import { getLocations } from "@/entities/location/api";
 import { CreateListingForm } from "./create-listing-form";
 export function CreateListingPage() {
   const pets = useQuery({
     queryKey: ["my-pets", "listing-create"],
     queryFn: getOwnPetChoices,
-  });
-  const locations = useQuery({
-    queryKey: ["locations"],
-    queryFn: getLocations,
   });
   return (
     <main className="listing-create-shell">
@@ -29,32 +24,26 @@ export function CreateListingPage() {
             Додати тварину
           </Link>
         </section>
-      ) : pets.isError || locations.isError ? (
+      ) : pets.isError ? (
         <section className="catalog-state" role="alert">
           <h1>Не вдалося завантажити дані форми</h1>
           <p>Перевірте з’єднання та спробуйте ще раз.</p>
           <button
             className="button primary"
-            disabled={pets.isFetching || locations.isFetching}
+            disabled={pets.isFetching}
             onClick={() => {
               void pets.refetch();
-              void locations.refetch();
             }}
           >
             Спробувати ще раз
           </button>
         </section>
-      ) : pets.isPending || locations.isPending ? (
+      ) : pets.isPending ? (
         <section className="status-panel" role="status">
-          Завантажуємо тварин і місця…
-        </section>
-      ) : locations.data.length === 0 ? (
-        <section className="catalog-state">
-          <h1>Поки що немає доступних місць</h1>
-          <p>Спробуйте створити оголошення пізніше.</p>
+          Завантажуємо тварин…
         </section>
       ) : (
-        <CreateListingForm pets={pets.data} locations={locations.data} />
+        <CreateListingForm pets={pets.data} />
       )}
     </main>
   );

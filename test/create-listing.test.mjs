@@ -49,6 +49,10 @@ const location = {
   city: "Світловодськ",
   region: "Кіровоградська область",
   countryCode: "UA",
+  district: null,
+  community: null,
+  settlementType: "CITY",
+  katottgCode: null,
 };
 const input = {
   petId,
@@ -68,10 +72,9 @@ const render = (element, queryClient = client()) =>
   renderToStaticMarkup(
     React.createElement(QueryClientProvider, { client: queryClient }, element),
   );
-function page(pets = [pet], locations = [location]) {
+function page(pets = [pet]) {
   const q = client();
   q.setQueryData(["my-pets", "listing-create"], pets);
-  q.setQueryData(["locations"], locations);
   return render(React.createElement(CreateListingPage), q);
 }
 test("required fields and trim/length validation are Ukrainian and match backend bounds", () => {
@@ -201,10 +204,11 @@ test("no-Pets state offers existing /pets/new and omits unusable form", () => {
   assert.ok(html.includes('href="/pets/new"'));
   assert.ok(!html.includes("<form"));
 });
-test("empty location reference prevents unusable form", () => {
-  const html = page([pet], []);
-  assert.ok(html.includes("Поки що немає доступних місць"));
-  assert.ok(!html.includes("<form"));
+test("location reference is searched within the form without eagerly loading every settlement", () => {
+  const html = page();
+  assert.ok(html.includes('role="combobox"'));
+  assert.ok(html.includes("щонайменше 2 символи"));
+  assert.ok(html.includes("<form"));
 });
 test("loading and failed form reference requests have status/retry without raw diagnostics", () => {
   assert.ok(
@@ -212,7 +216,7 @@ test("loading and failed form reference requests have status/retry without raw d
   );
   const q = client();
   q.getQueryCache()
-    .build(q, { queryKey: ["locations"] })
+    .build(q, { queryKey: ["my-pets", "listing-create"] })
     .setState({
       status: "error",
       error: new Error("PRIVATE_DIAGNOSTIC"),
@@ -247,7 +251,6 @@ test("session guard permits authenticated form without adding a second auth flow
         null,
         React.createElement(CreateListingForm, {
           pets: [pet],
-          locations: [location],
         }),
       ),
       q,
@@ -290,7 +293,14 @@ test("creation reuses authenticated Bearer/CSRF client and verifies DRAFT respon
         accessToken: "test-access",
         expiresIn: 900,
       });
-    if (url.endsWith("/locations")) return json([location]);
+    if (url.includes("/locations?"))
+      return new Response(
+        JSON.stringify({
+          data: [location],
+          meta: { page: 1, limit: 50, total: 1, pages: 1 },
+        }),
+        { headers: { "Content-Type": "application/json" } },
+      );
     return json({ id: petId, status: "DRAFT", sellerId: "ignored" });
   };
   try {
@@ -310,7 +320,7 @@ test("creation reuses authenticated Bearer/CSRF client and verifies DRAFT respon
       JSON.parse(post.options.body),
       createListingPayload(input),
     );
-    await getLocations();
+    assert.deepEqual((await getLocations("сві")).data, [location]);
     const get = requests.at(-1);
     assert.ok(
       !get.options.headers.Authorization &&
