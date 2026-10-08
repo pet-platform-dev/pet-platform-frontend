@@ -75,7 +75,12 @@ export function PetList() {
                   </span>
                   <span className="private-label">Приватний профіль</span>
                 </div>
-                <h2>{pet.name}</h2>
+                <h2>
+                  {pet.name?.trim() ||
+                    (pet.breed
+                      ? breedLabel(pet.breed)
+                      : speciesLabel(pet.species.slug))}
+                </h2>
                 <p className="pet-breed">
                   {pet.breed ? breedLabel(pet.breed) : "Породу не вказано"}
                 </p>
@@ -111,7 +116,7 @@ export function PetList() {
                   <button
                     type="button"
                     className="delete-link"
-                    aria-label={`Видалити ${pet.name}`}
+                    aria-label={`Видалити профіль: ${pet.name?.trim() || (pet.breed ? breedLabel(pet.breed) : speciesLabel(pet.species.slug))}`}
                     onClick={() => {
                       mutation.reset();
                       setSelected(pet);
@@ -157,8 +162,11 @@ export function PetList() {
       >
         <h2 id="delete-title">Видалити профіль тварини?</h2>
         <p>
-          Профіль «{selected?.name}» буде видалено без можливості відновлення.
-          Тварину з пов’язаними оголошеннями видалити не можна.
+          {selected?.name?.trim()
+            ? `Профіль «${selected.name.trim()}»`
+            : "Профіль тварини"}{" "}
+          буде видалено без можливості відновлення. Тварину з пов’язаними
+          оголошеннями видалити не можна.
         </p>
         {mutation.isError && (
           <p className="error-banner" role="alert">

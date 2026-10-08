@@ -25,13 +25,16 @@ export function ListingCard({ listing }: { listing: Listing }) {
         >
           {listingTypeLabels[listing.type]}
         </span>
-        <h2>{pet.name}</h2>
-        <p className="listing-breed">
+        <h2>
           {pet.breed
             ? breedLabel(pet.breed)
             : `${speciesLabel(pet.species.slug)} · Породу не вказано`}
-        </p>
-        <p className="listing-title">{listing.title}</p>
+        </h2>
+        {(gender || age) && (
+          <p className="listing-metadata">
+            {[age, gender].filter(Boolean).join(" • ")}
+          </p>
+        )}
         <p className="listing-location">
           <svg
             width="15"
@@ -47,14 +50,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
           </svg>
           {listingLocation(listing.location)}
         </p>
-        {(gender || age) && (
-          <p className="listing-metadata">
-            {[gender, age].filter(Boolean).join(" · ")}
-          </p>
-        )}
         <div className="listing-card-footer">
           <p className="listing-price">{listingPrice(listing)}</p>
           {date && <time dateTime={dateValue}>{date}</time>}
+          {pet.name?.trim() && (
+            <p className="listing-pet-name">Ім’я: {pet.name.trim()}</p>
+          )}
         </div>
       </div>
     </article>

@@ -175,7 +175,7 @@ test("listing card renders hierarchy, safe location and no detail link", () => {
     "Belgian Malinois",
     "Світловодськ",
     "Продаж",
-    "Самець",
+    "Хлопчик",
     "Фото ще не додано",
   ])
     assert.ok(html.includes(text));
@@ -198,8 +198,50 @@ test("card uses trimmed curated breed name with blank fallback", () => {
         },
       }),
     );
-    assert.ok(html.includes(nameUk?.trim() || "Belgian Malinois"));
+    assert.ok(
+      html.includes(`<h2>${nameUk?.trim() || "Belgian Malinois"}</h2>`),
+    );
+    assert.ok(!html.includes("<h2>Локі</h2>"));
   }
+});
+test("unnamed cards accept nullable contract, omit name metadata and keep identity/type/price", () => {
+  for (const type of ["SALE", "FREE", "ADOPTION"]) {
+    const listing = {
+      ...fixture,
+      type,
+      price: type === "SALE" ? "25000.00" : null,
+      pet: { ...fixture.pet, name: null },
+    };
+    assert.ok(listingsResponseSchema.safeParse(response([listing])).success);
+    const html = renderToStaticMarkup(
+      React.createElement(ListingCard, { listing }),
+    );
+    assert.ok(html.includes("<h2>Belgian Malinois</h2>"));
+    assert.ok(!html.includes("listing-pet-name"));
+    for (const text of ["Без імені", "Ім’я:", ">null<"])
+      assert.ok(!html.includes(text));
+    assert.ok(
+      html.includes(
+        type === "SALE"
+          ? "25"
+          : type === "FREE"
+            ? "Безкоштовно"
+            : "Прилаштування",
+      ),
+    );
+  }
+});
+test("named card keeps name secondary after price and age before gender/location", () => {
+  const html = renderToStaticMarkup(
+    React.createElement(ListingCard, { listing: fixture }),
+  );
+  assert.ok(html.includes("Ім’я: Локі"));
+  assert.ok(
+    html.indexOf("listing-metadata") < html.indexOf("listing-location"),
+  );
+  assert.ok(html.indexOf("listing-price") < html.indexOf("listing-pet-name"));
+  assert.ok(html.includes(" • Хлопчик"));
+  assert.ok(!html.includes(fixture.title));
 });
 test("missing breed and age show natural Ukrainian card metadata", () => {
   const html = renderToStaticMarkup(

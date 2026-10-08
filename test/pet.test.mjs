@@ -49,9 +49,8 @@ test("pet form normalizes input and permits unknown breed without inventing a cl
   assert.equal(result.description, null);
   assert.equal(result.chipNumber, null);
 });
-test("pet form requires name/species and valid enum/id values", () => {
+test("pet form requires species and valid enum/id values", () => {
   for (const extra of [
-    { name: " " },
     { speciesId: "" },
     { gender: "OTHER" },
     { breedId: "invalid" },
@@ -60,6 +59,21 @@ test("pet form requires name/species and valid enum/id values", () => {
       petFormSchema.safeParse({ ...input, ...extra }).success,
       false,
     );
+});
+test("pet form accepts omitted/null/empty names and preserves named values", () => {
+  const unnamed = { ...input };
+  delete unnamed.name;
+  assert.equal(petFormSchema.parse(unnamed).name, null);
+  for (const name of [null, "", "  "])
+    assert.equal(petFormSchema.parse({ ...input, name }).name, null);
+  assert.equal(
+    petFormSchema.parse({ ...input, name: "  Міла  " }).name,
+    "Міла",
+  );
+  assert.equal(
+    petFormSchema.safeParse({ ...input, name: "x".repeat(151) }).success,
+    false,
+  );
 });
 test("pet form rejects impossible and future dates in Ukrainian", () => {
   for (const birthDate of ["2025-02-29", "2099-01-01"]) {

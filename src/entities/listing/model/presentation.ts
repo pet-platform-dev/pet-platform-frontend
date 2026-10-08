@@ -35,5 +35,9 @@ export function listingDate(value: string): string | null {
   return Number.isNaN(date.getTime()) ? null : dates.format(date);
 }
 export function listingGender(gender: Listing["pet"]["gender"]): string | null {
-  return gender === "MALE" ? "Самець" : gender === "FEMALE" ? "Самка" : null;
+  return gender === "MALE"
+    ? "Хлопчик"
+    : gender === "FEMALE"
+      ? "Дівчинка"
+      : null;
 }

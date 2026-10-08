@@ -94,13 +94,19 @@ function PetForm({ pet }: { pet?: Pet }) {
         <fieldset disabled={mutation.isPending}>
           <div className="form-grid">
             <div className="field">
-              <label htmlFor="name">Ім’я</label>
+              <label htmlFor="name">Ім’я (необов’язково)</label>
               <input
                 id="name"
                 {...form.register("name")}
                 maxLength={150}
                 {...attrs("name")}
+                aria-describedby={
+                  error("name") ? "name-help name-error" : "name-help"
+                }
               />
+              <p id="name-help" className="muted">
+                Можна залишити порожнім, якщо тварина ще не має імені.
+              </p>
               {fieldError("name")}
             </div>
             <div className="field">

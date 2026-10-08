@@ -931,22 +931,11 @@ form {
   letter-spacing: -0.4px;
   overflow-wrap: anywhere;
 }
-.listing-breed {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.5;
-  margin: 0 0 12px;
-  overflow-wrap: anywhere;
-}
-.listing-title {
-  font-size: 13px;
-  line-height: 1.6;
+.listing-pet-name {
+  flex-basis: 100%;
+  font-size: 12px;
   color: var(--muted);
-  margin: 0 0 16px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  margin: 3px 0 0;
   overflow-wrap: anywhere;
 }
 .listing-location {
@@ -963,9 +952,9 @@ form {
   margin-top: 1px;
 }
 .listing-metadata {
-  font-size: 12px;
-  color: var(--muted);
-  margin: 0 0 15px;
+  font-size: 14px;
+  color: #51584c;
+  margin: 2px 0 12px;
 }
 .listing-card-footer {
   width: 100%;

@@ -1,7 +1,7 @@
 import type { Species } from "@/entities/species/model";
 export type Pet = {
   id: string;
-  name: string;
+  name: string | null;
   gender: "MALE" | "FEMALE" | "UNKNOWN";
   birthDate: string | null;
   color: string | null;
@@ -27,7 +27,7 @@ export const genderLabel = {
   UNKNOWN: "Не вказано",
 };
 export type PetInput = {
-  name: string;
+  name: string | null;
   speciesId: string;
   breedId: string | null;
   gender: Pet["gender"];

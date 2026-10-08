@@ -23,7 +23,7 @@ export const listingSchema = z
     updatedAt: z.string(),
     pet: z.object({
       id: z.string(),
-      name: z.string(),
+      name: z.string().nullable(),
       gender: z.enum(["MALE", "FEMALE", "UNKNOWN"]),
       birthDate: z.string().nullable(),
       species: referenceSchema,

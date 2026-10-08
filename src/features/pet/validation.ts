@@ -11,8 +11,10 @@ export const petFormSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Вкажіть ім’я тварини")
-    .max(150, "Ім’я має містити не більше 150 символів"),
+    .max(150, "Ім’я має містити не більше 150 символів")
+    .nullable()
+    .optional()
+    .transform((value) => value || null),
   speciesId: z.uuid("Оберіть вид тварини"),
   breedId: z
     .union([z.uuid("Оберіть доступну породу"), z.literal("")])
