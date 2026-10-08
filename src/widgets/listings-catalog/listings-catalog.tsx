@@ -25,6 +25,12 @@ export function ListingsCatalog({ query }: { query: CatalogQuery }) {
           Знайдіть улюбленця або перегляньте актуальні пропозиції від власників.
         </p>
       </header>
+      <Link
+        href="/listings/new"
+        className="button secondary catalog-create-link"
+      >
+        Створити оголошення
+      </Link>
       <div className="catalog-toolbar">
         <p className="catalog-count" aria-live="polite">
           {result.isPending
