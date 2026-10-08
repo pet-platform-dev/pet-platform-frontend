@@ -12,12 +12,17 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    public readonly details: { field: string; message: string }[] = [],
   ) {
     super(message);
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  envelope = false,
+): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${baseUrl}${path}`, {
@@ -38,15 +43,56 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       409: "Користувач із такою електронною адресою вже існує",
       429: "Забагато запитів. Спробуйте за хвилину",
     };
-    throw new ApiError(
-      response.status,
+    const errorBody: unknown = await response.json().catch(() => null);
+    const known = new Set([
+      "Вкажіть ім’я тварини",
+      "Ім’я має містити не більше 150 символів",
+      "Некоректний ідентифікатор",
+      "Оберіть доступний вид тварини",
+      "Оберіть доступну породу для вибраного виду тварини",
+      "Оберіть коректну стать",
+      "Вкажіть коректну дату народження",
+      "Дата народження не може бути в майбутньому",
+      "Колір має містити не більше 150 символів",
+      "Опис має містити не більше 5000 символів",
+      "Номер чіпа має містити не більше 50 символів",
+      "Тварина з таким номером чіпа вже існує",
+      "Не можна видалити тварину з пов’язаними оголошеннями",
+      "Профіль тварини не знайдено",
+      "Запит містить недозволені поля",
+      "Перевірте правильність заповнення поля",
+      "Вкажіть хоча б одне поле для зміни",
+    ]);
+    let message =
       messages[response.status] ??
-        "Не вдалося виконати запит. Спробуйте ще раз.",
-    );
+      "Не вдалося виконати запит. Спробуйте ще раз.";
+    const details: { field: string; message: string }[] = [];
+    if (errorBody && typeof errorBody === "object") {
+      if (
+        "message" in errorBody &&
+        typeof errorBody.message === "string" &&
+        known.has(errorBody.message)
+      )
+        message = errorBody.message;
+      if ("details" in errorBody && Array.isArray(errorBody.details)) {
+        for (const detail of errorBody.details)
+          if (
+            detail &&
+            typeof detail === "object" &&
+            "field" in detail &&
+            typeof detail.field === "string" &&
+            "message" in detail &&
+            typeof detail.message === "string" &&
+            known.has(detail.message)
+          )
+            details.push({ field: detail.field, message: detail.message });
+      }
+    }
+    throw new ApiError(response.status, message, details);
   }
   if (response.status === 204) return undefined as T;
   const body = (await response.json()) as { data: T };
-  return body.data;
+  return envelope ? (body as T) : body.data;
 }
 
 async function csrf(): Promise<string> {
@@ -117,24 +163,57 @@ export function refreshSession(): Promise<User> {
   return refreshPromise;
 }
 
-export async function authenticatedRequest<T>(path: string): Promise<T> {
-  if (!accessToken || expiresAt <= Date.now() + 5000) await refreshSession();
+export function publicRequest<T>(path: string, envelope = false): Promise<T> {
+  return request<T>(path, {}, envelope);
+}
+function expiredSession() {
+  if (typeof window !== "undefined")
+    window.dispatchEvent(new Event("pet-platform-session-expired"));
+}
+export async function authenticatedRequest<T>(
+  path: string,
+  options: RequestInit = {},
+  envelope = false,
+): Promise<T> {
+  try {
+    if (!accessToken || expiresAt <= Date.now() + 5000) await refreshSession();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) expiredSession();
+    throw error;
+  }
+  const headers = {
+    ...options.headers,
+    ...(["POST", "PATCH", "DELETE"].includes(options.method ?? "GET")
+      ? { "X-CSRF-Token": await csrf() }
+      : {}),
+  };
   const usedToken = accessToken;
   try {
-    return await request<T>(path, {
-      headers: { Authorization: `Bearer ${usedToken}` },
-    });
+    return await request<T>(
+      path,
+      {
+        ...options,
+        headers: { ...headers, Authorization: `Bearer ${usedToken}` },
+      },
+      envelope,
+    );
   } catch (error) {
     if (!(error instanceof ApiError) || error.status !== 401) throw error;
-    if (accessToken === usedToken) await refreshSession();
-    // A single retry; a second 401 never enters another refresh loop.
     try {
-      return await request<T>(path, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      if (accessToken === usedToken) await refreshSession();
+      return await request<T>(
+        path,
+        {
+          ...options,
+          headers: { ...headers, Authorization: `Bearer ${accessToken}` },
+        },
+        envelope,
+      );
     } catch (retryError) {
-      if (retryError instanceof ApiError && retryError.status === 401)
+      if (retryError instanceof ApiError && retryError.status === 401) {
         clearSession();
+        expiredSession();
+      }
       throw retryError;
     }
   }

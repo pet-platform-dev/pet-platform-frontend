@@ -22,6 +22,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     const channel = new BroadcastChannel("pet-platform-session");
     channel.onmessage = (event) => {
       clearSession();
+      client.removeQueries({ queryKey: ["my-pets"] });
+      client.removeQueries({ queryKey: ["pet"] });
       void client.cancelQueries();
       if (event.data === "logout") {
         client.setQueryData(sessionKey, null);
@@ -29,7 +31,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         void client.resetQueries({ queryKey: sessionKey });
       }
     };
-    return () => channel.close();
+    const expire = () => {
+      void client.cancelQueries();
+      client.removeQueries({ queryKey: ["my-pets"] });
+      client.removeQueries({ queryKey: ["pet"] });
+      client.setQueryData(sessionKey, null);
+    };
+    window.addEventListener("pet-platform-session-expired", expire);
+    return () => {
+      channel.close();
+      window.removeEventListener("pet-platform-session-expired", expire);
+    };
   }, [client]);
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }

@@ -45,7 +45,9 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         : { email, password };
     try {
       const user = await signIn(mode, input);
-      await client.cancelQueries({ queryKey: sessionKey });
+      await client.cancelQueries();
+      client.removeQueries({ queryKey: ["my-pets"] });
+      client.removeQueries({ queryKey: ["pet"] });
       client.setQueryData(sessionKey, user);
       notifySessionChange();
       router.replace("/account");

@@ -15,9 +15,14 @@ export function Header() {
         {isPending ? (
           <span className="muted">Зачекайте…</span>
         ) : data ? (
-          <Link className="button secondary compact" href="/account">
-            Мій профіль
-          </Link>
+          <>
+            <Link className="nav-link" href="/pets">
+              Мої тварини
+            </Link>
+            <Link className="button secondary compact" href="/account">
+              Мій профіль
+            </Link>
+          </>
         ) : (
           <>
             <Link className="nav-link" href="/login">
