@@ -17,6 +17,15 @@ export function petOptionLabel(pet: Pet) {
 }
 export function createListingError(error: unknown) {
   if (error instanceof ApiError) {
+    if (
+      [
+        "Оберіть доступний вид тварини",
+        "Оберіть доступну породу для вибраного виду тварини",
+        "Оберіть власні завантажені фотографії",
+        "Сесію завантаження не знайдено або завершено",
+      ].includes(error.message)
+    )
+      return error.message;
     if (error.status === 409)
       return "Для цієї тварини вже існує незавершене оголошення.";
     if (error.status === 404) return "Не вдалося використати цю тварину.";

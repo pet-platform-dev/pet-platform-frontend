@@ -178,10 +178,10 @@ test("named option keeps name secondary; blank breed translation and missing bre
     }).startsWith("Собака · Породу не вказано"),
   );
 });
-test("authenticated form uses accessible own-Pet/location choices and SALE-only price", () => {
+test("authenticated form defaults to new animal and keeps accessible listing fields", () => {
   const html = page();
   for (const label of [
-    "Тварина",
+    "Вид тварини",
     "Тип оголошення",
     "Місце",
     "Заголовок",
@@ -193,16 +193,18 @@ test("authenticated form uses accessible own-Pet/location choices and SALE-only 
   ])
     assert.ok(html.includes(label));
   assert.ok(html.includes("<legend>Тип оголошення</legend>"));
-  assert.ok(html.includes(`value="${petId}"`));
+  assert.ok(html.includes('name="animalMode" checked=""'));
+  assert.ok(html.includes("Нова тварина"));
+  assert.ok(html.includes("Вибрати з моїх тварин"));
   assert.ok(html.includes("Оголошення буде створене як чернетка."));
   assert.ok(html.includes("Створити чернетку"));
   assert.ok(!html.includes('name="sellerId"'));
 });
-test("no-Pets state offers existing /pets/new and omits unusable form", () => {
+test("no existing Pets still allows unified animal/listing creation", () => {
   const html = page([]);
-  assert.ok(html.includes("У вас ще немає доданих тварин"));
-  assert.ok(html.includes('href="/pets/new"'));
-  assert.ok(!html.includes("<form"));
+  assert.ok(html.includes("Нова тварина"));
+  assert.ok(!html.includes("Спочатку додайте профіль"));
+  assert.ok(html.includes("<form"));
 });
 test("location reference is searched within the form without eagerly loading every settlement", () => {
   const html = page();
@@ -212,7 +214,9 @@ test("location reference is searched within the form without eagerly loading eve
 });
 test("loading and failed form reference requests have status/retry without raw diagnostics", () => {
   assert.ok(
-    render(React.createElement(CreateListingPage)).includes('role="status"'),
+    render(React.createElement(CreateListingPage)).includes(
+      "Завантажуємо види",
+    ),
   );
   const q = client();
   q.getQueryCache()
@@ -223,7 +227,7 @@ test("loading and failed form reference requests have status/retry without raw d
       fetchStatus: "idle",
     });
   const html = render(React.createElement(CreateListingPage), q);
-  assert.ok(html.includes("Спробувати ще раз"));
+  assert.ok(html.includes("Створити чернетку"));
   assert.ok(!html.includes("PRIVATE_DIAGNOSTIC"));
 });
 test("session guard hides form during anonymous restoration and for logged-out user", () => {

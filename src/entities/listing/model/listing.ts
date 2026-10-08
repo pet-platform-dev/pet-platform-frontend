@@ -21,6 +21,25 @@ export const listingSchema = z
     closedAt: z.string().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
+    images: z
+      .array(
+        z.object({
+          id: z.string(),
+          url: z
+            .url()
+            .regex(
+              /^https:\/\/res\.cloudinary\.com\/[a-zA-Z0-9_-]+\/image\/upload\//,
+            ),
+          thumbnailUrl: z
+            .url()
+            .regex(
+              /^https:\/\/res\.cloudinary\.com\/[a-zA-Z0-9_-]+\/image\/upload\//,
+            ),
+          sortOrder: z.number().int().nonnegative(),
+        }),
+      )
+      .max(10)
+      .default([]),
     pet: z.object({
       id: z.string(),
       name: z.string().nullable(),

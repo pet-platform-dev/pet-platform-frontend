@@ -27,10 +27,17 @@ async function request<T>(
   try {
     response = await fetch(`${baseUrl}${path}`, {
       ...options,
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(
+        options.body instanceof FormData ? 45000 : 15000,
+      ),
       credentials: "include",
       cache: "no-store",
-      headers: { "Content-Type": "application/json", ...options.headers },
+      headers: {
+        ...(options.body instanceof FormData
+          ? {}
+          : { "Content-Type": "application/json" }),
+        ...options.headers,
+      },
     });
   } catch {
     throw new ApiError(0, "Не вдалося виконати запит. Спробуйте ще раз.");
@@ -42,9 +49,17 @@ async function request<T>(
       403: "Оновіть сторінку та спробуйте знову",
       409: "Користувач із такою електронною адресою вже існує",
       429: "Забагато запитів. Спробуйте за хвилину",
+      413: "Файл завеликий",
     };
     const errorBody: unknown = await response.json().catch(() => null);
     const known = new Set([
+      "Завантаження фото не налаштовано. Зверніться до адміністратора",
+      "Формат зображення не підтримується",
+      "Файл завеликий",
+      "Можна додати не більше 10 фотографій",
+      "Оберіть власні завантажені фотографії",
+      "Сесію завантаження не знайдено або завершено",
+      "Забагато сесій завантаження. Спробуйте пізніше",
       "Вкажіть ім’я тварини",
       "Ім’я має містити не більше 150 символів",
       "Некоректний ідентифікатор",

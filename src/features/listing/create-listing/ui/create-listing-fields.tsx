@@ -1,19 +1,15 @@
 "use client";
 import { useWatch, type UseFormReturn } from "react-hook-form";
-import type { Pet } from "@/entities/pet/model";
 import type { Location } from "@/entities/location/model";
 import { listingTypeLabels } from "@/entities/listing/model/presentation";
 import type { CreateListingFormInput } from "../model/schema";
 import { LocationSelector } from "@/entities/location/location-selector";
-import { petOptionLabel } from "../model/presentation";
 export function CreateListingFields({
   form,
-  pets,
   location,
   onLocation,
 }: {
   form: UseFormReturn<CreateListingFormInput>;
-  pets: Pet[];
   location: Location | null;
   onLocation: (location: Location | null) => void;
 }) {
@@ -33,18 +29,7 @@ export function CreateListingFields({
   const typeField = form.register("type");
   return (
     <>
-      <div className="field">
-        <label htmlFor="petId">Тварина</label>
-        <select id="petId" {...form.register("petId")} {...attrs("petId")}>
-          <option value="">Оберіть тварину</option>
-          {pets.map((pet) => (
-            <option key={pet.id} value={pet.id}>
-              {petOptionLabel(pet)}
-            </option>
-          ))}
-        </select>
-        {message("petId")}
-      </div>
+      <h2>Оголошення</h2>
       <fieldset
         className="listing-type-options"
         aria-describedby={error("type") ? "type-error" : undefined}

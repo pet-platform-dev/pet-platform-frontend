@@ -369,6 +369,9 @@ try {
     .first()
     .getByRole("button")
     .click();
+  await page
+    .getByRole("radio", { name: "Вибрати з моїх тварин", exact: true })
+    .check();
   await page.getByLabel("Тварина", { exact: true }).selectOption({ index: 1 });
   await page.getByLabel("Безкоштовно", { exact: true }).check();
   await page

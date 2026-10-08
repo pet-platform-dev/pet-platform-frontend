@@ -12,7 +12,7 @@ import {
   sellerName,
   supportingListingTitle,
 } from "@/entities/listing/model/detail-presentation";
-import { ListingPlaceholder } from "@/entities/listing/ui/listing-placeholder";
+import { ListingGallery } from "@/entities/listing/ui/listing-gallery";
 import { speciesLabel } from "@/entities/species/model";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 
@@ -28,7 +28,7 @@ export function ListingDetailContent({ listing }: { listing: Listing }) {
     <>
       <div className="listing-detail-grid">
         <div className="listing-detail-media">
-          <ListingPlaceholder species={pet.species.slug} />
+          <ListingGallery listing={listing} />
         </div>
         <section
           className="listing-detail-summary"

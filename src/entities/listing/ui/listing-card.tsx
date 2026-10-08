@@ -24,7 +24,19 @@ export function ListingCard({ listing }: { listing: Listing }) {
         prefetch={false}
         aria-label={`Переглянути оголошення: ${listingHeading(pet)} — ${listingPrice(listing)}`}
       >
-        <ListingPlaceholder species={pet.species.slug} />
+        {listing.images?.length ? (
+          // eslint-disable-next-line @next/next/no-img-element -- Cloudinary delivers a 480px optimized cover.
+          <img
+            className="listing-cover"
+            src={listing.images[0].thumbnailUrl}
+            alt={`${listingHeading(pet)} — фото 1`}
+            width="480"
+            height="360"
+            loading="lazy"
+          />
+        ) : (
+          <ListingPlaceholder species={pet.species.slug} />
+        )}
         <div className="listing-card-body">
           <span
             className={`listing-type listing-type-${listing.type.toLowerCase()}`}
