@@ -10,6 +10,7 @@ import {
 } from "../model/presentation";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 import { ListingPlaceholder } from "./listing-placeholder";
+import { ListingImage } from "./listing-image";
 export function ListingCard({ listing }: { listing: Listing }) {
   const { pet } = listing;
   const age = formatPetAge(pet.birthDate);
@@ -25,8 +26,8 @@ export function ListingCard({ listing }: { listing: Listing }) {
         aria-label={`Переглянути оголошення: ${listingHeading(pet)} — ${listingPrice(listing)}`}
       >
         {listing.images?.length ? (
-          // eslint-disable-next-line @next/next/no-img-element -- Cloudinary delivers a 480px optimized cover.
-          <img
+          <ListingImage
+            species={pet.species.slug}
             className="listing-cover"
             src={listing.images[0].thumbnailUrl}
             alt={`${listingHeading(pet)} — фото 1`}

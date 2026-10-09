@@ -6,7 +6,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { ApiError, signIn } from "@/shared/api/client";
 import { loginSchema, registerSchema } from "./validation";
-import { notifySessionChange, sessionKey } from "./session-provider";
+import {
+  clearPrivateQueries,
+  notifySessionChange,
+  sessionKey,
+} from "./session-provider";
+import { clearFormRecovery } from "@/features/listing/form-recovery";
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const registering = mode === "register";
@@ -45,9 +50,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         : { email, password };
     try {
       const user = await signIn(mode, input);
-      await client.cancelQueries();
-      client.removeQueries({ queryKey: ["my-pets"] });
-      client.removeQueries({ queryKey: ["pet"] });
+      clearFormRecovery(user.id);
+      clearPrivateQueries(client);
       client.setQueryData(sessionKey, user);
       notifySessionChange();
       router.replace("/account");

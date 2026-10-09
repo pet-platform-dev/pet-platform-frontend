@@ -8,14 +8,24 @@ import { petFormSchema, todayKyiv } from "@/features/pet/validation";
 import { getSpecies } from "@/features/pet/api";
 import { speciesLabel } from "@/entities/species/model";
 import { BreedSelector, type BreedChoice } from "@/features/pet/breed-selector";
+import { recoveredForm, useFormRecovery } from "../../form-recovery";
 export type NewAnimalHandle = {
   validate: () => Promise<z.output<typeof petFormSchema> | null>;
 };
 type Input = z.input<typeof petFormSchema>;
-export function NewAnimalFields({ ref }: { ref: Ref<NewAnimalHandle> }) {
+export function NewAnimalFields({
+  ref,
+  recoveryKey,
+}: {
+  ref: Ref<NewAnimalHandle>;
+  recoveryKey?: string;
+}) {
+  const [recovered] = useState(() =>
+    recoveredForm<{ input: Input; breed: BreedChoice | null }>(recoveryKey),
+  );
   const form = useForm<Input, undefined, z.output<typeof petFormSchema>>({
     resolver: zodResolver(petFormSchema),
-    defaultValues: {
+    defaultValues: recovered?.input ?? {
       name: "",
       speciesId: "",
       breedId: "",
@@ -31,8 +41,11 @@ export function NewAnimalFields({ ref }: { ref: Ref<NewAnimalHandle> }) {
   });
   const species = useQuery({ queryKey: ["species"], queryFn: getSpecies }),
     speciesId = useWatch({ control: form.control, name: "speciesId" });
-  const [breed, setBreed] = useState<BreedChoice | null>(null),
+  const [breed, setBreed] = useState<BreedChoice | null>(
+      recovered?.breed ?? null,
+    ),
     [searching, setSearching] = useState(false);
+  useFormRecovery(recoveryKey, form, { breed });
   useImperativeHandle(
     ref,
     () => ({

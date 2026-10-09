@@ -15,7 +15,8 @@ export function ListingActions({
   showArchive?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
-    trigger = useRef<HTMLButtonElement | null>(null);
+    trigger = useRef<HTMLButtonElement | null>(null),
+    submitted = useRef(false);
   const [action, setAction] = useState<{
     status: Status;
     question: string;
@@ -99,7 +100,15 @@ export function ListingActions({
             type="button"
             disabled={mutation.isPending}
             className="button primary"
-            onClick={() => action && mutation.mutate(action.status)}
+            onClick={() => {
+              if (!action || submitted.current) return;
+              submitted.current = true;
+              mutation.mutate(action.status, {
+                onSettled: () => {
+                  submitted.current = false;
+                },
+              });
+            }}
           >
             {mutation.isPending ? "Змінюємо…" : "Підтвердити"}
           </button>

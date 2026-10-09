@@ -10,10 +10,14 @@ import {
   listingLocation,
   listingDate,
   listingTypeLabels,
+  listingGender,
 } from "@/entities/listing/model/presentation";
 import { ListingPlaceholder } from "@/entities/listing/ui/listing-placeholder";
+import { ListingImage } from "@/entities/listing/ui/listing-image";
 import { getOwnListings } from "./api";
 import { ListingActions } from "./listing-actions";
+import { ListingManagementSkeleton } from "./listing-management-skeleton";
+import { formatPetAge } from "@/shared/lib/format-pet-age";
 import {
   statusGroups,
   statusLabels,
@@ -26,8 +30,8 @@ export function OwnerListingCard({ listing }: { listing: OwnListing }) {
     <article className="owner-listing-card">
       <div className="owner-cover">
         {listing.images.length ? (
-          // eslint-disable-next-line @next/next/no-img-element -- provider optimized cover
-          <img
+          <ListingImage
+            species={listing.pet.species.slug}
             src={listing.images[0].thumbnailUrl}
             alt={listingHeading(listing.pet)}
             width="480"
@@ -45,15 +49,23 @@ export function OwnerListingCard({ listing }: { listing: OwnListing }) {
           {statusLabels[listing.status]}
         </span>
         <h2>{listingHeading(listing.pet)}</h2>
-        {listing.pet.name?.trim() && (
-          <p className="muted">Ім’я: {listing.pet.name}</p>
-        )}
+        <p className="muted">
+          {[
+            formatPetAge(listing.pet.birthDate),
+            listingGender(listing.pet.gender),
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
         <p>{listingLocation(listing.location)}</p>
         <p>
           {listing.type === "SALE"
             ? `${listingTypeLabels.SALE} · ${listingPrice(listing)}`
             : listingPrice(listing)}
         </p>
+        {listing.pet.name?.trim() && (
+          <p className="muted">Ім’я: {listing.pet.name.trim()}</p>
+        )}
         <p className="muted">
           Оновлено:{" "}
           <time dateTime={listing.updatedAt}>
@@ -111,6 +123,7 @@ function OwnList() {
             type="button"
             className={`button ${key === group ? "primary" : "secondary"}`}
             aria-pressed={key === group}
+            aria-current={key === group ? "true" : undefined}
             onClick={() => setGroup(key as StatusGroup)}
           >
             {value.label}
@@ -118,7 +131,7 @@ function OwnList() {
         ))}
       </nav>
       {query.isPending ? (
-        <p role="status">Завантажуємо оголошення…</p>
+        <ListingManagementSkeleton />
       ) : query.isError ? (
         <div role="alert">
           <p>Не вдалося завантажити ваші оголошення.</p>

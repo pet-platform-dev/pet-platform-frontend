@@ -55,6 +55,8 @@ export async function getOwnedListing(
   userId: string,
   signal?: AbortSignal,
 ): Promise<OwnListing> {
+  if (!z.uuid().safeParse(id).success)
+    throw new ApiError(404, "Оголошення не знайдено");
   const listing = ownListingSchema.parse(
     await authenticatedRequest<unknown>(`/listings/${id}`, { signal }),
   );
@@ -99,6 +101,8 @@ export async function invalidateListings(client: QueryClient, id: string) {
   );
 }
 export function managementError(error: unknown, fallback: string) {
+  if (error instanceof ApiError && error.status === 401)
+    return "Сесію завершено. Увійдіть знову.";
   if (error instanceof ApiError && [400, 409].includes(error.status)) {
     const known = [
       "Додайте щонайменше",

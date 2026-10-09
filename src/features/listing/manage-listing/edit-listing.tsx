@@ -33,6 +33,12 @@ import {
   type OwnListing,
 } from "./model";
 import { ListingActions } from "./listing-actions";
+import { ListingManagementSkeleton } from "./listing-management-skeleton";
+import {
+  recoveredForm,
+  useFormRecovery,
+  forgetRecoveredForm,
+} from "../form-recovery";
 function Editor({
   listing,
   setMessage,
@@ -40,8 +46,14 @@ function Editor({
   listing: OwnListing;
   setMessage: (message: string) => void;
 }) {
+  const recoveryKey = `${listing.seller.id}:edit:${listing.id}`;
+  const [recovered] = useState(() =>
+    recoveredForm<{ input: CreateListingFormInput; location: Location | null }>(
+      recoveryKey,
+    ),
+  );
   const [location, setLocation] = useState<Location | null>({
-    ...listing.location,
+    ...(recovered?.location ?? listing.location),
     district: null,
     community: null,
     settlementType: null,
@@ -57,14 +69,22 @@ function Editor({
         ? draftListingFormSchema
         : createListingFormSchema,
     ),
-    defaultValues: {
-      petId: listing.pet.id,
-      locationId: listing.location.id,
-      type: listing.type,
-      title: listing.title,
-      description: listing.description,
-      price: listing.price ?? "",
-    },
+    defaultValues: recovered
+      ? {
+          ...recovered.input,
+          ...(listing.status !== "DRAFT" ? { type: listing.type } : {}),
+        }
+      : {
+          petId: listing.pet.id,
+          locationId: listing.location.id,
+          type: listing.type,
+          title: listing.title,
+          description: listing.description,
+          price: listing.price ?? "",
+        },
+  });
+  useFormRecovery(editable(listing.status) ? recoveryKey : undefined, form, {
+    location,
   });
   const mutation = useMutation({
     retry: false,
@@ -93,6 +113,7 @@ function Editor({
           ? { uploadSessionId: photos.uploadSessionId }
           : {}),
       });
+      forgetRecoveredForm(recoveryKey);
       if (publish) {
         try {
           const result = await changeListingStatus(listing.id, "ACTIVE");
@@ -187,6 +208,12 @@ function Editor({
   return (
     <section className="pet-form-card listing-create-card">
       <h1>Редагувати оголошення</h1>
+      {recovered && (
+        <p role="status" className="form-hint">
+          Відновлено незбережений текст у цій вкладці. Перевірте фотографії та
+          додайте нові знову.
+        </p>
+      )}
       <p className="listing-status">{statusLabels[listing.status]}</p>
       <p>
         {listingHeading(listing.pet)}
@@ -269,7 +296,7 @@ function LoadEditor({ id }: { id: string }) {
     queryKey: ["owned-listing", id, session.data!.id],
     queryFn: ({ signal }) => getOwnedListing(id, session.data!.id, signal),
   });
-  if (query.isPending) return <p role="status">Завантажуємо оголошення…</p>;
+  if (query.isPending) return <ListingManagementSkeleton editor />;
   if (query.isError)
     return (
       <section className="catalog-state">
@@ -278,6 +305,14 @@ function LoadEditor({ id }: { id: string }) {
             ? "Оголошення не знайдено"
             : "Не вдалося завантажити оголошення."}
         </h1>
+        {!(query.error instanceof ApiError && query.error.status === 404) && (
+          <button
+            className="button secondary"
+            onClick={() => void query.refetch()}
+          >
+            Спробувати ще раз
+          </button>
+        )}
         <Link href="/my-listings" className="button secondary">
           Мої оголошення
         </Link>

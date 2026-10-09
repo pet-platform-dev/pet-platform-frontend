@@ -1,9 +1,9 @@
 "use client";
-/* eslint-disable @next/next/no-img-element -- Provider URLs already resize and optimize images. */
 import { useState } from "react";
 import type { Listing } from "../model/listing";
 import { listingHeading } from "../model/presentation";
 import { ListingPlaceholder } from "./listing-placeholder";
+import { ListingImage } from "./listing-image";
 export function ListingGallery({ listing }: { listing: Listing }) {
   const [selected, setSelected] = useState(0);
   if (!listing.images?.length)
@@ -12,7 +12,8 @@ export function ListingGallery({ listing }: { listing: Listing }) {
     image = listing.images[selected] ?? listing.images[0];
   return (
     <div className="listing-gallery">
-      <img
+      <ListingImage
+        species={listing.pet.species.slug}
         className="listing-gallery-main"
         src={image.url}
         alt={`${heading} — фото ${selected + 1}`}
@@ -33,7 +34,8 @@ export function ListingGallery({ listing }: { listing: Listing }) {
               aria-pressed={selected === index}
               onClick={() => setSelected(index)}
             >
-              <img
+              <ListingImage
+                species={listing.pet.species.slug}
                 src={image.thumbnailUrl}
                 alt={`${heading} — фото ${index + 1}`}
                 width="120"

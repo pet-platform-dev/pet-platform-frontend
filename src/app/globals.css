@@ -1571,7 +1571,8 @@ form {
   gap: 20px;
   margin-bottom: 24px;
 }
-.owner-listing-card {
+.owner-listing-card,
+.owner-listing-skeleton {
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr);
   border: 1px solid #e5e0d7;
@@ -1592,6 +1593,19 @@ form {
   min-width: 0;
   padding: 24px;
   overflow-wrap: anywhere;
+}
+.owner-skeleton-input {
+  height: 48px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+.owner-cover > .listing-visual {
+  height: 100%;
+}
+.listing-gallery-thumbnails .listing-visual {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
 }
 .owner-card-body h2 {
   margin: 12px 0;
@@ -1617,7 +1631,16 @@ form {
   color: #5c5b58;
 }
 @media (max-width: 600px) {
-  .owner-listing-card {
+  .owner-status-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 4px;
+  }
+  .owner-status-filters button {
+    flex-shrink: 0;
+  }
+  .owner-listing-card,
+  .owner-listing-skeleton {
     grid-template-columns: minmax(0, 1fr);
   }
   .owner-cover {

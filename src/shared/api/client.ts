@@ -7,6 +7,7 @@ let expiresAt = 0;
 let csrfToken: string | null = null;
 let csrfPromise: Promise<string> | null = null;
 let refreshPromise: Promise<User> | null = null;
+let sessionGeneration = 0;
 
 export class ApiError extends Error {
   constructor(
@@ -53,7 +54,10 @@ async function request<T>(
       400: "Перевірте правильність заповнення полів",
       401: "Сесію завершено. Увійдіть знову",
       403: "Оновіть сторінку та спробуйте знову",
-      409: "Користувач із такою електронною адресою вже існує",
+      409:
+        path === "/auth/register"
+          ? "Користувач із такою електронною адресою вже існує"
+          : "Дані змінилися. Оновіть сторінку та спробуйте знову",
       429: "Забагато запитів. Спробуйте за хвилину",
       413: "Файл завеликий",
     };
@@ -165,6 +169,7 @@ function accept(data: AuthResult): User {
   return data.user;
 }
 export function clearSession(): void {
+  sessionGeneration++;
   accessToken = null;
   expiresAt = 0;
 }
@@ -175,7 +180,9 @@ export async function signIn(
 ): Promise<User> {
   return authLock(async () => {
     try {
-      return accept(await mutate<AuthResult>(`/auth/${mode}`, input));
+      const result = await mutate<AuthResult>(`/auth/${mode}`, input);
+      clearSession();
+      return accept(result);
     } catch (error) {
       if (error instanceof ApiError && error.status === 401)
         throw new ApiError(401, "Невірна електронна адреса або пароль");
@@ -185,16 +192,24 @@ export async function signIn(
 }
 
 export function refreshSession(): Promise<User> {
-  refreshPromise ??= authLock(async () => {
+  if (refreshPromise) return refreshPromise;
+  const generation = sessionGeneration;
+  const pending = authLock(async () => {
     try {
-      return accept(await mutate<AuthResult>("/auth/refresh"));
+      if (generation !== sessionGeneration)
+        throw new DOMException("Session changed", "AbortError");
+      const result = await mutate<AuthResult>("/auth/refresh");
+      if (generation !== sessionGeneration)
+        throw new DOMException("Session changed", "AbortError");
+      return accept(result);
     } catch (error) {
-      clearSession();
+      if (generation === sessionGeneration) clearSession();
       throw error;
     }
   }).finally(() => {
-    refreshPromise = null;
+    if (refreshPromise === pending) refreshPromise = null;
   });
+  refreshPromise = pending;
   return refreshPromise;
 }
 
@@ -210,12 +225,14 @@ export async function authenticatedRequest<T>(
   options: RequestInit = {},
   envelope = false,
 ): Promise<T> {
+  options.signal?.throwIfAborted();
   try {
     if (!accessToken || expiresAt <= Date.now() + 5000) await refreshSession();
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) expiredSession();
     throw error;
   }
+  options.signal?.throwIfAborted();
   const headers = {
     ...options.headers,
     ...(["POST", "PATCH", "DELETE"].includes(options.method ?? "GET")

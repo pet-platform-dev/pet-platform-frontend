@@ -334,7 +334,7 @@ try {
   );
   assert.equal((await detail(sale.id)).images[0].id, before);
   pass("Backend final-photo invariant and retained cover");
-  await confirmed("Позначити як продане");
+  await confirmed("Позначити як продано");
   assert.equal((await detail(sale.id)).status, "SOLD");
   pass("SALE completion requires accessible confirmation");
   assert.equal(
@@ -354,8 +354,8 @@ try {
   assert.equal(await page.locator("form").count(), 0);
   pass("Completed editor is read-only");
   for (const [type, label, status] of [
-    ["FREE", "Позначити як передане", "TRANSFERRED"],
-    ["ADOPTION", "Позначити як прилаштоване", "ADOPTED"],
+    ["FREE", "Позначити як передано", "TRANSFERRED"],
+    ["ADOPTION", "Позначити як прилаштовано", "ADOPTED"],
   ]) {
     const item = await fixture(type, true);
     await data(

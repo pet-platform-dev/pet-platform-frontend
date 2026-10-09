@@ -48,13 +48,26 @@ export function ListingImages({
     [busy, setBusy] = useState(false);
   const session = useRef<string | undefined>(undefined),
     urls = useRef(new Set<string>()),
-    locked = useRef(false);
-  useEffect(
-    () => () => {
-      for (const url of urls.current) URL.revokeObjectURL(url);
-    },
-    [],
-  );
+    locked = useRef(false),
+    requests = useRef(new AbortController());
+  useEffect(() => {
+    requests.current = new AbortController();
+    const controller = requests.current;
+    const previews = urls.current;
+    return () => {
+      controller.abort();
+      for (const url of previews) URL.revokeObjectURL(url);
+    };
+  }, []);
+  useEffect(() => {
+    if (!busy) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [busy]);
   useImperativeHandle(
     ref,
     () => ({
@@ -84,8 +97,10 @@ export function ListingImages({
     setBusy(true);
     onBusy(true);
     setError("");
+    const signal = requests.current.signal;
     try {
       for (const item of batch) {
+        if (signal.aborted) break;
         setItems((old) =>
           old.map((value) =>
             value.key === item.key
@@ -97,14 +112,14 @@ export function ListingImages({
           session.current ??= (
             await authenticatedRequest<{ uploadSessionId: string }>(
               "/uploads/listings/session",
-              { method: "POST" },
+              { method: "POST", signal },
             )
           ).uploadSessionId;
           const body = new FormData();
           body.append("file", item.file!);
           const asset = await authenticatedRequest<{ id: string }>(
             `/uploads/listings/${session.current}/images`,
-            { method: "POST", body },
+            { method: "POST", body, signal },
           );
           setItems((old) =>
             old.map((value) =>
@@ -179,7 +194,7 @@ export function ListingImages({
       if (item.id && !item.existing)
         await authenticatedRequest(
           `/uploads/listings/${session.current}/images/${item.id}`,
-          { method: "DELETE" },
+          { method: "DELETE", signal: requests.current.signal },
         );
       setItems((old) => old.filter((value) => value.key !== item.key));
       if (!item.existing) URL.revokeObjectURL(item.preview);

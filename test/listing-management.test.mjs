@@ -102,9 +102,9 @@ test("status grouping keeps reserved moderation states out of dedicated tabs", (
   assert.ok(!Object.keys(statusGroups).includes("pending"));
 });
 for (const [type, status, label] of [
-  ["SALE", "SOLD", "продане"],
-  ["FREE", "TRANSFERRED", "передане"],
-  ["ADOPTION", "ADOPTED", "прилаштоване"],
+  ["SALE", "SOLD", "продано"],
+  ["FREE", "TRANSFERRED", "передано"],
+  ["ADOPTION", "ADOPTED", "прилаштовано"],
 ])
   test(`${type} exposes its valid confirmed completion action`, () => {
     assert.equal(completion(type).status, status);
@@ -223,6 +223,11 @@ test("draft permits missing SALE price while publication validation requires it"
   assert.equal(createListingFormSchema.safeParse(input).success, false);
   assert.equal(
     ownListingSchema.safeParse({ ...listing, price: null }).success,
+    true,
+  );
+  assert.equal(
+    ownListingSchema.safeParse({ ...listing, status: "ARCHIVED", price: null })
+      .success,
     true,
   );
   assert.equal(

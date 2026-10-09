@@ -39,6 +39,62 @@ const reply = (data, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 
+test("an in-flight refresh cannot restore access after a logout/account change", async () => {
+  const client = await load("../src/shared/api/client.ts");
+  const saved = globalThis.fetch;
+  let finish, started;
+  const ready = new Promise((resolve) => {
+    started = resolve;
+  });
+  globalThis.fetch = async (url) => {
+    if (url.endsWith("/csrf")) return reply({ csrfToken: "csrf" });
+    if (url.endsWith("/refresh")) {
+      started();
+      return new Promise((resolve) => {
+        finish = () => resolve(reply(auth));
+      });
+    }
+    throw new Error("Private request should never follow a discarded refresh");
+  };
+  try {
+    const pending = client.authenticatedRequest("/listings/me");
+    const rejected = assert.rejects(
+      pending,
+      (error) => error.name === "AbortError",
+    );
+    await ready;
+    client.clearSession();
+    finish();
+    await rejected;
+  } finally {
+    globalThis.fetch = saved;
+  }
+});
+test("conflicts keep registration wording only on registration and hide unknown provider diagnostics", async () => {
+  const client = await load("../src/shared/api/client.ts");
+  const saved = globalThis.fetch;
+  globalThis.fetch = async () =>
+    Response.json(
+      { message: "PRIVATE_CONSTRAINT_PROVIDER_SECRET" },
+      { status: 409 },
+    );
+  try {
+    await assert.rejects(
+      () => client.publicRequest("/listings"),
+      (error) =>
+        error.status === 409 &&
+        error.message === "Дані змінилися. Оновіть сторінку та спробуйте знову",
+    );
+    await assert.rejects(
+      () => client.publicRequest("/auth/register"),
+      (error) =>
+        error.message === "Користувач із такою електронною адресою вже існує",
+    );
+  } finally {
+    globalThis.fetch = saved;
+  }
+});
+
 test("login validates email, password and normalizes email", () => {
   assert.equal(
     validation.loginSchema.safeParse({ email: "bad", password: "short" })

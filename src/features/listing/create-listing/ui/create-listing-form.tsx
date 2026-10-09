@@ -25,8 +25,25 @@ import {
 } from "../../manage-listing/api";
 import { noImagesMessage } from "../../manage-listing/model";
 import type { UnifiedListingInput } from "../api/create-listing";
+import { useSession } from "@/features/auth/session-provider";
+import {
+  recoveredForm,
+  useFormRecovery,
+  forgetRecoveredForm,
+} from "../../form-recovery";
 export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
-  const [mode, setMode] = useState<"new" | "existing">("new");
+  const session = useSession();
+  const recoveryKey = session.data ? `${session.data.id}:create` : undefined;
+  const [recovered] = useState(() =>
+    recoveredForm<{
+      input: CreateListingFormInput;
+      location: Location | null;
+      mode: "new" | "existing";
+    }>(recoveryKey),
+  );
+  const [mode, setMode] = useState<"new" | "existing">(
+    recovered?.mode ?? "new",
+  );
   const [uploading, setUploading] = useState(false);
   const [publishError, setPublishError] = useState("");
   const action = useRef<"draft" | "publish">("draft");
@@ -35,16 +52,18 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
   const client = useQueryClient();
   const ownPets = useQuery({
     queryKey: ["my-pets", "listing-create"],
-    queryFn: getOwnPetChoices,
+    queryFn: ({ signal }) => getOwnPetChoices(signal),
     enabled: mode === "existing" && !pets,
   });
   const choices = pets ?? ownPets.data ?? [];
-  const [location, setLocation] = useState<Location | null>(null);
+  const [location, setLocation] = useState<Location | null>(
+    recovered?.location ?? null,
+  );
   const form = useForm<CreateListingFormInput>({
     resolver: zodResolver(
       draftListingFormSchema.safeExtend({ petId: z.string() }),
     ),
-    defaultValues: {
+    defaultValues: recovered?.input ?? {
       petId: "",
       locationId: "",
       type: "SALE",
@@ -59,10 +78,17 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
     },
     retry: false,
     onSuccess: (result) => {
+      if (recoveryKey) {
+        forgetRecoveredForm(recoveryKey);
+        forgetRecoveredForm(`${recoveryKey}:animal`);
+      }
       void client.invalidateQueries({ queryKey: ["my-pets"] });
-      void client.invalidateQueries({ queryKey: ["my-listings"] });
       void invalidateListings(client, result.id);
     },
+  });
+  useFormRecovery(mutation.data ? undefined : recoveryKey, form, {
+    location,
+    mode,
   });
   const locked = useRef(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -164,6 +190,12 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
       <p className="form-hint">
         Заповніть інформацію про тварину та умови передачі.
       </p>
+      {recovered && (
+        <p role="status" className="form-hint">
+          Відновлено незбережений текст у цій вкладці. Додайте фотографії знову
+          перед збереженням.
+        </p>
+      )}
       <form onSubmit={submit} noValidate aria-busy={pending}>
         <fieldset disabled={pending}>
           <ListingImages ref={images} onBusy={setUploading} />
@@ -194,7 +226,10 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
             </div>
           </fieldset>
           <div hidden={mode !== "new"}>
-            <NewAnimalFields ref={animal} />
+            <NewAnimalFields
+              ref={animal}
+              recoveryKey={recoveryKey ? `${recoveryKey}:animal` : undefined}
+            />
           </div>
           {mode === "existing" && (
             <div className="field">

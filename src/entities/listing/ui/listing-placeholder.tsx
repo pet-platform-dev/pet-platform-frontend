@@ -1,4 +1,10 @@
-export function ListingPlaceholder({ species }: { species: string }) {
+export function ListingPlaceholder({
+  species,
+  caption = "Фото ще не додано",
+}: {
+  species: string;
+  caption?: string;
+}) {
   return (
     <div
       className={`listing-visual ${species === "cat" ? "listing-visual-cat" : "listing-visual-dog"}`}
@@ -43,7 +49,7 @@ export function ListingPlaceholder({ species }: { species: string }) {
           </g>
         )}
       </svg>
-      <span className="listing-no-photo">Фото ще не додано</span>
+      <span className="listing-no-photo">{caption}</span>
     </div>
   );
 }

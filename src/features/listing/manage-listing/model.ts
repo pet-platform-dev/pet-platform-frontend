@@ -19,7 +19,8 @@ export const ownListingSchema = z
   })
   .refine((listing) =>
     listing.type === "SALE"
-      ? (listing.status === "DRAFT" && listing.price === null) ||
+      ? (["DRAFT", "ARCHIVED"].includes(listing.status) &&
+          listing.price === null) ||
         (listing.price !== null && Number(listing.price) > 0)
       : listing.price === null,
   );
@@ -42,18 +43,18 @@ export function completion(type: OwnListing["type"]) {
   return {
     SALE: {
       status: "SOLD",
-      label: "Позначити як продане",
-      question: "Позначити оголошення як продане?",
+      label: "Позначити як продано",
+      question: "Позначити тварину як продану?",
     },
     FREE: {
       status: "TRANSFERRED",
-      label: "Позначити як передане",
-      question: "Позначити оголошення як передане?",
+      label: "Позначити як передано",
+      question: "Позначити тварину як передану?",
     },
     ADOPTION: {
       status: "ADOPTED",
-      label: "Позначити як прилаштоване",
-      question: "Позначити оголошення як прилаштоване?",
+      label: "Позначити як прилаштовано",
+      question: "Позначити тварину як прилаштовану?",
     },
   }[type] as { status: Status; label: string; question: string };
 }
