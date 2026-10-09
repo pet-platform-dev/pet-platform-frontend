@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ApiError } from "@/shared/api/client";
 import { useLogout, useSession } from "./session-provider";
@@ -91,6 +92,9 @@ export function Account() {
           {message}
         </p>
       )}
+      <Link className="button primary" href="/profile">
+        Редагувати публічний профіль
+      </Link>
       <button className="button secondary" disabled={pending} onClick={exit}>
         {pending ? "Виходимо…" : "Вийти з акаунта"}
       </button>

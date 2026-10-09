@@ -19,8 +19,9 @@ const { ListingUnavailable, ListingDetailError } = await load(
 const { ListingCard } = await load("src/entities/listing/ui/listing-card.tsx");
 const { getListing } = await load("src/entities/listing/api/get-listing.ts");
 const { ApiError, signIn } = await load("src/shared/api/client.ts");
-const { listingMetadata, supportingListingTitle, sellerDesignation } =
-  await load("src/entities/listing/model/detail-presentation.ts");
+const { listingMetadata, supportingListingTitle } = await load(
+  "src/entities/listing/model/detail-presentation.ts",
+);
 const { isSessionQuery } = await load("src/features/auth/session-provider.tsx");
 const fixture = {
   id: "b3281413-c333-4752-9031-6a2df9274b1a",
@@ -57,10 +58,13 @@ const fixture = {
   },
   seller: {
     id: "seller",
-    firstName: "Олена",
-    lastName: "Коваль",
-    role: "USER",
-    verificationStatus: "UNVERIFIED",
+    displayName: "Олена Коваль",
+    location: null,
+    phone: null,
+    telegram: null,
+    viber: null,
+    whatsapp: null,
+    memberSince: "2026-10-01T00:00:00Z",
   },
 };
 const render = (listing = fixture) =>
@@ -119,6 +123,7 @@ test("SALE formats UAH prominently, FREE and ADOPTION have text price and badge"
 });
 test("details retain Ukrainian age/gender/location/species and publication metadata", () => {
   const html = render();
+  assert.ok(!html.includes("Приватний продавець"));
   for (const text of [
     "Хлопчик",
     "Світловодськ, Кіровоградська область",
@@ -151,10 +156,10 @@ test("description stays plain escaped text with paragraph breaks and no HTML exe
   assert.ok(!html.includes("<script>"));
   assert.ok(html.includes("listing-description-text"));
 });
-test("seller uses public name/initial/designation without contact, status enum or invented controls", () => {
+test("seller uses full chosen public name and profile link without private registration fields", () => {
   const html = render();
-  assert.ok(html.includes("Олена К."));
-  assert.ok(!html.includes("Коваль"));
+  assert.ok(html.includes("Олена Коваль"));
+  assert.ok(html.includes("/sellers/seller"));
   for (const text of [
     "email",
     "phone",
@@ -165,14 +170,6 @@ test("seller uses public name/initial/designation without contact, status enum o
     "UNVERIFIED",
   ])
     assert.ok(!html.includes(text));
-  assert.equal(
-    sellerDesignation({ ...fixture.seller, role: "BREEDER" }),
-    "Заводчик",
-  );
-  assert.equal(
-    sellerDesignation({ ...fixture.seller, role: "ADMIN" }),
-    "Користувач",
-  );
 });
 test("curated breed fallback and missing breed preserve a meaningful primary identity", () => {
   for (const nameUk of [null, "", "  "])

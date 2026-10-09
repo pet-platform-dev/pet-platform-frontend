@@ -2,12 +2,7 @@ import type { Listing } from "./listing";
 import { listingHeading, listingPrice } from "./presentation";
 
 export function sellerName(seller: Listing["seller"]): string {
-  const firstName = seller.firstName.trim();
-  const initial = Array.from(seller.lastName?.trim() ?? "")[0];
-  return initial ? `${firstName} ${initial}.` : firstName;
-}
-export function sellerDesignation(seller: Listing["seller"]): string {
-  return seller.role === "BREEDER" ? "Заводчик" : "Користувач";
+  return seller.displayName;
 }
 export function supportingListingTitle(listing: Listing): string | null {
   const title = listing.title.trim();

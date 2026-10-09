@@ -7,14 +7,11 @@ import {
   listingPrice,
   listingTypeLabels,
 } from "@/entities/listing/model/presentation";
-import {
-  sellerDesignation,
-  sellerName,
-  supportingListingTitle,
-} from "@/entities/listing/model/detail-presentation";
+import { supportingListingTitle } from "@/entities/listing/model/detail-presentation";
 import { ListingGallery } from "@/entities/listing/ui/listing-gallery";
 import { speciesLabel } from "@/entities/species/model";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
+import { SellerCard } from "@/entities/seller/seller-card";
 
 export function ListingDetailContent({ listing }: { listing: Listing }) {
   const { pet } = listing;
@@ -100,16 +97,7 @@ export function ListingDetailContent({ listing }: { listing: Listing }) {
               )}
             </dl>
           </section>
-          <section
-            className="listing-detail-panel listing-seller-panel"
-            aria-labelledby="listing-seller"
-          >
-            <h2 id="listing-seller">Продавець</h2>
-            <p className="listing-seller-name">{sellerName(listing.seller)}</p>
-            <p className="listing-seller-designation">
-              {sellerDesignation(listing.seller)}
-            </p>
-          </section>
+          <SellerCard seller={listing.seller} />
         </div>
       </div>
     </>

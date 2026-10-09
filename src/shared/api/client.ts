@@ -213,8 +213,12 @@ export function refreshSession(): Promise<User> {
   return refreshPromise;
 }
 
-export function publicRequest<T>(path: string, envelope = false): Promise<T> {
-  return request<T>(path, {}, envelope);
+export function publicRequest<T>(
+  path: string,
+  envelope = false,
+  options: Pick<RequestInit, "signal"> = {},
+): Promise<T> {
+  return request<T>(path, options, envelope);
 }
 function expiredSession() {
   if (typeof window !== "undefined")

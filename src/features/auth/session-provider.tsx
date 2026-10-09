@@ -20,6 +20,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "pet",
     "my-listings",
     "owned-listing",
+    "profile",
   ].includes(String(queryKey[0]));
 }
 export function clearPrivateQueries(client: QueryClient) {

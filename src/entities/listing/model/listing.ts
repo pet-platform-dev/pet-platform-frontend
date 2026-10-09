@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sellerSchema } from "@/entities/seller/model";
 const referenceSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -57,18 +58,7 @@ export const listingSchema = z
       city: z.string(),
       slug: z.string(),
     }),
-    seller: z.object({
-      id: z.string(),
-      firstName: z.string(),
-      lastName: z.string().nullable(),
-      role: z.enum(["USER", "BREEDER", "MODERATOR", "ADMIN"]),
-      verificationStatus: z.enum([
-        "UNVERIFIED",
-        "PENDING",
-        "VERIFIED",
-        "REJECTED",
-      ]),
-    }),
+    seller: sellerSchema,
   })
   .refine((listing) =>
     listing.type === "SALE"

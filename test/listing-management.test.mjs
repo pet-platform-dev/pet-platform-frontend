@@ -69,7 +69,16 @@ const listing = {
     city: "Світловодськ",
     slug: "city",
   },
-  seller: { ...user, lastName: null, verificationStatus: "UNVERIFIED" },
+  seller: {
+    id: user.id,
+    displayName: "Тест",
+    location: null,
+    phone: null,
+    telegram: null,
+    viber: null,
+    whatsapp: null,
+    memberSince: "2026-10-01T00:00:00Z",
+  },
 };
 function render(component, setup = () => {}) {
   const client = new QueryClient({

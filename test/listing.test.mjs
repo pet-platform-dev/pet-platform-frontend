@@ -59,10 +59,13 @@ const fixture = {
   },
   seller: {
     id: "owner",
-    firstName: "Тест",
-    lastName: null,
-    role: "USER",
-    verificationStatus: "UNVERIFIED",
+    displayName: "Тест",
+    location: null,
+    phone: null,
+    telegram: null,
+    viber: null,
+    whatsapp: null,
+    memberSince: "2026-10-01T00:00:00Z",
   },
 };
 const query = { page: 1, limit: 24, sort: "newest" };

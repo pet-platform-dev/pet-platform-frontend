@@ -599,7 +599,7 @@ try {
       city: "ДовгаУкраїнськаНазваСела".repeat(6),
       region: "ДовгаУкраїнськаНазваОбласті".repeat(6),
     },
-    seller: { ...delivered.seller, firstName: "ДовгеІм’яПродавця".repeat(6) },
+    seller: { ...delivered.seller, displayName: "ДовгеІм’яПродавця".repeat(6) },
   };
   // Browser-only delivery fixtures: no reference/demo records are rewritten.
   await page.route(api + "/listings?*", (route) =>
