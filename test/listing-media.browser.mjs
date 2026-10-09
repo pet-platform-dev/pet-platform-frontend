@@ -102,7 +102,7 @@ async function submit(path) {
     (r) => r.url() === api + path && r.request().method() === "POST",
   );
   await page
-    .getByRole("button", { name: "Створити чернетку", exact: true })
+    .getByRole("button", { name: "Зберегти чернетку", exact: true })
     .click();
   const r = await response;
   assert.equal(r.status(), 201);
@@ -339,7 +339,7 @@ try {
     (r) => r.url() === api + "/listings" && r.request().method() === "POST",
   );
   await page
-    .getByRole("button", { name: "Створити чернетку", exact: true })
+    .getByRole("button", { name: "Зберегти чернетку", exact: true })
     .click();
   assert.equal((await conflict).status(), 409);
   assert.ok(

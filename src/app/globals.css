@@ -1554,3 +1554,76 @@ form {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+/* Seller management */
+.owner-page-heading,
+.owner-status-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.owner-page-heading {
+  justify-content: space-between;
+}
+.owner-listings {
+  display: grid;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.owner-listing-card {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  border: 1px solid #e5e0d7;
+  border-radius: 20px;
+  overflow: hidden;
+  background: white;
+}
+.owner-cover {
+  min-width: 0;
+}
+.owner-cover img,
+.owner-cover svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.owner-card-body {
+  min-width: 0;
+  padding: 24px;
+  overflow-wrap: anywhere;
+}
+.owner-card-body h2 {
+  margin: 12px 0;
+  font-size: 1.25rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+.listing-status {
+  display: inline-block;
+  padding: 5px 10px;
+  background: #f2eee8;
+  color: #514936;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.status-active {
+  background: #e4efdf;
+  color: #355333;
+}
+.status-archived {
+  background: #ecebe8;
+  color: #5c5b58;
+}
+@media (max-width: 600px) {
+  .owner-listing-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .owner-cover {
+    aspect-ratio: 4 / 3;
+  }
+  .owner-card-body {
+    padding: 18px;
+  }
+}

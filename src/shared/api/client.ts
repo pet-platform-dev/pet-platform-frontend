@@ -27,9 +27,15 @@ async function request<T>(
   try {
     response = await fetch(`${baseUrl}${path}`, {
       ...options,
-      signal: AbortSignal.timeout(
-        options.body instanceof FormData ? 45000 : 15000,
-      ),
+      signal: AbortSignal.any([
+        AbortSignal.timeout(
+          options.body instanceof FormData ||
+            (options.method === "PATCH" && /^\/listings\/[^/]+$/.test(path))
+            ? 45000
+            : 15000,
+        ),
+        ...(options.signal ? [options.signal] : []),
+      ]),
       credentials: "include",
       cache: "no-store",
       headers: {
@@ -53,6 +59,13 @@ async function request<T>(
     };
     const errorBody: unknown = await response.json().catch(() => null);
     const known = new Set([
+      "Додайте щонайменше одну фотографію перед публікацією.",
+      "Активне оголошення повинно мати щонайменше одну фотографію",
+      "Тип оголошення можна змінити лише в чернетці",
+      "Завершене або недоступне оголошення не можна редагувати",
+      "Оберіть фотографії цього оголошення",
+      "Заповніть заголовок, опис і умови передачі перед публікацією",
+      "Недопустимий перехід статусу оголошення",
       "Завантаження фото не налаштовано. Зверніться до адміністратора",
       "Формат зображення не підтримується",
       "Файл завеликий",

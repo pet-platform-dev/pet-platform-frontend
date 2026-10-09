@@ -28,6 +28,20 @@ export const createListingFormSchema = z
     if (message) ctx.addIssue({ code: "custom", path: ["price"], message });
   });
 export type CreateListingFormInput = z.input<typeof createListingFormSchema>;
+export const draftListingFormSchema = z
+  .object(createListingFormSchema.shape)
+  .superRefine((input, ctx) => {
+    if (input.type === "SALE" && !input.price) return;
+    const result = createListingFormSchema.safeParse(input);
+    if (!result.success)
+      for (const issue of result.error.issues)
+        if (issue.path[0] === "price")
+          ctx.addIssue({
+            code: "custom",
+            path: issue.path,
+            message: issue.message,
+          });
+  });
 export type CreateListingPayload = Omit<
   z.output<typeof createListingFormSchema>,
   "price"

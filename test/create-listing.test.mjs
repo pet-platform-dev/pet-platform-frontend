@@ -196,8 +196,12 @@ test("authenticated form defaults to new animal and keeps accessible listing fie
   assert.ok(html.includes('name="animalMode" checked=""'));
   assert.ok(html.includes("Нова тварина"));
   assert.ok(html.includes("Вибрати з моїх тварин"));
-  assert.ok(html.includes("Оголошення буде створене як чернетка."));
-  assert.ok(html.includes("Створити чернетку"));
+  assert.ok(
+    html.includes(
+      "Збережіть чернетку або опублікуйте оголошення, додавши щонайменше одну фотографію.",
+    ),
+  );
+  assert.ok(html.includes("Зберегти чернетку"));
   assert.ok(!html.includes('name="sellerId"'));
 });
 test("no existing Pets still allows unified animal/listing creation", () => {
@@ -227,7 +231,7 @@ test("loading and failed form reference requests have status/retry without raw d
       fetchStatus: "idle",
     });
   const html = render(React.createElement(CreateListingPage), q);
-  assert.ok(html.includes("Створити чернетку"));
+  assert.ok(html.includes("Зберегти чернетку"));
   assert.ok(!html.includes("PRIVATE_DIAGNOSTIC"));
 });
 test("session guard hides form during anonymous restoration and for logged-out user", () => {
@@ -258,7 +262,7 @@ test("session guard permits authenticated form without adding a second auth flow
         }),
       ),
       q,
-    ).includes("Створити чернетку"),
+    ).includes("Зберегти чернетку"),
   );
 });
 test("conflict/foreign pet/invalid location/unknown errors use safe feature-specific messages", () => {

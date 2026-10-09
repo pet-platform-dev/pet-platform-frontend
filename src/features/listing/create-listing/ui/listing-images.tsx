@@ -10,23 +10,40 @@ import { authenticatedRequest, ApiError } from "@/shared/api/client";
 import { imageError, reorderImages } from "../model/images";
 type Item = {
   key: string;
-  file: File;
+  file?: File;
   preview: string;
   status: "uploading" | "ready" | "failed";
   id?: string;
+  existing?: boolean;
   error?: string;
 };
 export type ListingImagesHandle = {
-  submission: () => { uploadSessionId?: string; imageIds: string[] } | null;
+  submission: () => {
+    uploadSessionId?: string;
+    imageIds: string[];
+    images: ({ imageId: string } | { uploadId: string })[];
+  } | null;
 };
 export function ListingImages({
   ref,
   onBusy,
+  initialImages = [],
+  active = false,
 }: {
   ref: Ref<ListingImagesHandle>;
   onBusy: (busy: boolean) => void;
+  initialImages?: { id: string; url: string }[];
+  active?: boolean;
 }) {
-  const [items, setItems] = useState<Item[]>([]),
+  const [items, setItems] = useState<Item[]>(() =>
+      initialImages.map((image) => ({
+        key: image.id,
+        id: image.id,
+        preview: image.url,
+        status: "ready",
+        existing: true,
+      })),
+    ),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const session = useRef<string | undefined>(undefined),
@@ -50,7 +67,12 @@ export function ListingImages({
         }
         return {
           uploadSessionId: session.current,
-          imageIds: items.map((item) => item.id!),
+          imageIds: items
+            .filter((item) => !item.existing)
+            .map((item) => item.id!),
+          images: items.map((item) =>
+            item.existing ? { imageId: item.id! } : { uploadId: item.id! },
+          ),
         };
       },
     }),
@@ -79,7 +101,7 @@ export function ListingImages({
             )
           ).uploadSessionId;
           const body = new FormData();
-          body.append("file", item.file);
+          body.append("file", item.file!);
           const asset = await authenticatedRequest<{ id: string }>(
             `/uploads/listings/${session.current}/images`,
             { method: "POST", body },
@@ -146,13 +168,21 @@ export function ListingImages({
     onBusy(true);
     setError("");
     try {
-      if (item.id)
+      if (
+        active &&
+        items.filter((value) => value.status === "ready").length <= 1 &&
+        item.status === "ready"
+      ) {
+        setError("Активне оголошення повинно мати щонайменше одну фотографію");
+        return;
+      }
+      if (item.id && !item.existing)
         await authenticatedRequest(
           `/uploads/listings/${session.current}/images/${item.id}`,
           { method: "DELETE" },
         );
       setItems((old) => old.filter((value) => value.key !== item.key));
-      URL.revokeObjectURL(item.preview);
+      if (!item.existing) URL.revokeObjectURL(item.preview);
       urls.current.delete(item.preview);
     } catch (error) {
       setError(

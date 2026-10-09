@@ -8,10 +8,12 @@ export function CreateListingFields({
   form,
   location,
   onLocation,
+  lockType = false,
 }: {
   form: UseFormReturn<CreateListingFormInput>;
   location: Location | null;
   onLocation: (location: Location | null) => void;
+  lockType?: boolean;
 }) {
   const type = useWatch({ control: form.control, name: "type" });
   const error = (field: keyof CreateListingFormInput) =>
@@ -32,6 +34,7 @@ export function CreateListingFields({
       <h2>Оголошення</h2>
       <fieldset
         className="listing-type-options"
+        disabled={lockType}
         aria-describedby={error("type") ? "type-error" : undefined}
       >
         <legend>Тип оголошення</legend>

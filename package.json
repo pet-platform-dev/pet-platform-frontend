@@ -10,7 +10,8 @@
     "test": "node --test test/*.test.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "test:browser:references": "node test/reference-select.browser.mjs",
-    "test:browser:media": "node test/listing-media.browser.mjs"
+    "test:browser:media": "node test/listing-media.browser.mjs",
+    "test:browser:management": "node test/listing-management.browser.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

@@ -7,21 +7,29 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Pet } from "@/entities/pet/model";
 import type { Location } from "@/entities/location/model";
 import { ApiError } from "@/shared/api/client";
-import { createUnifiedListing } from "../api/create-listing";
 import { getOwnPetChoices } from "@/entities/pet/api/get-own-pet-choices";
 import { petOptionLabel } from "../model/presentation";
 import { NewAnimalFields, type NewAnimalHandle } from "./new-animal-fields";
 import { ListingImages, type ListingImagesHandle } from "./listing-images";
 import {
   createListingFormSchema,
+  draftListingFormSchema,
   type CreateListingFormInput,
 } from "../model/schema";
 import { createListingError } from "../model/presentation";
 import { CreateListingFields } from "./create-listing-fields";
 import { z } from "zod";
+import {
+  createAndMaybePublish,
+  invalidateListings,
+} from "../../manage-listing/api";
+import { noImagesMessage } from "../../manage-listing/model";
+import type { UnifiedListingInput } from "../api/create-listing";
 export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
   const [mode, setMode] = useState<"new" | "existing">("new");
   const [uploading, setUploading] = useState(false);
+  const [publishError, setPublishError] = useState("");
+  const action = useRef<"draft" | "publish">("draft");
   const animal = useRef<NewAnimalHandle>(null),
     images = useRef<ListingImagesHandle>(null);
   const client = useQueryClient();
@@ -34,7 +42,7 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
   const [location, setLocation] = useState<Location | null>(null);
   const form = useForm<CreateListingFormInput>({
     resolver: zodResolver(
-      createListingFormSchema.safeExtend({ petId: z.string() }),
+      draftListingFormSchema.safeExtend({ petId: z.string() }),
     ),
     defaultValues: {
       petId: "",
@@ -46,11 +54,14 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
     },
   });
   const mutation = useMutation({
-    mutationFn: createUnifiedListing,
+    mutationFn: async (value: UnifiedListingInput & { publish: boolean }) => {
+      return createAndMaybePublish(value, value.publish);
+    },
     retry: false,
-    onSuccess: () => {
+    onSuccess: (result) => {
       void client.invalidateQueries({ queryKey: ["my-pets"] });
       void client.invalidateQueries({ queryKey: ["my-listings"] });
+      void invalidateListings(client, result.id);
     },
   });
   const locked = useRef(false);
@@ -58,8 +69,21 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
     event.preventDefault();
     if (locked.current) return;
     locked.current = true;
+    setPublishError("");
     try {
       await form.handleSubmit(async (input) => {
+        if (action.current === "publish") {
+          const validation = createListingFormSchema
+            .safeExtend({ petId: z.string() })
+            .safeParse(input);
+          if (!validation.success) {
+            for (const issue of validation.error.issues)
+              form.setError(issue.path[0] as keyof CreateListingFormInput, {
+                message: issue.message,
+              });
+            return;
+          }
+        }
         if (
           mode === "existing" &&
           !choices.some((pet) => pet.id === input.petId)
@@ -75,11 +99,16 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
           mode === "new" ? await animal.current?.validate() : undefined;
         const uploaded = images.current?.submission();
         if ((mode === "new" && !pet) || !uploaded) return;
+        if (action.current === "publish" && !uploaded.imageIds.length) {
+          setPublishError(noImagesMessage);
+          return;
+        }
         try {
           await mutation.mutateAsync({
             input,
             pet: pet ?? undefined,
             ...uploaded,
+            publish: action.current === "publish",
           });
         } catch (error) {
           if (error instanceof ApiError)
@@ -107,9 +136,23 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
     return (
       <section className="catalog-state" role="status">
         <h1>Оголошення створено</h1>
-        <p>Воно збережене як чернетка.</p>
-        <Link href="/listings" className="button primary">
-          Повернутися до оголошень
+        <p>
+          {mutation.data.publishFailed
+            ? "Чернетку створено, але опублікувати не вдалося."
+            : mutation.data.status === "DRAFT"
+              ? "Воно збережене як чернетка."
+              : mutation.data.status === "ACTIVE"
+                ? "Оголошення опубліковано."
+                : "Оголошення надіслано на розгляд."}
+        </p>
+        <Link
+          href={`/listings/${mutation.data.id}/edit`}
+          className="button primary"
+        >
+          Відкрити оголошення
+        </Link>
+        <Link href="/my-listings" className="button secondary">
+          Мої оголошення
         </Link>
       </section>
     );
@@ -202,20 +245,39 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
             onLocation={setLocation}
           />
           <p className="listing-draft-note">
-            Оголошення буде створене як чернетка.
+            Збережіть чернетку або опублікуйте оголошення, додавши щонайменше
+            одну фотографію.
           </p>
           {mutation.isError && (
             <p className="field-error" role="alert">
               {createListingError(mutation.error)}
             </p>
           )}
+          {publishError && (
+            <p role="alert" className="field-error">
+              {publishError}
+            </p>
+          )}
           <div className="form-actions">
+            <button
+              type="submit"
+              className="button secondary"
+              disabled={uploading}
+              onClick={() => {
+                action.current = "draft";
+              }}
+            >
+              {pending ? "Створення…" : "Зберегти чернетку"}
+            </button>
             <button
               type="submit"
               className="button primary"
               disabled={uploading}
+              onClick={() => {
+                action.current = "publish";
+              }}
             >
-              {pending ? "Створення…" : "Створити чернетку"}
+              Опублікувати
             </button>
             <Link href="/listings" className="button secondary">
               Скасувати

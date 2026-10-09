@@ -12,7 +12,13 @@ import { clearSession, currentUser, signOut } from "@/shared/api/client";
 
 export const sessionKey = ["current-user"] as const;
 export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
-  return ["current-user", "my-pets", "pet"].includes(String(queryKey[0]));
+  return [
+    "current-user",
+    "my-pets",
+    "pet",
+    "my-listings",
+    "owned-listing",
+  ].includes(String(queryKey[0]));
 }
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [client] = useState(
@@ -27,6 +33,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       clearSession();
       client.removeQueries({ queryKey: ["my-pets"] });
       client.removeQueries({ queryKey: ["pet"] });
+      client.removeQueries({ queryKey: ["my-listings"] });
+      client.removeQueries({ queryKey: ["owned-listing"] });
       void client.cancelQueries({
         predicate: isSessionQuery,
       });
@@ -42,6 +50,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       });
       client.removeQueries({ queryKey: ["my-pets"] });
       client.removeQueries({ queryKey: ["pet"] });
+      client.removeQueries({ queryKey: ["my-listings"] });
+      client.removeQueries({ queryKey: ["owned-listing"] });
       client.setQueryData(sessionKey, null);
     };
     window.addEventListener("pet-platform-session-expired", expire);

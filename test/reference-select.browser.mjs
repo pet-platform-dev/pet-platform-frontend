@@ -390,7 +390,7 @@ try {
       });
     } else await route.continue();
   });
-  await page.getByRole("button", { name: "Створити чернетку" }).click();
+  await page.getByRole("button", { name: "Зберегти чернетку" }).click();
   await page.getByRole("heading", { name: "Оголошення створено" }).waitFor();
   const officialResponse = await context.request.get(
     api + "/locations?search=" + encodeURIComponent("Світловодськ"),

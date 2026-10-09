@@ -2,7 +2,7 @@ import { z } from "zod";
 import { authenticatedRequest } from "@/shared/api/client";
 import {
   createListingPayload,
-  createListingFormSchema,
+  draftListingFormSchema,
   type CreateListingFormInput,
 } from "../model/schema";
 const createdDraftSchema = z.object({
@@ -22,7 +22,7 @@ export function unifiedListingPayload({
   uploadSessionId,
   imageIds,
 }: UnifiedListingInput) {
-  const fields = createListingFormSchema
+  const fields = draftListingFormSchema
     .safeExtend({ petId: z.string() })
     .parse(input);
   const listing = {
@@ -30,11 +30,11 @@ export function unifiedListingPayload({
     type: fields.type,
     title: fields.title,
     description: fields.description,
-    ...(fields.type === "SALE" ? { price: fields.price } : {}),
+    ...(fields.type === "SALE" && fields.price ? { price: fields.price } : {}),
     ...(uploadSessionId ? { uploadSessionId } : {}),
     ...(imageIds.length ? { imageIds } : {}),
   };
-  if (!pet) return { ...createListingPayload(input), ...listing };
+  if (!pet) return { petId: z.uuid().parse(input.petId), ...listing };
   return {
     ...listing,
     pet: {
