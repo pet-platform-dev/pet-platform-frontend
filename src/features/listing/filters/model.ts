@@ -6,6 +6,7 @@ import { selectionIds } from "@/entities/listing/model/catalog-query";
 import type { Region } from "@/entities/location/regions";
 import type { BreedChoice } from "@/features/pet/breed-selector";
 import type { Location } from "@/entities/location/model";
+import { customAgeRange } from "./filter-age-range";
 export const agePresets = [
   { value: "0-3", label: "До 3 місяців", min: 0, max: 3 },
   { value: "3-6", label: "3–6 місяців", min: 3, max: 6 },
@@ -14,7 +15,7 @@ export const agePresets = [
   { value: "24-60", label: "2–5 років", min: 24, max: 60 },
   { value: "60+", label: "5+ років", min: 60, max: undefined },
 ] as const;
-export type FilterBreed = BreedChoice & { species: "dog" | "cat" };
+export type FilterBreed = BreedChoice & { species?: "dog" | "cat" };
 export type Filters = {
   q: string;
   species: "dog" | "cat" | undefined;
@@ -56,7 +57,7 @@ export function filterReducer(
   if (action.kind === "apply")
     return {
       ...state,
-      filters: { ...action.filters, q: state.filters.q },
+      filters: action.filters,
       page: 1,
     };
   if (action.kind === "page") return { ...state, page: action.page };
@@ -66,7 +67,9 @@ export function filterReducer(
   const { field, value } = action.update;
   const filters: Filters = { ...state.filters, [field]: value };
   if (field === "species" && value)
-    filters.breeds = filters.breeds.filter((breed) => breed.species === value);
+    filters.breeds = filters.breeds.filter(
+      (breed) => !breed.species || breed.species === value,
+    );
   if (field === "type" && (value === "FREE" || value === "ADOPTION")) {
     filters.priceMin = "";
     filters.priceMax = "";
@@ -98,7 +101,7 @@ export function filtersToQuery(state: FilterState): CatalogQuery {
           ageMinMonths: age.min,
           ...(age.max === undefined ? {} : { ageMaxMonths: age.max }),
         }
-      : {}),
+      : customAgeRange(f.age)),
     ...(f.priceMin.trim()
       ? { priceMin: f.priceMin.trim().replace(",", ".") }
       : {}),

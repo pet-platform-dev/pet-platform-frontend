@@ -5,6 +5,7 @@ import { getListing } from "@/entities/listing/api/get-listing";
 import { listingMetadata } from "@/entities/listing/model/detail-presentation";
 import { ApiError } from "@/shared/api/client";
 import { ListingDetails } from "@/widgets/listing-details/listing-details";
+import { safeCatalogReturn } from "@/features/listing/navigation/catalog-return";
 // One canonical API helper, memoized only for this server render/metadata pair.
 const loadListing = cache(getListing);
 
@@ -27,14 +28,18 @@ export async function generateMetadata({
 }
 export default async function ListingPage({
   params,
+  searchParams,
 }: PageProps<"/listings/[id]">) {
   const { id } = await params;
+  const returnHref = safeCatalogReturn((await searchParams).returnTo);
   let listing;
   try {
     listing = await loadListing(id);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
-    return <ListingDetails id={id} initialFailed />;
+    return <ListingDetails id={id} initialFailed returnHref={returnHref} />;
   }
-  return <ListingDetails id={id} initialListing={listing} />;
+  return (
+    <ListingDetails id={id} initialListing={listing} returnHref={returnHref} />
+  );
 }

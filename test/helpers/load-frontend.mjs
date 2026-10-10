@@ -9,10 +9,10 @@ const modules = new Map();
 const dataModule = (source) =>
   `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`;
 const navigation = dataModule(
-  "export function useRouter() { return { push() {} }; }",
+  "export function useRouter() { return { push() {} }; } export function useSearchParams() { return null; }",
 );
 const link = dataModule(
-  `import React from ${JSON.stringify(pathToFileURL(require.resolve("react")).href)}; export default function Link({children,href,scroll,prefetch,...props}) { return React.createElement('a',{...props,href},children); }`,
+  `import React from ${JSON.stringify(pathToFileURL(require.resolve("react")).href)}; export default function Link({children,href,scroll,prefetch,onNavigate,...props}) { return React.createElement('a',{...props,href},children); }`,
 );
 async function moduleUrl(relative) {
   const full = resolve(relative);

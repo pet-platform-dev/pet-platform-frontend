@@ -7,8 +7,14 @@ import { load } from "./helpers/load-frontend.mjs";
 const { listingPrice, listingLocation } = await load(
   "src/entities/listing/model/presentation.ts",
 );
-const { catalogQuery, catalogHref, catalogPageNumbers } = await load(
+const { catalogPageNumbers } = await load(
   "src/entities/listing/model/catalog-query.ts",
+);
+const { parseFilterUrl: catalogQuery } = await load(
+  "src/features/listing/filters/filter-url-parser.ts",
+);
+const { filterHref } = await load(
+  "src/features/listing/filters/filter-url-serializer.ts",
 );
 const { formatPetAge } = await load("src/shared/lib/format-pet-age.ts");
 const { listingsResponseSchema } = await load(
@@ -233,7 +239,7 @@ test("URL parsing permits only supported sorts and positive bounded pages", () =
   for (const page of ["0", "-1", "1.5", "100001", ["1", "2"]])
     assert.equal(catalogQuery({ page }).page, 1);
   assert.equal(catalogQuery({ sort: "price_asc" }).sort, "price_asc");
-  assert.equal(catalogHref(0, "newest"), "/listings?page=1&sort=newest");
+  assert.equal(filterHref(catalogQuery({})), "/listings");
 });
 test("pagination links use URL state and compact numbered windows", () => {
   assert.deepEqual(catalogPageNumbers(1, 8), [1, 2, 3, 4, 5]);
@@ -245,10 +251,13 @@ test("pagination links use URL state and compact numbered windows", () => {
       sort: "oldest",
     }),
   );
-  assert.ok(html.includes("page=3&amp;sort=oldest"));
+  assert.ok(html.includes("sort=oldest&amp;page=3"));
   assert.ok(html.includes('aria-current="page"'));
   assert.ok(html.includes("Наступна сторінка"));
-  assert.equal(catalogHref(1, "oldest"), "/listings?page=1&sort=oldest");
+  assert.equal(
+    filterHref(catalogQuery({ sort: "oldest" })),
+    "/listings?sort=oldest",
+  );
 });
 test("age formats full months and natural Ukrainian year endings", () => {
   const today = new Date("2026-10-08T12:00:00Z");

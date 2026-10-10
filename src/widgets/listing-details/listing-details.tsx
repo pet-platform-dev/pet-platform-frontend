@@ -12,10 +12,12 @@ export function ListingDetails({
   id,
   initialListing,
   initialFailed = false,
+  returnHref = "/listings",
 }: {
   id: string;
   initialListing?: Listing;
   initialFailed?: boolean;
+  returnHref?: string;
 }) {
   const query = useQuery({
     queryKey: ["listing", id],
@@ -28,7 +30,7 @@ export function ListingDetails({
     query.isError || (initialFailed && query.isPending && !query.isFetching);
   return (
     <main className="listing-detail-shell">
-      <Link href="/listings" className="text-link listing-back-link">
+      <Link href={returnHref} className="text-link listing-back-link">
         ← До оголошень
       </Link>
       {failed ? (

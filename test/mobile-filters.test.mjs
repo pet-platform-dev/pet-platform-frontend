@@ -79,24 +79,24 @@ test("cancel discards draft; reopening starts from applied choices", () => {
   assert.equal(changed.type, "FREE");
   assert.equal(copyFilters(source).type, undefined);
 });
-test("apply commits draft once, resets page one and preserves external search/sort", () => {
+test("apply commits draft once, resets page one and preserves sort until explicitly cleared", () => {
   const filters = changeDraft(applied(), { field: "gender", value: "FEMALE" });
   const next = filterReducer(
     { filters: applied(), page: 3, sort: "price_asc" },
     {
       kind: "apply",
-      filters: { ...filters, q: "cannot replace outside search" },
+      filters: { ...filters, q: "draft search" },
     },
   );
   assert.equal(next.page, 1);
   assert.equal(next.sort, "price_asc");
-  assert.equal(next.filters.q, "цуценя");
+  assert.equal(next.filters.q, "draft search");
   assert.equal(next.filters.gender, "FEMALE");
 });
-test("drawer clear empties only structured draft filters, keeps search and applied state", () => {
+test("drawer clear empties draft search and filters while keeping applied state", () => {
   const source = applied(),
-    draft = clearDraft(source);
-  assert.deepEqual(draft, { ...emptyFilters(), q: "цуценя" });
+    draft = clearDraft();
+  assert.deepEqual(draft, emptyFilters());
   assert.equal(source.breeds.length, 1);
   assert.equal(activeFilterCount(draft), 0);
   const next = filterReducer(

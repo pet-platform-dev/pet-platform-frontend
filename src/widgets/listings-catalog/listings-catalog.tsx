@@ -9,6 +9,7 @@ import {
 import { useListingFilters } from "@/features/listing/filters/use-listing-filters";
 import { ListingFiltersPanel } from "@/features/listing/filters/listing-filters-panel";
 import { useMobileFilters } from "@/features/listing/filters/use-mobile-filters";
+import { useCatalogLabels } from "@/features/listing/filters/use-filter-labels";
 import { MobileFiltersTrigger } from "@/features/listing/filters/mobile-filters-trigger";
 import { MobileFiltersDrawer } from "@/features/listing/filters/mobile-filters-drawer";
 import { hasFilters } from "@/features/listing/filters/model";
@@ -17,12 +18,17 @@ import { CatalogSearchSort } from "./catalog-search-sort";
 import { CatalogResults } from "./catalog-results";
 export function ListingsCatalog({ query: initial }: { query: CatalogQuery }) {
   const filters = useListingFilters(initial);
-  const mobile = useMobileFilters(filters.state.filters, filters.apply);
+  const mobile = useMobileFilters(
+    filters.applied.filters,
+    filters.apply,
+    filters.href,
+  );
   const result = useQuery({
     queryKey: listingsQueryKey(filters.query),
     queryFn: ({ signal }) => getListings(filters.query, signal),
     enabled: !filters.invalid && !filters.debouncing,
   });
+  useCatalogLabels(result.data?.data);
   const count = filters.invalid
     ? "Перевірте параметри ціни"
     : filters.debouncing || result.isPending
@@ -62,7 +68,7 @@ export function ListingsCatalog({ query: initial }: { query: CatalogQuery }) {
             onSort={filters.sort}
             filtersTrigger={
               <MobileFiltersTrigger
-                filters={filters.state.filters}
+                filters={filters.applied.filters}
                 onOpen={mobile.open}
               />
             }

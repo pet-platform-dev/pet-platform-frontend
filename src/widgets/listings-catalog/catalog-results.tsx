@@ -2,10 +2,9 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import Link from "next/link";
 import type { Paginated } from "@/shared/api/pagination";
 import type { Listing } from "@/entities/listing/model/listing";
-import {
-  catalogHref,
-  type CatalogQuery,
-} from "@/entities/listing/model/catalog-query";
+import { type CatalogQuery } from "@/entities/listing/model/catalog-query";
+import { filterHref } from "@/features/listing/filters/filter-url-serializer";
+import { listingDetailHref } from "@/features/listing/navigation/catalog-return";
 import { ListingCard } from "@/entities/listing/ui/listing-card";
 import { ListingSkeletons } from "@/entities/listing/ui/listing-skeletons";
 import { CatalogPagination } from "./catalog-pagination";
@@ -83,8 +82,11 @@ export function CatalogResults({
           )}
           {query.page > 1 && (
             <Link
-              href={catalogHref(1, query.sort)}
-              onNavigate={() => onPage(1)}
+              href={filterHref({ ...query, page: 1 })}
+              onNavigate={(event) => {
+                event.preventDefault();
+                onPage(1);
+              }}
               className="button secondary"
               scroll={false}
             >
@@ -95,7 +97,11 @@ export function CatalogResults({
       ) : (
         <div className="listings-grid" aria-label="Активні оголошення">
           {result.data.data.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
+            <ListingCard
+              key={listing.id}
+              listing={listing}
+              detailHref={listingDetailHref(listing.id, query)}
+            />
           ))}
         </div>
       )}
@@ -106,6 +112,7 @@ export function CatalogResults({
             pages={result.data.meta.pages}
             sort={query.sort}
             onPage={onPage}
+            query={query}
           />
           {result.data.meta.pages > 1 && (
             <p className="catalog-page-summary">

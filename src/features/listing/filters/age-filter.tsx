@@ -1,4 +1,5 @@
 import { agePresets } from "./model";
+import { customAgeLabel } from "./filter-age-range";
 export function AgeFilter({
   value,
   onChange,
@@ -16,6 +17,9 @@ export function AgeFilter({
         aria-describedby="filter-age-hint"
       >
         <option value="">Будь-який вік</option>
+        {value.startsWith("range:") && (
+          <option value={value}>{customAgeLabel(value)}</option>
+        )}
         {agePresets.map((item) => (
           <option key={item.value} value={item.value}>
             {item.label}

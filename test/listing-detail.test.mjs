@@ -331,3 +331,21 @@ test("session expiry cancellation leaves an in-flight public detail query intact
   assert.equal(client.getQueryData(["listing", fixture.id]).id, fixture.id);
   client.clear();
 });
+
+test("detail back link renders preserved catalog target in success, loading and error states", () => {
+  const returnHref = "/listings?q=малінуа&species=dog&sort=oldest&page=2";
+  for (const result of [
+    "success",
+    "pending",
+    new ApiError(500, "unavailable"),
+  ]) {
+    assert.ok(
+      state(result, { returnHref }).includes(
+        'href="' + returnHref.replaceAll("&", "&amp;") + '"',
+      ),
+    );
+  }
+});
+test("direct detail component keeps plain catalog fallback", () => {
+  assert.ok(state("success").includes('href="/listings"'));
+});

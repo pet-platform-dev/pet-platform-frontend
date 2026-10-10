@@ -682,14 +682,14 @@ try {
   await chooseCatalogSort(page, "newest");
   await page.waitForURL(
     (url) =>
-      url.pathname === "/listings" && url.searchParams.get("sort") === "newest",
+      url.pathname === "/listings" && url.searchParams.get("sort") === null,
   );
   await page.goBack();
   await page.waitForURL((url) => url.searchParams.get("page") === "2");
   assert.ok(page.url().includes("page=2"));
   await page.goForward();
-  await page.waitForURL((url) => url.searchParams.get("sort") === "newest");
-  assert.ok(page.url().includes("sort=newest"));
+  await page.waitForURL((url) => url.searchParams.get("sort") === null);
+  assert.equal(new URL(page.url()).searchParams.get("sort"), null);
   pass("Catalog page/sort survives direct URL, refresh, back and forward");
   const privateTab = await context.newPage();
   privateTab.on("pageerror", (error) => errors.push(error.message));

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { catalogQuery } from "@/entities/listing/model/catalog-query";
+import { parseFilterUrl } from "@/features/listing/filters/filter-url-parser";
 import { ListingsCatalog } from "@/widgets/listings-catalog/listings-catalog";
 export const metadata: Metadata = {
   title: "Оголошення про тварин — Лапа",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 export default async function ListingsPage({
   searchParams,
 }: PageProps<"/listings">) {
-  return <ListingsCatalog query={catalogQuery(await searchParams)} />;
+  return <ListingsCatalog query={parseFilterUrl(await searchParams)} />;
 }

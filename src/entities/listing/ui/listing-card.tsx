@@ -11,7 +11,13 @@ import {
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 import { ListingPlaceholder } from "./listing-placeholder";
 import { ListingImage } from "./listing-image";
-export function ListingCard({ listing }: { listing: Listing }) {
+export function ListingCard({
+  listing,
+  detailHref = `/listings/${listing.id}`,
+}: {
+  listing: Listing;
+  detailHref?: string;
+}) {
   const { pet } = listing;
   const age = formatPetAge(pet.birthDate);
   const gender = listingGender(pet.gender);
@@ -21,7 +27,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
     <article className="listing-card">
       <Link
         className="listing-card-link"
-        href={`/listings/${listing.id}`}
+        href={detailHref}
         prefetch={false}
         aria-label={`Переглянути оголошення: ${listingHeading(pet)} — ${listingPrice(listing)}`}
       >

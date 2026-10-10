@@ -1,67 +1,87 @@
 "use client";
-import { useReducer } from "react";
-import { useRouter } from "next/navigation";
-import {
-  catalogHref,
-  type CatalogQuery,
-  type CatalogSort,
+import type {
+  CatalogQuery,
+  CatalogSort,
 } from "@/entities/listing/model/catalog-query";
-import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 import {
-  emptyFilters,
   filterReducer,
   filtersToQuery,
-  type FilterUpdate,
   type Filters,
+  type FilterUpdate,
 } from "./model";
-import { priceErrors } from "./price-validation";
+import { urlFilterState } from "./filter-url-state";
+import { useFilterUrl } from "./use-filter-url";
+import { useFilterInputs } from "./use-filter-inputs";
+import { useFilterLabels } from "./use-filter-labels";
 export function useListingFilters(initial: CatalogQuery) {
-  const router = useRouter();
-  const [state, dispatch] = useReducer(filterReducer, {
-    filters: emptyFilters(),
-    page: initial.page,
-    sort: initial.sort,
+  const url = useFilterUrl(initial),
+    references = useFilterLabels(url.query.regionIds);
+  const applied = urlFilterState(url.query, references.labels);
+  const inputs = useFilterInputs(url.href, applied.filters, (values, mode) => {
+    const next = filtersToQuery({
+      ...applied,
+      page: 1,
+      filters: { ...applied.filters, ...values },
+    });
+    url.navigate(next, mode);
+    return {
+      q: next.q ?? "",
+      priceMin: next.priceMin ?? "",
+      priceMax: next.priceMax ?? "",
+    };
   });
-  const q = useDebouncedValue(state.filters.q, 350),
-    priceMin = useDebouncedValue(state.filters.priceMin, 350),
-    priceMax = useDebouncedValue(state.filters.priceMax, 350);
-  const errors = priceErrors(state.filters.priceMin, state.filters.priceMax);
-  const invalid = Boolean(errors.min || errors.max);
-  const debouncing =
-    q !== state.filters.q ||
-    priceMin !== state.filters.priceMin ||
-    priceMax !== state.filters.priceMax;
-  const query = filtersToQuery({
-    ...state,
-    filters: { ...state.filters, q, priceMin, priceMax },
-  });
+  const state = {
+    ...applied,
+    filters: { ...applied.filters, ...inputs.values },
+  };
   function update(change: FilterUpdate) {
-    dispatch({ kind: "filter", update: change });
-    if (state.page !== 1)
-      router.push(catalogHref(1, state.sort), { scroll: false });
+    references.remember(change);
+    if (
+      change.field === "q" ||
+      change.field === "priceMin" ||
+      change.field === "priceMax"
+    ) {
+      inputs.update(change.field, change.value);
+      return;
+    }
+    const next = filterReducer(
+      { ...applied, filters: inputs.invalid ? applied.filters : state.filters },
+      { kind: "filter", update: change },
+    );
+    url.navigate(filtersToQuery(next));
   }
-  function apply(draft: Filters) {
-    dispatch({ kind: "apply", filters: draft });
-    if (state.page !== 1)
-      router.push(catalogHref(1, state.sort), { scroll: false });
-  }
-  function page(value: number) {
-    dispatch({ kind: "page", page: value });
+  function apply(draft: Filters, cleared = false) {
+    for (const field of ["breeds", "regions", "locations"] as const)
+      references.remember({ field, value: draft[field] } as FilterUpdate);
+    url.navigate(
+      filtersToQuery({
+        filters: draft,
+        page: 1,
+        sort: cleared ? "newest" : applied.sort,
+      }),
+    );
   }
   function sort(value: CatalogSort) {
-    dispatch({ kind: "sort", sort: value });
-    router.push(catalogHref(1, value), { scroll: false });
+    url.navigate({ ...url.query, sort: value, page: 1 });
+  }
+  function page(value: number) {
+    url.navigate({ ...url.query, page: value });
+    document
+      .querySelector(".catalog-results")
+      ?.scrollIntoView({ block: "start" });
   }
   function clear() {
-    dispatch({ kind: "clear" });
-    router.push(catalogHref(1, "newest"), { scroll: false });
+    inputs.reset({ q: "", priceMin: "", priceMax: "" });
+    url.navigate({ page: 1, limit: 24, sort: "newest" });
   }
   return {
     state,
-    query,
-    errors,
-    invalid,
-    debouncing,
+    applied,
+    query: url.query,
+    href: url.href,
+    errors: inputs.errors,
+    invalid: inputs.invalid,
+    debouncing: inputs.pending,
     update,
     apply,
     page,

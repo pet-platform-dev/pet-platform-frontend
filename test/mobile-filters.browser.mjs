@@ -20,7 +20,7 @@ const records = [],
   requests = [],
   errors = [],
   checks = [];
-let data;
+let data, draftSearch;
 const pass = (label) => {
   checks.push(label);
   console.log("PASS " + label);
@@ -67,7 +67,11 @@ const previewRequests = () =>
 const cards = () =>
   page
     .locator(".catalog-results .listing-card a.listing-card-link")
-    .evaluateAll((items) => items.map((item) => item.getAttribute("href")));
+    .evaluateAll((items) =>
+      items.map(
+        (item) => new URL(item.getAttribute("href"), location.origin).pathname,
+      ),
+    );
 const dialog = () => page.getByRole("dialog", { name: "Фільтри", exact: true });
 const applyButton = () =>
   dialog().locator(".mobile-filters-footer button").last();
@@ -97,7 +101,7 @@ async function preview(expected) {
     const row = records.findLast(
       (item) =>
         item.status === 200 &&
-        matches(item, { limit: 1, q: data.marker, ...expected }),
+        matches(item, { limit: 1, q: draftSearch, ...expected }),
     );
     assert.ok(row, "Expected real preview response");
     assert.ok(
@@ -107,6 +111,7 @@ async function preview(expected) {
   });
 }
 async function open() {
+  draftSearch = new URL(page.url()).searchParams.get("q") ?? undefined;
   await page.locator(".mobile-filters-trigger").click();
   await dialog().waitFor();
   assert.equal(
@@ -344,6 +349,7 @@ try {
   );
   await open();
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
+  draftSearch = undefined;
   assert.equal(await dialog().isVisible(), true);
   assert.equal(
     await dialog().getByRole("radio", { name: "Усі", exact: true }).isChecked(),
@@ -359,11 +365,12 @@ try {
   await catalog({ sort: "oldest", species: "dog", page: 1 });
   await open();
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
-  await preview({ species: undefined });
+  draftSearch = undefined;
+  await preview({ q: undefined, species: undefined });
   await applyButton().click();
   await catalog({
-    q: data.marker,
-    sort: "oldest",
+    q: undefined,
+    sort: "newest",
     species: undefined,
     page: 1,
   });
@@ -371,9 +378,13 @@ try {
     await page.locator(".mobile-filters-trigger").innerText(),
     "Фільтри",
   );
-  pass(
-    "Clear then Apply resets structured groups while preserving outside q/sort",
+  pass("Clear then Apply resets structured groups, outside q/sort and the URL");
+  assert.equal(
+    new URL(page.url()).pathname + new URL(page.url()).search,
+    "/listings",
   );
+  await page.getByLabel("Пошук оголошень", { exact: true }).fill(data.marker);
+  await catalog({ q: data.marker, page: 1 });
   await open();
   const price = dialog().getByLabel("Від", { exact: true }),
     max = dialog().getByLabel("До", { exact: true });
@@ -406,9 +417,10 @@ try {
   assert.equal(await applyButton().isEnabled(), true);
   pass("FREE clears/disables price using existing reducer semantics");
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
+  draftSearch = undefined;
   await price.fill("42");
   await max.fill("42");
-  const zero = await preview({ priceMin: "42", priceMax: "42" });
+  const zero = await preview({ q: undefined, priceMin: "42", priceMax: "42" });
   assert.equal(zero.body.meta.total, 0);
   assert.equal(await applyButton().isEnabled(), true);
   await applyButton().click();
@@ -417,8 +429,11 @@ try {
   pass("Zero preview remains applicable and produces normal empty catalog");
   await open();
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
+  draftSearch = undefined;
   await applyButton().click();
   await catalog({ priceMin: undefined, priceMax: undefined, page: 1 });
+  await page.getByLabel("Пошук оголошень", { exact: true }).fill(data.marker);
+  await catalog({ q: data.marker, page: 1 });
   for (const sort of ["newest", "price_asc", "price_desc", "oldest"]) {
     await chooseCatalogSort(page, sort);
     await catalog({ sort, page: 1 });
@@ -468,6 +483,7 @@ try {
     "Mobile reference virtual scroll reaches last region; Escape first closes nested listbox",
   );
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
+  draftSearch = undefined;
   await dialog().getByRole("radio", { name: "Собаки", exact: true }).check();
   await pick(/^Породи/, data.marker, data.fixture.breeds[0].nameUk);
   await dialog().getByRole("radio", { name: "Усі", exact: true }).check();
@@ -492,6 +508,7 @@ try {
     "Draft species changes preserve compatible breeds and remove incompatible ones only",
   );
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
+  draftSearch = undefined;
   for (const [value, min, max] of [
     ["0-3", 0, 3],
     ["3-6", 3, 6],
@@ -501,12 +518,13 @@ try {
     ["60+", 60, undefined],
   ]) {
     await dialog().getByLabel("Вік", { exact: true }).selectOption(value);
-    await preview({ ageMinMonths: min, ageMaxMonths: max });
+    await preview({ q: undefined, ageMinMonths: min, ageMaxMonths: max });
   }
   pass(
     "All six age presets use the same inclusive API mappings in draft preview",
   );
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
+  draftSearch = undefined;
   await dialog().getByLabel("Від", { exact: true }).fill("100");
   await dialog()
     .getByLabel("Тип оголошення", { exact: true })
@@ -519,7 +537,7 @@ try {
     await dialog().getByLabel("Від", { exact: true }).inputValue(),
     "",
   );
-  await preview({ type: "ADOPTION", priceMin: undefined });
+  await preview({ q: undefined, type: "ADOPTION", priceMin: undefined });
   pass("ADOPTION also clears/disables draft price");
   const footerBefore = await dialog()
     .locator(".mobile-filters-footer")
@@ -581,6 +599,7 @@ try {
   );
   await open();
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
+  draftSearch = undefined;
   await applyButton().click();
   await catalog({ gender: undefined, page: 1 });
   const searchStart = catalogRequests();

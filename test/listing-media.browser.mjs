@@ -280,7 +280,9 @@ try {
   });
   assert.equal(activated.status(), 200);
   await page.goto(base + "/listings");
-  const card = page.locator(`a[href="/listings/${sale.id}"]`);
+  const card = page.locator(
+    `a.listing-card-link[href^="/listings/${sale.id}?"]`,
+  );
   await card.waitFor();
   assert.ok((await card.locator("img").getAttribute("src")).includes("w_480"));
   pass("Public catalog shows optimized real cover");

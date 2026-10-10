@@ -135,7 +135,10 @@ try {
   for (const value of ["price_asc", "price_desc", "newest"]) {
     await chooseCatalogSort(page, value);
     await until(() =>
-      assert.equal(new URL(page.url()).searchParams.get("sort"), value),
+      assert.equal(
+        new URL(page.url()).searchParams.get("sort"),
+        value === "newest" ? null : value,
+      ),
     );
     assert.equal(await sort().innerText(), sortLabels[value]);
   }

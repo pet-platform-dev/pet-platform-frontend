@@ -18,6 +18,6 @@ export function changeDraft(filters: Filters, update: FilterUpdate): Filters {
     { kind: "filter", update },
   ).filters;
 }
-export function clearDraft(filters: Filters): Filters {
-  return { ...emptyFilters(), q: filters.q };
+export function clearDraft(): Filters {
+  return emptyFilters();
 }

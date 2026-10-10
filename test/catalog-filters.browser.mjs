@@ -72,7 +72,12 @@ async function step(label, action, expected) {
     );
     const hrefs = await page
       .locator(".catalog-results .listing-card a.listing-card-link")
-      .evaluateAll((items) => items.map((item) => item.getAttribute("href")));
+      .evaluateAll((items) =>
+        items.map(
+          (item) =>
+            new URL(item.getAttribute("href"), location.origin).pathname,
+        ),
+      );
     const count = await page.locator(".catalog-count").innerText();
     // The existing 30-second query cache may reuse a prior real API response.
     const row = records.findLast(
@@ -373,7 +378,7 @@ try {
     () => page.getByLabel("Стать", { exact: true }).selectOption("MALE"),
     { q: data.marker, species: "dog", type: "SALE", gender: "MALE", page: 1 },
   );
-  assert.ok(new URL(page.url()).searchParams.get("page") === "1");
+  assert.equal(new URL(page.url()).searchParams.get("page"), null);
   await step(
     "Zero-result filtered state",
     () =>

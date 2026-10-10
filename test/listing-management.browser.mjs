@@ -289,9 +289,13 @@ try {
   assert.equal((await detail(sale.id)).status, "ACTIVE");
   pass("Draft publish confirmed ACTIVE");
   await page.goto(base + "/listings");
-  await page.locator(`a[href="/listings/${sale.id}"]`).waitFor();
+  await page
+    .locator(`a.listing-card-link[href^="/listings/${sale.id}?"]`)
+    .waitFor();
   assert.ok(
-    await page.locator(`a[href="/listings/${sale.id}"] img`).isVisible(),
+    await page
+      .locator(`a.listing-card-link[href^="/listings/${sale.id}?"] img`)
+      .isVisible(),
   );
   pass("Public catalog contains published cover");
   await page.goto(`${base}/listings/${sale.id}`);
