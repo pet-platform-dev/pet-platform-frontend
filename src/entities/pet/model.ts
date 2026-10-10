@@ -1,6 +1,7 @@
 import type { Species } from "@/entities/species/model";
 export type Pet = {
   id: string;
+  previewImage?: { thumbnailUrl: string } | null;
   name: string | null;
   gender: "MALE" | "FEMALE" | "UNKNOWN";
   birthDate: string | null;

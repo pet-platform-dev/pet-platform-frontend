@@ -199,7 +199,7 @@ function Editor({
         <p>Завершені та архівні оголошення не можна редагувати.</p>
         <p>{listing.title}</p>
         <p className="listing-description">{listing.description}</p>
-        <ListingActions listing={listing} />
+        <ListingActions listing={listing} redirectAfterDelete />
         <Link className="button secondary" href="/my-listings">
           Мої оголошення
         </Link>
@@ -284,7 +284,7 @@ function Editor({
         </fieldset>
       </form>
       <div className="form-actions">
-        <ListingActions listing={listing} />
+        <ListingActions listing={listing} redirectAfterDelete />
       </div>
     </section>
   );

@@ -1,8 +1,11 @@
 "use client";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   changeListingStatus,
+  deleteListing,
+  invalidateDeletedMarketplace,
   invalidateListings,
   managementError,
 } from "./api";
@@ -10,29 +13,38 @@ import { completion, type OwnListing, type Status } from "./model";
 export function ListingActions({
   listing,
   showArchive = true,
+  redirectAfterDelete = false,
 }: {
   listing: OwnListing;
   showArchive?: boolean;
+  redirectAfterDelete?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
     trigger = useRef<HTMLButtonElement | null>(null),
     submitted = useRef(false);
   const [action, setAction] = useState<{
-    status: Status;
+    status: Status | "DELETE";
     question: string;
   } | null>(null);
   const client = useQueryClient();
+  const router = useRouter();
   const mutation = useMutation({
     retry: false,
-    mutationFn: (status: Status) => changeListingStatus(listing.id, status),
-    onSuccess: async () => {
+    mutationFn: async (status: Status | "DELETE") => {
+      if (status === "DELETE") await deleteListing(listing.id);
+      else await changeListingStatus(listing.id, status);
+    },
+    onSuccess: async (_, status) => {
       dialog.current?.close();
-      await invalidateListings(client, listing.id);
+      if (status === "DELETE") {
+        if (redirectAfterDelete) router.replace("/my-listings");
+        await invalidateDeletedMarketplace(client, listing.id);
+      } else await invalidateListings(client, listing.id);
     },
   });
   function confirm(
     event: React.MouseEvent<HTMLButtonElement>,
-    selected: { status: Status; question: string },
+    selected: { status: Status | "DELETE"; question: string },
   ) {
     trigger.current = event.currentTarget;
     mutation.reset();
@@ -63,6 +75,15 @@ export function ListingActions({
           В архів
         </button>
       )}
+      <button
+        type="button"
+        className="button danger"
+        onClick={(event) =>
+          confirm(event, { status: "DELETE", question: "Видалити оголошення?" })
+        }
+      >
+        Видалити оголошення
+      </button>
       <dialog
         ref={dialog}
         className="delete-dialog"
@@ -75,14 +96,17 @@ export function ListingActions({
       >
         <h2 id={`confirm-${listing.id}`}>{action?.question}</h2>
         <p id={`confirm-help-${listing.id}`}>
-          Оголошення більше не відображатиметься в активному каталозі. Тварина
-          та історія оголошення збережуться.
+          {action?.status === "DELETE"
+            ? "Профіль тварини залишиться. Буде видалено лише це оголошення."
+            : "Оголошення більше не відображатиметься в активному каталозі. Тварина та історія оголошення збережуться."}
         </p>
         {mutation.isError && (
           <p role="alert" className="field-error">
             {managementError(
               mutation.error,
-              "Не вдалося змінити статус оголошення.",
+              action?.status === "DELETE"
+                ? "Не вдалося видалити оголошення."
+                : "Не вдалося змінити статус оголошення.",
             )}
           </p>
         )}
@@ -99,7 +123,7 @@ export function ListingActions({
           <button
             type="button"
             disabled={mutation.isPending}
-            className="button primary"
+            className={`button ${action?.status === "DELETE" ? "danger" : "primary"}`}
             onClick={() => {
               if (!action || submitted.current) return;
               submitted.current = true;
@@ -110,7 +134,11 @@ export function ListingActions({
               });
             }}
           >
-            {mutation.isPending ? "Змінюємо…" : "Підтвердити"}
+            {mutation.isPending
+              ? "Змінюємо…"
+              : action?.status === "DELETE"
+                ? "Видалити оголошення"
+                : "Підтвердити"}
           </button>
         </div>
       </dialog>

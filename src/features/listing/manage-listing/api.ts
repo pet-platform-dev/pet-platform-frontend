@@ -80,6 +80,23 @@ export async function changeListingStatus(id: string, status: Status) {
     }),
   );
 }
+export async function deleteListing(id: string) {
+  await authenticatedRequest<void>(`/listings/${id}`, { method: "DELETE" });
+}
+export async function invalidateDeletedMarketplace(
+  client: QueryClient,
+  id?: string,
+) {
+  // Reset detail data so deleted entities cannot remain in inactive caches.
+  await Promise.all([
+    ...["listing", "owned-listing"].map((key) =>
+      client.resetQueries({ queryKey: id ? [key, id] : [key] }),
+    ),
+    ...["my-listings", "listings", "my-pets", "seller-listings", "seller"].map(
+      (key) => client.invalidateQueries({ queryKey: [key] }),
+    ),
+  ]);
+}
 export async function createAndMaybePublish(
   value: UnifiedListingInput,
   publish: boolean,
@@ -95,9 +112,13 @@ export async function createAndMaybePublish(
 }
 export async function invalidateListings(client: QueryClient, id: string) {
   await Promise.all(
-    [["my-listings"], ["listings"], ["listing", id], ["owned-listing", id]].map(
-      (queryKey) => client.invalidateQueries({ queryKey }),
-    ),
+    [
+      ["my-listings"],
+      ["listings"],
+      ["listing", id],
+      ["owned-listing", id],
+      ["my-pets"],
+    ].map((queryKey) => client.invalidateQueries({ queryKey })),
   );
 }
 export function managementError(error: unknown, fallback: string) {

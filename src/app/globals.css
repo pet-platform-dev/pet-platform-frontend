@@ -648,6 +648,18 @@ form {
   align-items: center;
   margin-bottom: 28px;
 }
+.pet-preview {
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.pet-preview img,
+.pet-preview .listing-visual {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .pet-species {
   background: #eef0e6;
   color: var(--accent);

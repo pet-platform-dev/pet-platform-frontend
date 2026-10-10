@@ -7,23 +7,29 @@ import { speciesLabel } from "@/entities/species/model";
 import { genderLabel, type Pet } from "@/entities/pet/model";
 import { ApiError } from "@/shared/api/client";
 import { deletePet, getPets } from "./api";
+import { ListingImage } from "@/entities/listing/ui/listing-image";
+import { ListingPlaceholder } from "@/entities/listing/ui/listing-placeholder";
+import { formatPetAge } from "@/shared/lib/format-pet-age";
+import { invalidateDeletedMarketplace } from "@/features/listing/manage-listing/api";
 export function PetList() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Pet | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
+  const submitted = useRef(false);
   const client = useQueryClient();
   const query = useQuery({
     queryKey: ["my-pets", { page }],
     queryFn: () => getPets(page),
   });
   const mutation = useMutation({
+    retry: false,
     mutationFn: deletePet,
     onSuccess: async (_, id) => {
       dialog.current?.close();
       setSelected(null);
       client.removeQueries({ queryKey: ["pet", id] });
       if (query.data?.data.length === 1 && page > 1) setPage(page - 1);
-      await client.invalidateQueries({ queryKey: ["my-pets"] });
+      await invalidateDeletedMarketplace(client);
     },
   });
   return (
@@ -69,6 +75,25 @@ export function PetList() {
           <div className="pets-grid">
             {query.data.data.map((pet) => (
               <article className="pet-card" key={pet.id}>
+                <div className="pet-preview">
+                  {pet.previewImage ? (
+                    <ListingImage
+                      src={pet.previewImage.thumbnailUrl}
+                      species={pet.species.slug}
+                      alt={
+                        pet.name?.trim() ||
+                        (pet.breed
+                          ? breedLabel(pet.breed)
+                          : speciesLabel(pet.species.slug))
+                      }
+                      width="480"
+                      height="360"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <ListingPlaceholder species={pet.species.slug} />
+                  )}
+                </div>
                 <div className="pet-card-top">
                   <span className="pet-species">
                     {speciesLabel(pet.species.slug)}
@@ -85,6 +110,12 @@ export function PetList() {
                   {pet.breed ? breedLabel(pet.breed) : "Породу не вказано"}
                 </p>
                 <dl>
+                  {formatPetAge(pet.birthDate) && (
+                    <div>
+                      <dt>Вік</dt>
+                      <dd>{formatPetAge(pet.birthDate)}</dd>
+                    </div>
+                  )}
                   <div>
                     <dt>Стать</dt>
                     <dd>{genderLabel[pet.gender]}</dd>
@@ -156,17 +187,15 @@ export function PetList() {
         ref={dialog}
         className="delete-dialog"
         aria-labelledby="delete-title"
+        aria-describedby="delete-help"
         onCancel={(event) => {
           if (mutation.isPending) event.preventDefault();
         }}
       >
         <h2 id="delete-title">Видалити профіль тварини?</h2>
-        <p>
-          {selected?.name?.trim()
-            ? `Профіль «${selected.name.trim()}»`
-            : "Профіль тварини"}{" "}
-          буде видалено без можливості відновлення. Тварину з пов’язаними
-          оголошеннями видалити не можна.
+        <p id="delete-help">
+          Буде видалено профіль тварини та всі пов’язані з нею оголошення. Цю
+          дію не можна скасувати.
         </p>
         {mutation.isError && (
           <p className="error-banner" role="alert">
@@ -187,9 +216,17 @@ export function PetList() {
           <button
             className="button danger"
             disabled={mutation.isPending || !selected}
-            onClick={() => selected && mutation.mutate(selected.id)}
+            onClick={() => {
+              if (!selected || submitted.current) return;
+              submitted.current = true;
+              mutation.mutate(selected.id, {
+                onSettled: () => {
+                  submitted.current = false;
+                },
+              });
+            }}
           >
-            {mutation.isPending ? "Видаляємо…" : "Видалити профіль"}
+            {mutation.isPending ? "Видаляємо…" : "Видалити тварину"}
           </button>
         </div>
       </dialog>

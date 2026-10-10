@@ -98,6 +98,8 @@ for (const [status, label] of Object.entries(statusLabels))
     );
     assert.ok(html.includes(label));
     assert.ok(!html.includes(`>${status}<`));
+    assert.ok(html.includes("Видалити оголошення"));
+    assert.ok(html.includes('class="button danger"'));
   });
 test("status grouping keeps reserved moderation states out of dedicated tabs", () => {
   assert.deepEqual(statusGroups.completed.statuses, [
@@ -256,6 +258,7 @@ test("mutation invalidation targets own list, catalog, public detail and owned d
     ["listings"],
     ["listing", id],
     ["owned-listing", id],
+    ["my-pets"],
   ]);
 });
 test("session isolation includes management but preserves public queries", () => {
