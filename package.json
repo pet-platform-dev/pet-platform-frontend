@@ -15,7 +15,9 @@
     "test:browser:management": "node test/listing-management.browser.mjs",
     "test:browser:polish": "node test/listing-polish.browser.mjs",
     "test:browser:seller": "node test/seller-gallery.browser.mjs",
-    "test:browser:deletion": "node test/deletion.browser.mjs"
+    "test:browser:deletion": "node test/deletion.browser.mjs",
+    "test:browser:mobile-filters": "node test/mobile-filters.browser.mjs",
+    "test:browser:mobile-polish": "node test/mobile-polish.browser.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

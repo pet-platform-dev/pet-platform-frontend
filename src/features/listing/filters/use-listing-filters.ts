@@ -12,6 +12,7 @@ import {
   filterReducer,
   filtersToQuery,
   type FilterUpdate,
+  type Filters,
 } from "./model";
 import { priceErrors } from "./price-validation";
 export function useListingFilters(initial: CatalogQuery) {
@@ -39,6 +40,11 @@ export function useListingFilters(initial: CatalogQuery) {
     if (state.page !== 1)
       router.push(catalogHref(1, state.sort), { scroll: false });
   }
+  function apply(draft: Filters) {
+    dispatch({ kind: "apply", filters: draft });
+    if (state.page !== 1)
+      router.push(catalogHref(1, state.sort), { scroll: false });
+  }
   function page(value: number) {
     dispatch({ kind: "page", page: value });
   }
@@ -57,6 +63,7 @@ export function useListingFilters(initial: CatalogQuery) {
     invalid,
     debouncing,
     update,
+    apply,
     page,
     sort,
     clear,

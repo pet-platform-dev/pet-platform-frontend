@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import "../features/listing/filters/filters.css";
+@import "../features/listing/filters/mobile-filters.css";
+@import "../widgets/header/mobile-navigation.css";
+@import "../shared/ui/select-dropdown.css";
+@import "../features/auth/account-actions.css";
 
 .seller-contacts {
   display: flex;
@@ -950,9 +954,6 @@ form {
   .site-header nav {
     gap: 10px;
   }
-  .site-header:has(.nav-link[href="/pets"]) {
-    flex-wrap: wrap;
-  }
 }
 
 .catalog-shell {
@@ -1575,9 +1576,6 @@ form {
   }
   .catalog-page-direction span {
     display: none;
-  }
-  .site-header {
-    flex-wrap: wrap;
   }
   .site-header nav {
     width: 100%;

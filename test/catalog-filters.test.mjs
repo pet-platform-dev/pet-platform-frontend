@@ -160,23 +160,32 @@ test("clear resets all fields, page and sort; pagination retains filters", () =>
     sort: "newest",
   });
 });
-test("every supported sort resets page and search UI exposes all four options", () => {
+test("every supported sort resets page and custom search/sort UI preserves its selected label", () => {
+  const labels = {
+    newest: "Спочатку нові",
+    oldest: "Спочатку старі",
+    price_asc: "Ціна: від нижчої",
+    price_desc: "Ціна: від вищої",
+  };
   for (const sort of catalogSorts) {
     const state = filterReducer(initial(), { kind: "sort", sort });
     assert.equal(state.page, 1);
     assert.equal(filtersToQuery(state).sort, sort);
+    const html = renderToStaticMarkup(
+      React.createElement(CatalogSearchSort, {
+        search: "",
+        sort,
+        onSearch() {},
+        onSort() {},
+      }),
+    );
+    assert.ok(html.includes(labels[sort]));
+    assert.ok(html.includes('role="combobox"'));
+    assert.ok(html.includes('aria-haspopup="listbox"'));
+    assert.ok(html.includes('aria-expanded="false"'));
+    assert.ok(!html.includes("<select"));
+    assert.ok(html.includes("Пошук оголошень"));
   }
-  const html = renderToStaticMarkup(
-    React.createElement(CatalogSearchSort, {
-      search: "",
-      sort: "newest",
-      onSearch() {},
-      onSort() {},
-    }),
-  );
-  for (const value of catalogSorts)
-    assert.ok(html.includes(`value="${value}"`));
-  assert.ok(html.includes("Пошук оголошень"));
 });
 test("serializer omits empty/undefined fields, preserves zero and encodes literal Unicode search", () => {
   const query = {

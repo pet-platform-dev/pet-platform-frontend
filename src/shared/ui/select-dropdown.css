@@ -1,0 +1,104 @@
+.select-dropdown {
+  position: relative;
+  min-width: 0;
+}
+.select-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--foreground);
+  border: 1px solid #d8d5ca;
+  border-radius: 10px;
+  background: #fffdf9;
+  cursor: pointer;
+}
+.select-dropdown-trigger span {
+  min-width: 0;
+  white-space: nowrap;
+}
+.select-dropdown-trigger svg {
+  flex-shrink: 0;
+}
+.select-dropdown-trigger:hover {
+  background: #f0eee5;
+}
+.select-dropdown-trigger[aria-expanded="true"] {
+  border-color: var(--accent);
+}
+.select-dropdown-trigger:active {
+  background: #e8eddf;
+}
+.select-dropdown-options {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  top: calc(100% + 8px);
+  width: max(100%, 205px);
+  max-width: calc(100vw - 40px);
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid #d8d5ca;
+  border-radius: 10px;
+  background: #fffdf9;
+  box-shadow: 0 6px 16px rgb(30 42 26 / 9%);
+}
+.select-dropdown-options [role="option"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.select-dropdown-options .is-highlighted {
+  background: #f0eee5;
+  outline: 1px solid #c5cdb8;
+}
+.select-dropdown-options [aria-selected="true"] {
+  color: var(--accent);
+  font-weight: 600;
+}
+.catalog-results:has(.select-dropdown-options) {
+  z-index: 2;
+}
+.catalog-search-sort:has(.select-dropdown-options) {
+  position: relative;
+  z-index: 5;
+}
+.catalog-sort-label {
+  font-size: 14px;
+}
+.catalog-sort .select-dropdown {
+  width: 210px;
+  max-width: 100%;
+}
+@media (max-width: 1023px) {
+  .catalog-filter-sort .catalog-sort {
+    flex: 0 1 210px;
+  }
+  .catalog-sort-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 374px) {
+  .select-dropdown-trigger {
+    font-size: 13px;
+    padding-inline: 8px;
+    gap: 4px;
+  }
+}

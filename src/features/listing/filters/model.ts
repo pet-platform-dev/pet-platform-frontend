@@ -47,11 +47,18 @@ export type FilterAction =
   | { kind: "filter"; update: FilterUpdate }
   | { kind: "page"; page: number }
   | { kind: "sort"; sort: CatalogSort }
-  | { kind: "clear" };
+  | { kind: "clear" }
+  | { kind: "apply"; filters: Filters };
 export function filterReducer(
   state: FilterState,
   action: FilterAction,
 ): FilterState {
+  if (action.kind === "apply")
+    return {
+      ...state,
+      filters: { ...action.filters, q: state.filters.q },
+      page: 1,
+    };
   if (action.kind === "page") return { ...state, page: action.page };
   if (action.kind === "sort") return { ...state, sort: action.sort, page: 1 };
   if (action.kind === "clear")

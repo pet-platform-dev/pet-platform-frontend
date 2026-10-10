@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { MobileNavigation } from "./mobile-navigation";
 import { useSession } from "@/features/auth/session-provider";
 export function Header() {
   const { data, isPending } = useSession();
+  const pathname = usePathname();
   return (
     <header className="site-header">
       <Link className="brand" href="/" aria-label="Лапа — на головну">
@@ -11,7 +14,7 @@ export function Header() {
         </span>{" "}
         лапа<span className="brand-dot">.</span>
       </Link>
-      <nav aria-label="Основна навігація">
+      <nav className="desktop-navigation" aria-label="Основна навігація">
         <Link className="nav-link" href="/listings">
           Оголошення
         </Link>
@@ -40,6 +43,12 @@ export function Header() {
           </>
         )}
       </nav>
+      <MobileNavigation
+        key={pathname}
+        pathname={pathname}
+        authenticated={Boolean(data)}
+        pending={isPending}
+      />
     </header>
   );
 }

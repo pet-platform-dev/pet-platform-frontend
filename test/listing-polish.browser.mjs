@@ -1,3 +1,7 @@
+import {
+  chooseCatalogSort,
+  sortLabels,
+} from "./helpers/catalog-sort-browser.mjs";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -672,10 +676,10 @@ try {
   await page.goto(base + "/listings?page=2&sort=oldest");
   await page.locator(".listing-card").first().waitFor();
   await page.reload();
-  await expect(page.getByLabel("Сортування", { exact: true })).toHaveValue(
-    "oldest",
-  );
-  await page.getByLabel("Сортування", { exact: true }).selectOption("newest");
+  await expect(
+    page.getByRole("combobox", { name: "Сортування", exact: true }),
+  ).toHaveText(sortLabels.oldest);
+  await chooseCatalogSort(page, "newest");
   await page.waitForURL(
     (url) =>
       url.pathname === "/listings" && url.searchParams.get("sort") === "newest",

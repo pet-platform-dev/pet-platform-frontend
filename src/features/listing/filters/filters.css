@@ -46,11 +46,19 @@
   font: inherit;
   font-size: 13px;
   color: var(--accent);
-  border: 0;
-  background: transparent;
+  border: 1px solid #d9d5c9;
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  white-space: nowrap;
+  background: #fffdf9;
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+}
+.catalog-clear:hover {
+  background: #f0eee5;
+}
+.catalog-clear:active {
+  background: #e8eddf;
 }
 .catalog-clear:focus-visible {
   outline: 3px solid var(--accent);
@@ -217,7 +225,15 @@
   }
   .catalog-clear {
     flex-shrink: 0;
-    max-width: 105px;
-    text-align: right;
+    text-align: center;
+  }
+}
+
+@media (max-width: 1023px) {
+  .catalog-results .catalog-toolbar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
   }
 }

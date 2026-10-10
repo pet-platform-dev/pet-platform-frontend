@@ -1,3 +1,4 @@
+import { chooseCatalogSort } from "./helpers/catalog-sort-browser.mjs";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { catalogFilterFixtures } from "./helpers/catalog-filter-fixtures.mjs";
@@ -331,7 +332,7 @@ try {
   for (const sort of ["oldest", "price_asc", "price_desc", "newest"]) {
     const row = await step(
       `Sort ${sort} matches real backend order`,
-      () => page.getByLabel("Сортування", { exact: true }).selectOption(sort),
+      () => chooseCatalogSort(page, sort),
       { sort },
     );
     if (sort.startsWith("price_")) {

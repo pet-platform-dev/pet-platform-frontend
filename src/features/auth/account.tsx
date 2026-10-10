@@ -92,12 +92,14 @@ export function Account() {
           {message}
         </p>
       )}
-      <Link className="button primary" href="/profile">
-        Редагувати публічний профіль
-      </Link>
-      <button className="button secondary" disabled={pending} onClick={exit}>
-        {pending ? "Виходимо…" : "Вийти з акаунта"}
-      </button>
+      <div className="account-actions">
+        <Link className="button primary" href="/profile">
+          Редагувати публічний профіль
+        </Link>
+        <button className="button secondary" disabled={pending} onClick={exit}>
+          {pending ? "Виходимо…" : "Вийти з акаунта"}
+        </button>
+      </div>
     </section>
   );
 }

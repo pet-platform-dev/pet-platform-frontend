@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import { SelectDropdown } from "@/shared/ui/select-dropdown";
 import {
   catalogSorts,
   type CatalogSort,
@@ -13,7 +15,9 @@ export function CatalogSearchSort({
   sort,
   onSearch,
   onSort,
+  filtersTrigger,
 }: {
+  filtersTrigger?: ReactNode;
   search: string;
   sort: CatalogSort;
   onSearch: (value: string) => void;
@@ -36,24 +40,20 @@ export function CatalogSearchSort({
           За заголовком, описом або назвою породи.
         </p>
       </div>
-      <div className="catalog-sort">
-        <label htmlFor="catalog-sort">Сортування</label>
-        <select
-          id="catalog-sort"
-          value={sort}
-          onChange={(event) => {
-            const value = catalogSorts.find(
-              (item) => item === event.target.value,
-            );
-            if (value) onSort(value);
-          }}
-        >
-          {catalogSorts.map((value) => (
-            <option key={value} value={value}>
-              {labels[value]}
-            </option>
-          ))}
-        </select>
+      <div className="catalog-filter-sort">
+        {filtersTrigger}
+        <div className="catalog-sort">
+          <span className="catalog-sort-label">Сортування</span>
+          <SelectDropdown
+            label="Сортування"
+            value={sort}
+            options={catalogSorts.map((value) => ({
+              value,
+              label: labels[value],
+            }))}
+            onChange={onSort}
+          />
+        </div>
       </div>
     </div>
   );

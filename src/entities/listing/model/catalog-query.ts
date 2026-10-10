@@ -7,7 +7,7 @@ export const catalogSorts = [
 export type CatalogSort = (typeof catalogSorts)[number];
 export type CatalogQuery = {
   page: number;
-  limit: 24;
+  limit: 1 | 24;
   sort: CatalogSort;
   q?: string;
   species?: "dog" | "cat";
