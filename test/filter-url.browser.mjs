@@ -1,3 +1,7 @@
+import {
+  verifyFinalCatalogFlows,
+  verifyCatalogGeometry,
+} from "./helpers/catalog-final-flow-browser.mjs";
 import { chooseCatalogSort } from "./helpers/catalog-sort-browser.mjs";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -164,6 +168,9 @@ async function pageTwo() {
 await mkdir("test-results", { recursive: true });
 try {
   data = await catalogFilterFixtures();
+  await page.goto("http://localhost:3000/listings");
+  await catalog({ q: undefined, page: 1, sort: "newest" });
+  await verifyCatalogGeometry(page, "default", pass);
   await page.goto("http://localhost:3000/listings?q=" + data.marker);
   await settled();
   const initialHistory = await historyLength(),
@@ -183,6 +190,12 @@ try {
   await pick(/^Породи/, data.marker, data.fixture.breeds[0].nameUk);
   await pick(/^Породи/, data.marker, data.fixture.breeds[1].nameUk);
   await pick(/^Область/, "Кіровоградська", data.fixture.locations[0].region);
+  await pick(/^Область/, "Полтавська", data.fixture.locations[1].region);
+  await pick(
+    /^Місто або село/,
+    "Однакова назва",
+    data.fixture.locations[0].region,
+  );
   await pick(
     /^Місто або село/,
     "Однакова назва",
@@ -200,8 +213,8 @@ try {
   const complex = {
     species: "dog",
     breedIds: csv(data.fixture.breeds.slice(0, 2).map((i) => i.id)),
-    regionIds: "UA35",
-    locationIds: data.fixture.locations[1].id,
+    regionIds: "UA35,UA53",
+    locationIds: csv(data.fixture.locations.map((i) => i.id)),
     type: "SALE",
     gender: "MALE",
     ageMinMonths: 0,
@@ -243,8 +256,8 @@ try {
   assert.equal(page.url(), copied);
   assert.deepEqual(await cards(), hrefs);
   assert.equal(await selected("Обрані: Породи"), 2);
-  assert.equal(await selected("Обрані: Область"), 1);
-  assert.equal(await selected("Обрані: Місто або село"), 1);
+  assert.equal(await selected("Обрані: Область"), 2);
+  assert.equal(await selected("Обрані: Місто або село"), 2);
   assert.equal(await search().inputValue(), data.marker);
   assert.equal(
     await page.getByLabel("Вік", { exact: true }).inputValue(),
@@ -257,6 +270,7 @@ try {
   pass(
     "Refresh restores all query fields and identical ordered page-two results",
   );
+  await verifyCatalogGeometry(page, "complex", pass);
   const returnTarget = new URL(copied).pathname + new URL(copied).search;
   const detailLink = page
     .locator(".catalog-results .listing-card-link")
@@ -269,6 +283,7 @@ try {
     await page.locator(".listing-back-link").getAttribute("href"),
     returnTarget,
   );
+  await verifyCatalogGeometry(page, "detail", pass);
   pass(
     "Catalog detail link preserves all filters, search, sort and page=2 in safe returnTo",
   );
@@ -627,6 +642,19 @@ try {
   pass(
     "Well-formed unknown IDs stay selected and empty; custom direct age range survives UI",
   );
+  await verifyFinalCatalogFlows({
+    page,
+    data,
+    catalog,
+    preview,
+    pick,
+    open,
+    close,
+    dialog,
+    applyButton,
+    catalogRequests,
+    pass,
+  });
   assert.deepEqual(errors, []);
   pass(
     "No runtime/hydration errors, history loops or duplicate applied fetches",

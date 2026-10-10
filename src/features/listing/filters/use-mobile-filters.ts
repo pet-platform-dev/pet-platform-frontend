@@ -15,8 +15,12 @@ export function useMobileFilters(
   if (session && session.version !== version) setSession(null);
   const draft = session?.version === version ? session.draft : null;
   const close = useCallback(() => setSession(null), []);
-  function open() {
-    setSession({ draft: copyFilters(applied), version, cleared: false });
+  function open(filters = applied, nextVersion = version) {
+    setSession({
+      draft: copyFilters(filters),
+      version: nextVersion,
+      cleared: false,
+    });
   }
   function update(change: FilterUpdate) {
     setSession((current) =>

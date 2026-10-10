@@ -69,7 +69,10 @@ export function ListingsCatalog({ query: initial }: { query: CatalogQuery }) {
             filtersTrigger={
               <MobileFiltersTrigger
                 filters={filters.applied.filters}
-                onOpen={mobile.open}
+                onOpen={() => {
+                  const prepared = filters.prepareMobile();
+                  mobile.open(prepared.filters, prepared.href);
+                }}
               />
             }
           />

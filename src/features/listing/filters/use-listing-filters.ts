@@ -13,6 +13,7 @@ import { urlFilterState } from "./filter-url-state";
 import { useFilterUrl } from "./use-filter-url";
 import { useFilterInputs } from "./use-filter-inputs";
 import { useFilterLabels } from "./use-filter-labels";
+import { filterHref } from "./filter-url-serializer";
 export function useListingFilters(initial: CatalogQuery) {
   const url = useFilterUrl(initial),
     references = useFilterLabels(url.query.regionIds);
@@ -34,6 +35,25 @@ export function useListingFilters(initial: CatalogQuery) {
     ...applied,
     filters: { ...applied.filters, ...inputs.values },
   };
+  function prepareMobile() {
+    const next =
+      inputs.pending && !inputs.invalid
+        ? filtersToQuery({ ...state, page: 1 })
+        : url.query;
+    const priceChanged =
+      inputs.values.priceMin !== applied.filters.priceMin ||
+      inputs.values.priceMax !== applied.filters.priceMax;
+    url.navigate(next, priceChanged ? "push" : "replace");
+    inputs.reset({
+      q: next.q ?? "",
+      priceMin: next.priceMin ?? "",
+      priceMax: next.priceMax ?? "",
+    });
+    return {
+      filters: urlFilterState(next, references.labels).filters,
+      href: filterHref(next),
+    };
+  }
   function update(change: FilterUpdate) {
     references.remember(change);
     if (
@@ -87,5 +107,6 @@ export function useListingFilters(initial: CatalogQuery) {
     page,
     sort,
     clear,
+    prepareMobile,
   };
 }
