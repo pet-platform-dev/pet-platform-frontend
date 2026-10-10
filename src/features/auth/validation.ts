@@ -14,6 +14,9 @@ export const loginSchema = z.object({
 });
 export const registerSchema = loginSchema
   .extend({
+    accountType: z
+      .enum(["SELLER", "BREEDER"], { error: "Оберіть тип акаунта" })
+      .default("SELLER"),
     firstName: z
       .string()
       .trim()

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { ApiError, signIn } from "@/shared/api/client";
+import { AuthFields } from "./auth-fields";
+import { AccountTypeChoice } from "./account-type-choice";
 import { loginSchema, registerSchema } from "./validation";
 import {
   clearPrivateQueries,
@@ -40,12 +42,16 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     setPending(true);
     const { email, password } = result.data;
     const input =
-      registering && "firstName" in result.data && "lastName" in result.data
+      registering &&
+      "firstName" in result.data &&
+      "lastName" in result.data &&
+      "accountType" in result.data
         ? {
             email,
             password,
             firstName: result.data.firstName,
             lastName: result.data.lastName,
+            accountType: result.data.accountType,
           }
         : { email, password };
     try {
@@ -66,46 +72,6 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     }
   }
 
-  const fields = [
-    ...(registering
-      ? [
-          {
-            name: "firstName",
-            label: "Ім’я",
-            type: "text",
-            autocomplete: "given-name",
-          },
-          {
-            name: "lastName",
-            label: "Прізвище",
-            type: "text",
-            autocomplete: "family-name",
-          },
-        ]
-      : []),
-    {
-      name: "email",
-      label: "Електронна адреса",
-      type: "email",
-      autocomplete: "email",
-    },
-    {
-      name: "password",
-      label: "Пароль",
-      type: "password",
-      autocomplete: registering ? "new-password" : "current-password",
-    },
-    ...(registering
-      ? [
-          {
-            name: "confirmPassword",
-            label: "Підтвердження пароля",
-            type: "password",
-            autocomplete: "new-password",
-          },
-        ]
-      : []),
-  ];
   return (
     <section className="auth-card">
       <p className="eyebrow">
@@ -118,35 +84,14 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           : "Увійдіть, щоб перейти до свого профілю."}
       </p>
       <form onSubmit={submit} noValidate>
-        {fields.map((field) => (
-          <div className="field" key={field.name}>
-            <label htmlFor={field.name}>{field.label}</label>
-            <input
-              id={field.name}
-              name={field.name}
-              type={field.type}
-              autoComplete={field.autocomplete}
-              required
-              maxLength={
-                field.name === "email"
-                  ? 254
-                  : field.type === "password"
-                    ? 128
-                    : 100
-              }
-              aria-invalid={Boolean(errors[field.name])}
-              aria-describedby={
-                errors[field.name] ? `${field.name}-error` : undefined
-              }
-              disabled={pending}
-            />
-            {errors[field.name] && (
-              <p className="field-error" id={`${field.name}-error`}>
-                {errors[field.name]}
-              </p>
-            )}
-          </div>
-        ))}
+        {registering && (
+          <AccountTypeChoice disabled={pending} error={errors.accountType} />
+        )}
+        <AuthFields
+          registering={registering}
+          pending={pending}
+          errors={errors}
+        />
         {!registering && (
           <p className="form-hint">Пароль має містити щонайменше 8 символів.</p>
         )}

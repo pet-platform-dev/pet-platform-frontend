@@ -18,7 +18,8 @@
     "test:browser:deletion": "node test/deletion.browser.mjs",
     "test:browser:mobile-filters": "node test/mobile-filters.browser.mjs",
     "test:browser:mobile-polish": "node test/mobile-polish.browser.mjs",
-    "test:browser:url": "node test/filter-url.browser.mjs"
+    "test:browser:url": "node test/filter-url.browser.mjs",
+    "test:browser:accounts": "node test/account-type.browser.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

@@ -44,6 +44,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (event.data?.source === sessionSource) return;
       const kind =
         typeof event.data === "string" ? event.data : event.data?.kind;
+      if (kind === "account-type") {
+        void client.resetQueries({ queryKey: sessionKey });
+        return;
+      }
       if (kind !== "login" && kind !== "logout") return;
       clearSession();
       clearPrivateQueries(client);
@@ -67,7 +71,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, [client]);
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
-export function notifySessionChange(kind: "login" | "logout" = "login") {
+export function notifySessionChange(
+  kind: "login" | "logout" | "account-type" = "login",
+) {
   const channel = new BroadcastChannel("pet-platform-session");
   channel.postMessage({ kind, source: sessionSource });
   channel.close();

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AccountTypeSettings } from "./account-type-settings";
 import { ApiError } from "@/shared/api/client";
 import { useLogout, useSession } from "./session-provider";
 
@@ -87,6 +88,7 @@ export function Account() {
           </div>
         ))}
       </dl>
+      <AccountTypeSettings key={user.id} user={user} />
       {message && (
         <p className="error-banner" role="alert">
           {message}

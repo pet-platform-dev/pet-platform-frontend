@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../features/auth/account-type.css";
 @import "../features/listing/filters/filters.css";
 @import "../features/listing/filters/mobile-filters.css";
 @import "../widgets/header/mobile-navigation.css";

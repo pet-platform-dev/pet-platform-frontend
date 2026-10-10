@@ -1,0 +1,69 @@
+.account-type-choice {
+  border: 0;
+  padding: 0;
+  margin: 0 0 24px;
+  min-width: 0;
+}
+.account-type-choice legend {
+  font-weight: 650;
+  margin-bottom: 12px;
+}
+.account-type-options {
+  display: grid;
+  gap: 12px;
+}
+.account-type-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border, #d9ded6);
+  border-radius: 14px;
+  cursor: pointer;
+  min-width: 0;
+}
+.account-type-option input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0 0;
+  accent-color: var(--primary, #476841);
+}
+.account-type-option strong,
+.account-type-option .muted {
+  display: block;
+}
+.account-type-option .muted {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+.account-type-option:has(input:checked) {
+  border-color: #476841;
+  background: #f2f6ef;
+}
+.account-type-option:has(input:focus-visible) {
+  outline: 3px solid #8baf75;
+  outline-offset: 3px;
+}
+.account-type-settings {
+  margin: 24px 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--border, #d9ded6);
+  overflow-wrap: anywhere;
+}
+.account-type-settings h2 {
+  font-size: 1.125rem;
+}
+.account-type-settings button {
+  max-width: 100%;
+  white-space: normal;
+}
+@media (min-width: 768px) {
+  .account-type-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .auth-card:has(.account-type-choice) {
+    width: min(100%, 680px);
+  }
+}
