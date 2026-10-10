@@ -1,3 +1,4 @@
+import { invalidateBreederAnimals } from "@/features/breeder/animals/cache";
 import { z } from "zod";
 import { authenticatedRequest, ApiError } from "@/shared/api/client";
 import {
@@ -87,6 +88,7 @@ export async function invalidateDeletedMarketplace(
   client: QueryClient,
   id?: string,
 ) {
+  await invalidateBreederAnimals(client);
   // Reset detail data so deleted entities cannot remain in inactive caches.
   await Promise.all([
     ...["listing", "owned-listing"].map((key) =>
@@ -111,6 +113,7 @@ export async function createAndMaybePublish(
   }
 }
 export async function invalidateListings(client: QueryClient, id: string) {
+  await invalidateBreederAnimals(client);
   await Promise.all(
     [
       ["my-listings"],

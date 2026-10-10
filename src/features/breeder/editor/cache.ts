@@ -1,3 +1,4 @@
+import { invalidateBreederAnimals } from "../animals/cache";
 import type { QueryClient } from "@tanstack/react-query";
 import type { User } from "@/entities/user/model";
 import type { OwnBreeder } from "@/entities/breeder/owner-api";
@@ -31,6 +32,11 @@ export async function updateBreederCache(
       ...seller,
       breeder: profile ? { kennelName: profile.kennelName } : null,
     });
+  await invalidateBreederAnimals(client, userId);
+  if (!profile) {
+    client.removeQueries({ queryKey: ["breeder-animals", userId] });
+    await client.invalidateQueries({ queryKey: ["pet"] });
+  }
   await client.invalidateQueries({
     predicate: (query) => {
       if (query.queryKey[0] === "seller-listings")

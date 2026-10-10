@@ -1,5 +1,7 @@
 import type { Species } from "@/entities/species/model";
 export type Pet = {
+  profileImage?: { url: string; thumbnailUrl: string } | null;
+  showOnBreederProfile?: boolean;
   id: string;
   previewImage?: { thumbnailUrl: string } | null;
   name: string | null;

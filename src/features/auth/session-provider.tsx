@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import type { User } from "@/entities/user/model";
 import { clearSession, currentUser, signOut } from "@/shared/api/client";
 import { clearFormRecovery } from "@/features/listing/form-recovery";
+import { refreshPersonalIdentity } from "./personal-profile-cache";
 
 export const sessionKey = ["current-user"] as const;
 const sessionSource = crypto.randomUUID();
@@ -22,6 +23,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "owned-listing",
     "profile",
     "own-breeder",
+    "breeder-animals",
     "breeder-notice",
   ].includes(String(queryKey[0]));
 }
@@ -46,7 +48,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (event.data?.source === sessionSource) return;
       const kind =
         typeof event.data === "string" ? event.data : event.data?.kind;
-      if (kind === "account-type") {
+      if (kind === "account-type" || kind === "profile") {
+        if (kind === "profile") {
+          const user = client.getQueryData<User>(sessionKey);
+          if (user) void refreshPersonalIdentity(client, user.id);
+        }
         void client.resetQueries({ queryKey: sessionKey });
         return;
       }
@@ -74,7 +80,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 export function notifySessionChange(
-  kind: "login" | "logout" | "account-type" = "login",
+  kind: "login" | "logout" | "account-type" | "profile" = "login",
 ) {
   const channel = new BroadcastChannel("pet-platform-session");
   channel.postMessage({ kind, source: sessionSource });

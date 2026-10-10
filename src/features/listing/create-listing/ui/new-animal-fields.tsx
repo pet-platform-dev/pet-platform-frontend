@@ -1,4 +1,5 @@
 "use client";
+import { FormSelect } from "@/shared/ui/form-select";
 import { useImperativeHandle, useState, type Ref } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -85,28 +86,31 @@ export function NewAnimalFields({
             </button>
           </div>
         ) : (
-          <select
+          <FormSelect
+            form={form}
+            name="speciesId"
             id="animal-species"
-            {...form.register("speciesId", {
-              onChange: () => {
-                form.setValue("breedId", "");
-                setBreed(null);
-                setSearching(false);
-                form.clearErrors("breedId");
-              },
-            })}
-            {...attrs("speciesId")}
+            label="Вид тварини"
             disabled={species.isPending}
-          >
-            <option value="">
-              {species.isPending ? "Завантажуємо види…" : "Оберіть вид тварини"}
-            </option>
-            {species.data?.map((item) => (
-              <option value={item.id} key={item.id}>
-                {speciesLabel(item.slug)}
-              </option>
-            ))}
-          </select>
+            options={[
+              {
+                value: "",
+                label: species.isPending
+                  ? "Завантажуємо види…"
+                  : "Оберіть вид тварини",
+              },
+              ...(species.data ?? []).map((item) => ({
+                value: item.id,
+                label: speciesLabel(item.slug),
+              })),
+            ]}
+            onChange={() => {
+              form.setValue("breedId", "");
+              setBreed(null);
+              setSearching(false);
+              form.clearErrors("breedId");
+            }}
+          />
         )}
         {message("speciesId")}
       </div>
@@ -123,15 +127,17 @@ export function NewAnimalFields({
       <div className="form-grid">
         <div className="field">
           <label htmlFor="animal-gender">Стать</label>
-          <select
+          <FormSelect
+            form={form}
+            name="gender"
             id="animal-gender"
-            {...form.register("gender")}
-            {...attrs("gender")}
-          >
-            <option value="UNKNOWN">Не вказано</option>
-            <option value="MALE">Самець</option>
-            <option value="FEMALE">Самка</option>
-          </select>
+            label="Стать"
+            options={[
+              { value: "UNKNOWN", label: "Не вказано" },
+              { value: "MALE", label: "Самець" },
+              { value: "FEMALE", label: "Самка" },
+            ]}
+          />
           {message("gender")}
         </div>
         <div className="field">

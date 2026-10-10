@@ -14,6 +14,9 @@ const navigation = dataModule(
 const link = dataModule(
   `import React from ${JSON.stringify(pathToFileURL(require.resolve("react")).href)}; export default function Link({children,href,scroll,prefetch,onNavigate,...props}) { return React.createElement('a',{...props,href},children); }`,
 );
+const image = dataModule(
+  `import React from ${JSON.stringify(pathToFileURL(require.resolve("react")).href)}; export default function Image({unoptimized,priority,...props}) { return React.createElement('img',props); }`,
+);
 async function moduleUrl(relative) {
   const full = resolve(relative);
   if (modules.has(full)) return modules.get(full);
@@ -29,6 +32,7 @@ async function moduleUrl(relative) {
     let url;
     if (dependency === "next/navigation") url = navigation;
     else if (dependency === "next/link") url = link;
+    else if (dependency === "next/image") url = image;
     else if (dependency.startsWith("@/") || dependency.startsWith(".")) {
       const local = dependency.startsWith("@/")
         ? resolve("src", dependency.slice(2))

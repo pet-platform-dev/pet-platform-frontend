@@ -25,7 +25,9 @@ export function AccountBreederLink({ userId }: { userId: string }) {
           : "Налаштувати профіль заводчика"}
       </Link>
       {query.data && (
-        <Link href={"/sellers/" + userId}>Переглянути публічний профіль</Link>
+        <Link className="button secondary" href="/profile/breeder/animals">
+          Керувати тваринами
+        </Link>
       )}
     </div>
   );

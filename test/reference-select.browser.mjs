@@ -1,3 +1,4 @@
+import { selectFormOption } from "./helpers/select-form-option.mjs";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 await (
@@ -372,7 +373,7 @@ try {
   await page
     .getByRole("radio", { name: "Вибрати з моїх тварин", exact: true })
     .check();
-  await page.getByLabel("Тварина", { exact: true }).selectOption({ index: 1 });
+  await selectFormOption(page, "Тварина", { index: 1 });
   await page.getByLabel("Безкоштовно", { exact: true }).check();
   await page
     .getByLabel("Заголовок", { exact: true })
@@ -402,9 +403,7 @@ try {
   pass("Listing form submits selected persisted Location UUID");
   await page.unroute(api + "/listings");
   await page.goto(base + "/pets/new");
-  await page
-    .getByLabel("Вид тварини", { exact: true })
-    .selectOption({ label: "Собака" });
+  await selectFormOption(page, "Вид тварини", { label: "Собака" });
   input = page.getByRole("combobox", { name: "Порода" });
   await input.focus();
   await until(async () =>
@@ -439,9 +438,7 @@ try {
     ),
   );
   pass("Breed search mal and keyboard selection");
-  await page
-    .getByLabel("Вид тварини", { exact: true })
-    .selectOption({ label: "Кіт" });
+  await selectFormOption(page, "Вид тварини", { label: "Кіт" });
   input = page.getByRole("combobox", { name: "Порода" });
   assert.equal(await input.inputValue(), "");
   assert.equal(await page.locator(".selected-breed").count(), 0);
@@ -463,9 +460,7 @@ try {
   await page.waitForTimeout(450);
   await page.getByText("Нічого не знайдено. Спробуйте іншу назву.").waitFor();
   pass("Empty reference search state");
-  await page
-    .getByLabel("Вид тварини", { exact: true })
-    .selectOption({ label: "Собака" });
+  await selectFormOption(page, "Вид тварини", { label: "Собака" });
   input = page.getByRole("combobox", { name: "Порода" });
   await input.focus();
   await until(async () =>

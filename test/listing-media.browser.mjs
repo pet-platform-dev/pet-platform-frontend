@@ -1,3 +1,4 @@
+import { selectFormOption } from "./helpers/select-form-option.mjs";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -73,9 +74,7 @@ async function animal(
   term = "mal",
   name = "Belgian Malinois",
 ) {
-  await page
-    .getByLabel("Вид тварини", { exact: true })
-    .selectOption({ label: species });
+  await selectFormOption(page, "Вид тварини", { label: species });
   const breed = page.getByRole("combobox", { name: "Порода" });
   await breed.fill(term);
   await page
@@ -335,7 +334,7 @@ try {
   );
   pass("Existing Pet options have natural breed/name/age/gender");
   // Reusing a Pet with a nonterminal listing should keep the form intact.
-  await page.getByLabel("Тварина", { exact: true }).selectOption(free.pet.id);
+  await selectFormOption(page, "Тварина", free.pet.id);
   await listing("Прилаштування");
   const conflict = page.waitForResponse(
     (r) => r.url() === api + "/listings" && r.request().method() === "POST",

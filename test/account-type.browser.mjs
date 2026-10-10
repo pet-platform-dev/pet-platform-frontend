@@ -181,14 +181,13 @@ async function register(type) {
       .getByRole("heading", { name: "Додати тварину", exact: true })
       .waitFor();
     await page
-      .locator('#speciesId option[value]:not([value=""])')
-      .first()
-      .waitFor({ state: "attached" });
-    const speciesId = await page
-      .locator('#speciesId option[value]:not([value=""])')
-      .first()
-      .getAttribute("value");
-    await page.locator("#speciesId").selectOption(speciesId);
+      .getByRole("combobox", { name: "Вид тварини", exact: true })
+      .click();
+    await page
+      .getByRole("listbox", { name: "Вид тварини", exact: true })
+      .getByRole("option")
+      .nth(1)
+      .click();
     await page
       .getByLabel("Ім’я (необов’язково)", { exact: true })
       .fill("Тестовий улюбленець");

@@ -7,8 +7,7 @@ import { speciesLabel } from "@/entities/species/model";
 import { genderLabel, type Pet } from "@/entities/pet/model";
 import { ApiError } from "@/shared/api/client";
 import { deletePet, getPets } from "./api";
-import { ListingImage } from "@/entities/listing/ui/listing-image";
-import { ListingPlaceholder } from "@/entities/listing/ui/listing-placeholder";
+import { PetPreview } from "@/entities/pet/ui/pet-preview";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 import { invalidateDeletedMarketplace } from "@/features/listing/manage-listing/api";
 export function PetList() {
@@ -38,7 +37,7 @@ export function PetList() {
         <div>
           <p className="eyebrow">Особистий простір</p>
           <h1>Мої тварини</h1>
-          <p className="muted">Профілі ваших улюбленців, доступні лише вам.</p>
+          <p className="muted">Керуйте профілями ваших улюбленців.</p>
         </div>
         <Link href="/pets/new" className="button primary">
           + Додати тварину
@@ -75,30 +74,25 @@ export function PetList() {
           <div className="pets-grid">
             {query.data.data.map((pet) => (
               <article className="pet-card" key={pet.id}>
-                <div className="pet-preview">
-                  {pet.previewImage ? (
-                    <ListingImage
-                      src={pet.previewImage.thumbnailUrl}
-                      species={pet.species.slug}
-                      alt={
-                        pet.name?.trim() ||
-                        (pet.breed
-                          ? breedLabel(pet.breed)
-                          : speciesLabel(pet.species.slug))
-                      }
-                      width="480"
-                      height="360"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <ListingPlaceholder species={pet.species.slug} />
-                  )}
-                </div>
+                <PetPreview
+                  image={pet.previewImage}
+                  species={pet.species.slug}
+                  alt={
+                    pet.name?.trim() ||
+                    (pet.breed
+                      ? breedLabel(pet.breed)
+                      : speciesLabel(pet.species.slug))
+                  }
+                />
                 <div className="pet-card-top">
                   <span className="pet-species">
                     {speciesLabel(pet.species.slug)}
                   </span>
-                  <span className="private-label">Приватний профіль</span>
+                  <span className="private-label">
+                    {pet.showOnBreederProfile
+                      ? "У профілі розплідника"
+                      : "Приватний профіль"}
+                  </span>
                 </div>
                 <h2>
                   {pet.name?.trim() ||

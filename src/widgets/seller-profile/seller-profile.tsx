@@ -1,4 +1,5 @@
 "use client";
+import { PublicBreederAnimals } from "@/features/breeder/animals/public-breeder-animals";
 import { BreederCreatedNotice } from "@/features/breeder/editor/breeder-created-notice";
 import { useQuery } from "@tanstack/react-query";
 import { ApiError } from "@/shared/api/client";
@@ -61,7 +62,10 @@ export function SellerProfile({
     <section className="seller-profile">
       <BreederCreatedNotice userId={id} />
       {profile ? (
-        <BreederProfilePage profile={profile} />
+        <>
+          <BreederProfilePage profile={profile} />
+          <PublicBreederAnimals key={id} userId={id} />
+        </>
       ) : (
         <SellerProfileHeader profile={seller.data} />
       )}

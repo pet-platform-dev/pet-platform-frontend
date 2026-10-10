@@ -1,3 +1,4 @@
+@import "../features/breeder/animals/breeder-animals.css";
 @import "tailwindcss";
 @import "../features/breeder/editor/breeder-editor.css";
 @import "../features/breeder/media/breeder-media.css";
@@ -1850,4 +1851,42 @@ form {
 .reference-chips button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+}
+.account-section {
+  margin-block: 24px;
+  padding-block: 20px;
+  border-top: 1px solid #e8e3d8;
+  min-width: 0;
+}
+.account-section h2 {
+  margin-top: 0;
+}
+.account-section .account-actions,
+.breeder-account-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.pet-photo-field {
+  margin-block: 16px 24px;
+  min-width: 0;
+}
+.pet-photo-preview {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.pet-photo-field .form-actions {
+  flex-wrap: wrap;
+}
+.pet-photo-field .button,
+.account-section .button {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }

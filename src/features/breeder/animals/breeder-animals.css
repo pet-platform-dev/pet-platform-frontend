@@ -1,0 +1,116 @@
+.breeder-animals-management,
+.breeder-public-animals {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.breeder-animals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  min-width: 0;
+}
+.breeder-animal-card {
+  min-width: 0;
+  border: 1px solid #e8e3d8;
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+}
+.breeder-animal-content {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  min-width: 0;
+}
+.breeder-animal-content h3,
+.breeder-animal-content p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.breeder-animal-content h3 {
+  font-size: 20px;
+  line-height: 1.3;
+}
+.breeder-animal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.breeder-animal-actions .button {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+  font-size: 14px;
+  padding: 10px 14px;
+}
+.breeder-visibility {
+  display: grid;
+  gap: 8px;
+  border-block: 1px solid #e8e3d8;
+  padding-block: 14px;
+}
+.breeder-visibility label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  line-height: 1.4;
+}
+.breeder-visibility input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+.breeder-visibility input:focus-visible {
+  outline: 3px solid #9bab78;
+  outline-offset: 3px;
+}
+.breeder-visibility p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.breeder-listing-status {
+  font-size: 14px;
+  font-weight: 600;
+}
+.breeder-public-animals {
+  margin-block: 28px;
+}
+.breeder-public-animals h2 {
+  margin: 0;
+}
+.breeder-animal-card .pet-preview {
+  margin: 0;
+  aspect-ratio: 4/3;
+}
+.breeder-animal-card .pet-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.breeder-animal-card .listing-visual {
+  height: 100%;
+}
+@media (max-width: 1023px) {
+  .breeder-animals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .breeder-animals-grid {
+    grid-template-columns: 1fr;
+  }
+  .breeder-animal-actions .button {
+    width: 100%;
+  }
+  .breeder-animals-management .pets-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .breeder-animal-content {
+    padding: 16px;
+  }
+}

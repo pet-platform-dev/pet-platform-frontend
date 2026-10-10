@@ -1,16 +1,28 @@
 "use client";
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, useEffect } from "react";
 import { useSelectDismiss } from "./use-select-dismiss";
 export function SelectDropdown<T extends string>({
   label,
   value,
   options,
   onChange,
+  disabled = false,
+  controlId,
+  describedBy,
+  invalid,
+  onFocusRef,
+  onBlur,
 }: {
   label: string;
   value: T;
   options: readonly { value: T; label: string }[];
   onChange: (value: T) => void;
+  disabled?: boolean;
+  controlId?: string;
+  describedBy?: string;
+  invalid?: boolean;
+  onFocusRef?: (node: HTMLButtonElement | null) => void;
+  onBlur?: () => void;
 }) {
   const [open, setOpen] = useState(false),
     [active, setActive] = useState(0),
@@ -22,6 +34,12 @@ export function SelectDropdown<T extends string>({
     options.findIndex((item) => item.value === value),
   );
   useSelectDismiss(root, open, () => setOpen(false));
+  useEffect(() => {
+    if (open)
+      root.current
+        ?.querySelectorAll('[role="option"]')
+        [active]?.scrollIntoView({ block: "nearest" });
+  }, [open, active]);
   function show() {
     setActive(selected);
     setOpen(true);
@@ -40,7 +58,16 @@ export function SelectDropdown<T extends string>({
       }}
     >
       <button
-        ref={trigger}
+        id={controlId}
+        disabled={disabled || !options.length}
+        aria-describedby={describedBy}
+        aria-invalid={invalid}
+        ref={(node) => {
+          trigger.current = node;
+          onFocusRef?.(node);
+        }}
+        onBlur={onBlur}
+        data-value={value}
         type="button"
         role="combobox"
         className="select-dropdown-trigger"
@@ -76,7 +103,7 @@ export function SelectDropdown<T extends string>({
           } else if (event.key === "Tab") setOpen(false);
         }}
       >
-        <span>{options[selected].label}</span>
+        <span>{options[selected]?.label ?? "Оберіть значення"}</span>
         <svg
           width="18"
           height="18"
@@ -101,6 +128,7 @@ export function SelectDropdown<T extends string>({
           {options.map((option, index) => (
             <li
               key={option.value}
+              data-value={option.value}
               id={`${id}-${index}`}
               role="option"
               aria-selected={value === option.value}

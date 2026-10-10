@@ -1,7 +1,11 @@
 "use client";
+import { invalidateBreederAnimals } from "@/features/breeder/animals/cache";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { FormSelect } from "@/shared/ui/form-select";
+import { PetPhotoField } from "./pet-photo-field";
+import { savePetPhoto } from "./profile-image-api";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +21,9 @@ type FormInput = z.input<typeof petFormSchema>;
 function PetForm({ pet }: { pet?: Pet }) {
   const router = useRouter();
   const client = useQueryClient();
+  const savedId = useRef(pet?.id);
+  const [created, setCreated] = useState(false);
+  const [photo, setPhoto] = useState<File | null | undefined>(undefined);
   const [selected, setSelected] = useState<BreedChoice | null>(
     pet?.breed ?? null,
   );
@@ -43,11 +50,17 @@ function PetForm({ pet }: { pet?: Pet }) {
     (value) => value.id === speciesId,
   )?.slug;
   const mutation = useMutation({
-    mutationFn: (input: z.output<typeof petFormSchema>) =>
-      savePet(input, pet?.id),
+    mutationFn: async (input: z.output<typeof petFormSchema>) => {
+      const saved = await savePet(input, savedId.current);
+      savedId.current = saved.id;
+      setCreated(true);
+      if (photo !== undefined) await savePetPhoto(saved.id, photo);
+      return getPet(saved.id);
+    },
     onSuccess: async (saved) => {
       client.setQueryData(["pet", saved.id], saved);
       await client.invalidateQueries({ queryKey: ["my-pets"] });
+      await invalidateBreederAnimals(client);
       router.push("/pets");
     },
     onError: (error) => {
@@ -87,11 +100,17 @@ function PetForm({ pet }: { pet?: Pet }) {
       <p className="eyebrow">Профіль улюбленця</p>
       <h1>{pet ? "Редагувати тварину" : "Додати тварину"}</h1>
       <p className="muted">
-        Цей профіль доступний лише вам. Поля, позначені як необов’язкові, можна
-        залишити порожніми.
+        Публічну видимість тварини в профілі розплідника ви обираєте окремо.
+        Необов’язкові поля можна залишити порожніми.
       </p>
       <form onSubmit={submit} noValidate>
         <fieldset disabled={mutation.isPending}>
+          <PetPhotoField
+            current={pet?.profileImage}
+            value={photo}
+            disabled={mutation.isPending}
+            onChange={setPhoto}
+          />
           <div className="form-grid">
             <div className="field">
               <label htmlFor="name">Ім’я (необов’язково)</label>
@@ -125,25 +144,24 @@ function PetForm({ pet }: { pet?: Pet }) {
                   </button>
                 </div>
               ) : (
-                <select
-                  id="speciesId"
-                  {...form.register("speciesId", {
-                    onChange: () => {
-                      form.setValue("breedId", "");
-                      setSelected(null);
-                      setSearching(false);
-                      form.clearErrors("breedId");
-                    },
-                  })}
-                  {...attrs("speciesId")}
-                >
-                  <option value="">Оберіть вид тварини</option>
-                  {species.data?.map((value) => (
-                    <option value={value.id} key={value.id}>
-                      {speciesLabel(value.slug)}
-                    </option>
-                  ))}
-                </select>
+                <FormSelect
+                  form={form}
+                  name="speciesId"
+                  label="Вид тварини"
+                  options={[
+                    { value: "", label: "Оберіть вид тварини" },
+                    ...(species.data ?? []).map((value) => ({
+                      value: value.id,
+                      label: speciesLabel(value.slug),
+                    })),
+                  ]}
+                  onChange={() => {
+                    form.setValue("breedId", "");
+                    setSelected(null);
+                    setSearching(false);
+                    form.clearErrors("breedId");
+                  }}
+                />
               )}
               {fieldError("speciesId")}
             </div>
@@ -164,15 +182,16 @@ function PetForm({ pet }: { pet?: Pet }) {
           <div className="form-grid">
             <div className="field">
               <label htmlFor="gender">Стать</label>
-              <select
-                id="gender"
-                {...form.register("gender")}
-                {...attrs("gender")}
-              >
-                <option value="UNKNOWN">Не вказано</option>
-                <option value="MALE">Самець</option>
-                <option value="FEMALE">Самка</option>
-              </select>
+              <FormSelect
+                form={form}
+                name="gender"
+                label="Стать"
+                options={[
+                  { value: "UNKNOWN", label: "Не вказано" },
+                  { value: "MALE", label: "Самець" },
+                  { value: "FEMALE", label: "Самка" },
+                ]}
+              />
               {fieldError("gender")}
             </div>
             <div className="field">
@@ -250,6 +269,9 @@ function PetForm({ pet }: { pet?: Pet }) {
           </p>
           {mutation.isError && (
             <p className="error-banner" role="alert">
+              {created && !pet
+                ? "Тварину збережено. Завершіть збереження фото або повторіть спробу. "
+                : ""}
               {mutation.error instanceof ApiError
                 ? mutation.error.message
                 : "Не вдалося зберегти профіль. Спробуйте ще раз."}

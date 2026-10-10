@@ -4,7 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { User } from "@/entities/user/model";
 import {
   accountTypePresentation,
-  isBreeder,
   nextAccountType,
 } from "@/entities/user/account-type";
 import { ApiError } from "@/shared/api/client";
@@ -52,11 +51,6 @@ export function AccountTypeSettings({ user }: { user: User }) {
       <p className="muted">
         Зміна типу акаунта збереже ваших тварин, оголошення та контакти.
       </p>
-      {isBreeder(user.accountType) && (
-        <p className="form-hint">
-          Налаштувати профіль заводчика — ця можливість з’явиться згодом.
-        </p>
-      )}
       <button
         className="button secondary"
         disabled={pending}

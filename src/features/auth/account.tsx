@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AccountBreederLink } from "@/features/breeder/editor/account-breeder-link";
 import { AccountTypeSettings } from "./account-type-settings";
+import { PersonalProfile } from "./personal-profile";
 import { ApiError } from "@/shared/api/client";
 import { useLogout, useSession } from "./session-provider";
 
@@ -77,8 +78,6 @@ export function Account() {
       </p>
       <dl className="profile-details">
         {[
-          ["Ім’я", user.firstName],
-          ["Прізвище", user.lastName ?? "Не вказано"],
           ["Електронна адреса", user.email],
           ["Роль", roles[user.role]],
           ["Статус верифікації", statuses[user.verificationStatus]],
@@ -89,23 +88,51 @@ export function Account() {
           </div>
         ))}
       </dl>
+      <PersonalProfile key={user.id} user={user} />
       <AccountTypeSettings key={user.id} user={user} />
+      <section
+        className="account-section"
+        aria-labelledby="account-public-title"
+      >
+        <h2 id="account-public-title">Публічний профіль</h2>
+        <div className="account-actions">
+          <Link className="button primary" href="/profile">
+            Редагувати публічний профіль
+          </Link>
+          <Link className="button secondary" href={"/sellers/" + user.id}>
+            Переглянути публічний профіль
+          </Link>
+        </div>
+      </section>
       {user.accountType === "BREEDER" && (
-        <AccountBreederLink key={user.id} userId={user.id} />
+        <section
+          className="account-section"
+          aria-labelledby="account-breeder-title"
+        >
+          <h2 id="account-breeder-title">Розплідник</h2>
+          <AccountBreederLink key={user.id} userId={user.id} />
+        </section>
       )}
       {message && (
         <p className="error-banner" role="alert">
           {message}
         </p>
       )}
-      <div className="account-actions">
-        <Link className="button primary" href="/profile">
-          Редагувати публічний профіль
-        </Link>
-        <button className="button secondary" disabled={pending} onClick={exit}>
-          {pending ? "Виходимо…" : "Вийти з акаунта"}
-        </button>
-      </div>
+      <section
+        className="account-section"
+        aria-labelledby="account-session-title"
+      >
+        <h2 id="account-session-title">Сесія</h2>
+        <div className="account-actions">
+          <button
+            className="button secondary"
+            disabled={pending}
+            onClick={exit}
+          >
+            {pending ? "Виходимо…" : "Вийти з акаунта"}
+          </button>
+        </div>
+      </section>
     </section>
   );
 }

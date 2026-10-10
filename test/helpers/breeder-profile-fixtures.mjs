@@ -25,6 +25,7 @@ const models = [
   "breederMedia",
   "breederMediaAsset",
   "pet",
+  "petImageAsset",
   "listing",
   "listingImage",
   "breed",
@@ -48,14 +49,43 @@ async function fingerprint(p) {
   }
   return result;
 }
-export async function breederProfileFixtures({ onboarding = false } = {}) {
+export async function breederProfileFixtures({
+  onboarding = false,
+  animals = false,
+  historicalPreview = false,
+} = {}) {
   const p = new PrismaService(),
     marker = randomUUID(),
     ids = [],
-    locations = [];
+    locations = [],
+    extraBreeds = [];
   const before = await fingerprint(p);
   async function cleanup() {
     try {
+      const petAssets = await p.petImageAsset.findMany({
+        where: { ownerId: { in: ids } },
+      });
+      if (petAssets.length) {
+        const { CloudinaryService } =
+          await import("../../../pet-platform-backend/dist/src/media/cloudinary.service.js");
+        const provider = new CloudinaryService();
+        for (const asset of petAssets) await provider.destroy(asset.publicId);
+        await p.pet.updateMany({
+          where: { ownerId: { in: ids } },
+          data: { profileImageAssetId: null },
+        });
+        await p.petImageAsset.deleteMany({ where: { ownerId: { in: ids } } });
+      }
+      const listingAssets = await p.listingUploadAsset.findMany({
+        where: { session: { userId: { in: ids } } },
+      });
+      if (listingAssets.length) {
+        const { CloudinaryService } =
+          await import("../../../pet-platform-backend/dist/src/media/cloudinary.service.js");
+        const provider = new CloudinaryService();
+        for (const asset of listingAssets)
+          await provider.destroy(asset.publicId);
+      }
       const assets = await p.breederMediaAsset.findMany({
         where: { ownerId: { in: ids } },
         select: { id: true },
@@ -115,13 +145,20 @@ export async function breederProfileFixtures({ onboarding = false } = {}) {
         );
       }
       await p.listing.deleteMany({ where: { sellerId: { in: ids } } });
+      await p.listingUploadAsset.deleteMany({
+        where: { session: { userId: { in: ids } } },
+      });
+      await p.listingUploadSession.deleteMany({
+        where: { userId: { in: ids } },
+      });
       await p.pet.deleteMany({ where: { ownerId: { in: ids } } });
       await p.user.deleteMany({ where: { id: { in: ids } } });
       await p.location.deleteMany({ where: { id: { in: locations } } });
+      await p.breed.deleteMany({ where: { id: { in: extraBreeds } } });
       assert.deepEqual(
         await fingerprint(p),
         before,
-        "Original 19 model fingerprints must remain identical",
+        "Original 20 model fingerprints must remain identical",
       );
     } finally {
       await p.$disconnect();
@@ -136,6 +173,20 @@ export async function breederProfileFixtures({ onboarding = false } = {}) {
         }),
       ),
     );
+    if (animals) {
+      const breed = await p.breed.create({
+        data: {
+          speciesId: breeds[0].speciesId,
+          name: "Long breeder breed " + marker,
+          nameUk:
+            "Бельгійська вівчарка малінуа з довгою тестовою назвою породи",
+          slug: marker,
+          source: "MANUAL",
+        },
+      });
+      extraBreeds.push(breed.id);
+      breeds[0] = breed;
+    }
     const location = await p.location.create({
       data: {
         region: "Кіровоградська область",
@@ -195,17 +246,19 @@ export async function breederProfileFixtures({ onboarding = false } = {}) {
       const statuses =
         label === "seller"
           ? ["ACTIVE"]
-          : [
-              ...Array(25).fill("ACTIVE"),
-              "DRAFT",
-              "ARCHIVED",
-              "SOLD",
-              "TRANSFERRED",
-              "ADOPTED",
-              "PENDING",
-              "REJECTED",
-              "HIDDEN",
-            ];
+          : animals
+            ? ["ACTIVE", "SOLD", "ACTIVE"]
+            : [
+                ...Array(25).fill("ACTIVE"),
+                "DRAFT",
+                "ARCHIVED",
+                "SOLD",
+                "TRANSFERRED",
+                "ADOPTED",
+                "PENDING",
+                "REJECTED",
+                "HIDDEN",
+              ];
       for (const [index, status] of statuses.entries()) {
         const breed = breeds[index % 2],
           pet = await p.pet.create({
@@ -213,6 +266,16 @@ export async function breederProfileFixtures({ onboarding = false } = {}) {
               ownerId: result[label].user.id,
               speciesId: breed.speciesId,
               breedId: breed.id,
+              ...(animals && label === "full"
+                ? {
+                    name:
+                      index === 0 ? "Rex" : index === 1 ? null : "PRIVATE-C",
+                    gender: index === 0 ? "MALE" : "FEMALE",
+                    birthDate: new Date(
+                      index === 0 ? "2022-10-01" : "2023-10-01",
+                    ),
+                  }
+                : {}),
             },
           });
         const listing = await p.listing.create({
@@ -239,6 +302,25 @@ export async function breederProfileFixtures({ onboarding = false } = {}) {
         });
         result[label].listings.push(listing);
       }
+    }
+    if (animals) {
+      if (!historicalPreview)
+        await p.listing.delete({ where: { id: result.full.listings[1].id } });
+      else
+        await p.listingImage.create({
+          data: {
+            listingId: result.full.listings[1].id,
+            url: "https://example.invalid/historical-private.png",
+            position: 0,
+          },
+        });
+      await p.listingImage.create({
+        data: {
+          listingId: result.full.listings[0].id,
+          url: "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+          position: 0,
+        },
+      });
     }
     return {
       ...result,

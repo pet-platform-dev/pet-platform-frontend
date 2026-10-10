@@ -22,7 +22,9 @@
     "test:browser:accounts": "node test/account-type.browser.mjs",
     "test:browser:breeders": "node test/breeder-profile.browser.mjs",
     "test:browser:breeder-editor": "node test/breeder-editor.browser.mjs",
-    "test:browser:breeder-media": "node test/breeder-media.browser.mjs"
+    "test:browser:breeder-media": "node test/breeder-media.browser.mjs",
+    "test:browser:breeder-animals": "node test/breeder-animals.browser.mjs",
+    "test:browser:profile-pet-ux": "node test/profile-pet-ux.browser.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

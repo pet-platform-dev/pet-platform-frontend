@@ -201,12 +201,12 @@ test("BREEDER without profile setup CTA", () => {
   assert.match(html, /Налаштувати профіль заводчика/);
   assert.doesNotMatch(html, /Переглянути публічний профіль/);
 });
-test("BREEDER existing edit and public CTA", () => {
+test("BREEDER existing edit and animal management CTA", () => {
   const c = client();
   c.setQueryData(ownBreederKey(id), profile);
   const html = render(AccountBreederLink, { userId: id }, c);
   assert.match(html, /Редагувати профіль заводчика/);
-  assert.ok(html.includes("/sellers/" + id));
+  assert.ok(html.includes("/profile/breeder/animals"));
 });
 test("SELLER direct editor denied without form", () => {
   const c = client();

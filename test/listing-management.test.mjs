@@ -250,7 +250,10 @@ test("draft permits missing SALE price while publication validation requires it"
 test("mutation invalidation targets own list, catalog, public detail and owned detail", async () => {
   const calls = [];
   await invalidateListings(
-    { invalidateQueries: async (value) => calls.push(value.queryKey) },
+    {
+      getQueryData: () => null,
+      invalidateQueries: async (value) => calls.push(value.queryKey),
+    },
     id,
   );
   assert.deepEqual(calls, [

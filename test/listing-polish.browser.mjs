@@ -1,3 +1,4 @@
+import { selectFormOption } from "./helpers/select-form-option.mjs";
 import {
   chooseCatalogSort,
   sortLabels,
@@ -94,7 +95,7 @@ async function newPage() {
     .waitFor();
 }
 async function fill(type = "Продаж") {
-  await page.getByLabel("Вид тварини", { exact: true }).selectOption(dog.id);
+  await selectFormOption(page, "Вид тварини", dog.id);
   await page.getByRole("radio", { name: type, exact: true }).check();
   await page
     .getByRole("combobox", { name: "Місце", exact: true })
@@ -404,7 +405,7 @@ try {
   await page
     .getByRole("radio", { name: "Вибрати з моїх тварин", exact: true })
     .check();
-  await page.getByLabel("Тварина", { exact: true }).selectOption(sale.pet.id);
+  await selectFormOption(page, "Тварина", sale.pet.id);
   const recoveryTitle = `Тест медіа ${marker} відновлення`;
   await page.getByLabel("Заголовок", { exact: true }).fill(recoveryTitle);
   await call("POST", "/auth/logout");

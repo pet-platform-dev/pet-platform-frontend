@@ -1,3 +1,4 @@
+import { selectFormOption } from "./helpers/select-form-option.mjs";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -162,9 +163,7 @@ async function confirmed(label) {
 async function fillNew(type = "Безкоштовно") {
   await page.goto(base + "/listings/new");
   await page.getByRole("heading", { name: "Створити оголошення" }).waitFor();
-  await page
-    .getByLabel("Вид тварини", { exact: true })
-    .selectOption({ label: "Собака" });
+  await selectFormOption(page, "Вид тварини", { label: "Собака" });
   await page.getByRole("radio", { name: type, exact: true }).check();
   await page
     .getByRole("combobox", { name: "Місце", exact: true })

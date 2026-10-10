@@ -1,4 +1,5 @@
 import { BreederMediaEditor } from "../media/breeder-media-editor";
+import { BreederAnimalsEntry } from "./breeder-animals-entry";
 import Link from "next/link";
 import { useState, useRef } from "react";
 import type { OwnBreeder } from "@/entities/breeder/owner-api";
@@ -137,6 +138,7 @@ export function BreederForm({
           </div>
         </section>
       </form>
+      {profile && <BreederAnimalsEntry userId={userId} />}
       {profile && (
         <BreederMediaEditor
           profile={profile}

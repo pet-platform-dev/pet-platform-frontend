@@ -1,4 +1,7 @@
 "use client";
+import { FormSelect } from "@/shared/ui/form-select";
+import { usePetPreselection } from "../model/use-pet-preselection";
+import { listingPetPreselection } from "../model/pet-preselection";
 import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
@@ -31,7 +34,11 @@ import {
   useFormRecovery,
   forgetRecoveredForm,
 } from "../../form-recovery";
-export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
+export function CreateListingForm({
+  pets,
+  preselectedPetId,
+}: { pets?: Pet[]; preselectedPetId?: string } = {}) {
+  const requestedPetId = listingPetPreselection(preselectedPetId);
   const session = useSession();
   const recoveryKey = session.data ? `${session.data.id}:create` : undefined;
   const [recovered] = useState(() =>
@@ -42,7 +49,7 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
     }>(recoveryKey),
   );
   const [mode, setMode] = useState<"new" | "existing">(
-    recovered?.mode ?? "new",
+    requestedPetId ? "existing" : (recovered?.mode ?? "new"),
   );
   const [uploading, setUploading] = useState(false);
   const [publishError, setPublishError] = useState("");
@@ -63,15 +70,24 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
     resolver: zodResolver(
       draftListingFormSchema.safeExtend({ petId: z.string() }),
     ),
-    defaultValues: recovered?.input ?? {
-      petId: "",
-      locationId: "",
-      type: "SALE",
-      title: "",
-      description: "",
-      price: "",
+    defaultValues: {
+      ...(recovered?.input ?? {
+        petId: "",
+        locationId: "",
+        type: "SALE",
+        title: "",
+        description: "",
+        price: "",
+      }),
+      ...(requestedPetId ? { petId: requestedPetId } : {}),
     },
   });
+  usePetPreselection(
+    requestedPetId,
+    choices,
+    Boolean(pets) || ownPets.isSuccess,
+    form,
+  );
   const mutation = useMutation({
     mutationFn: async (value: UnifiedListingInput & { publish: boolean }) => {
       return createAndMaybePublish(value, value.publish);
@@ -245,21 +261,18 @@ export function CreateListingForm({ pets }: { pets?: Pet[] } = {}) {
               ) : choices.length ? (
                 <>
                   <label htmlFor="petId">Тварина</label>
-                  <select
-                    id="petId"
-                    {...form.register("petId")}
-                    aria-invalid={Boolean(form.formState.errors.petId)}
-                    aria-describedby={
-                      form.formState.errors.petId ? "petId-error" : undefined
-                    }
-                  >
-                    <option value="">Оберіть тварину</option>
-                    {choices.map((pet) => (
-                      <option key={pet.id} value={pet.id}>
-                        {petOptionLabel(pet)}
-                      </option>
-                    ))}
-                  </select>
+                  <FormSelect
+                    form={form}
+                    name="petId"
+                    label="Тварина"
+                    options={[
+                      { value: "", label: "Оберіть тварину" },
+                      ...choices.map((pet) => ({
+                        value: pet.id,
+                        label: petOptionLabel(pet),
+                      })),
+                    ]}
+                  />
                 </>
               ) : (
                 <p>

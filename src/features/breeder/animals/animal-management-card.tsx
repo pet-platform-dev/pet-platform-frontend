@@ -1,0 +1,54 @@
+import Link from "next/link";
+import type { OwnBreederAnimal } from "@/entities/breeder/animals";
+import { AnimalCard } from "./animal-card";
+import { VisibilityControl } from "./visibility-control";
+import { listingPrice } from "@/entities/listing/model/presentation";
+export function AnimalManagementCard({
+  animal,
+  userId,
+}: {
+  animal: OwnBreederAnimal;
+  userId: string;
+}) {
+  const offer = animal.currentListing;
+  return (
+    <AnimalCard animal={animal}>
+      <VisibilityControl animal={animal} userId={userId} />
+      <p className="breeder-listing-status">
+        {offer?.status === "ACTIVE"
+          ? "Активне оголошення"
+          : offer
+            ? "Незавершене оголошення"
+            : "Немає активного оголошення"}
+        {offer?.status === "ACTIVE" && " · " + listingPrice(offer)}
+      </p>
+      <div className="breeder-animal-actions">
+        <Link
+          className="button secondary"
+          href={"/pets/" + animal.id + "/edit"}
+        >
+          Редагувати тварину
+        </Link>
+        {offer ? (
+          <>
+            {offer.status === "ACTIVE" && (
+              <Link className="button secondary" href={offer.href}>
+                Переглянути оголошення
+              </Link>
+            )}
+            <Link className="button secondary" href={offer.href + "/edit"}>
+              Редагувати оголошення
+            </Link>
+          </>
+        ) : (
+          <Link
+            className="button primary"
+            href={"/listings/new?petId=" + animal.id}
+          >
+            Створити оголошення
+          </Link>
+        )}
+      </div>
+    </AnimalCard>
+  );
+}
