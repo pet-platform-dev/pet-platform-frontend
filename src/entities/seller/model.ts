@@ -23,6 +23,10 @@ export const sellerSchema = z.object({
   viber: phone,
   whatsapp: phone,
   memberSince: z.string(),
+  breeder: z
+    .object({ kennelName: z.string().min(1).max(160) })
+    .nullable()
+    .optional(),
 });
 export type Seller = z.infer<typeof sellerSchema>;
 export const phoneInput = z
@@ -61,4 +65,8 @@ export function messengerLinks(seller: Seller) {
       href: `https://wa.me/${seller.whatsapp.slice(1)}`,
     },
   ].filter((link): link is { label: string; href: string } => Boolean(link));
+}
+
+export function sellerIdentity(seller: Seller) {
+  return seller.breeder?.kennelName ?? seller.displayName;
 }

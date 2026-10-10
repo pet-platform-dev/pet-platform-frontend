@@ -4,9 +4,13 @@ import type { Species } from "@/entities/species/model";
 import type { Breed } from "@/entities/breed/model";
 import type { Pet, PetInput } from "@/entities/pet/model";
 export const getSpecies = () => publicRequest<Species[]>("/species");
-export const getBreeds = (species: string, search: string, page: number) =>
+export const getBreeds = (
+  species: string | undefined,
+  search: string,
+  page: number,
+) =>
   publicRequest<Paginated<Breed>>(
-    `/breeds?${new URLSearchParams({ species, search, page: String(page), limit: "50", sort: "name_asc" })}`,
+    `/breeds?${new URLSearchParams({ ...(species ? { species } : {}), search, page: String(page), limit: "50", sort: "name_asc" })}`,
     true,
   );
 export const getPets = (page: number) =>

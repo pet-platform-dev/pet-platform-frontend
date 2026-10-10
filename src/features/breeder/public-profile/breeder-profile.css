@@ -1,0 +1,59 @@
+.breeder-profile-header h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  line-height: 1.15;
+  margin: 8px 0 16px;
+}
+.breeder-profile-details {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.breeder-breed-list {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  gap: 8px;
+  padding: 0;
+  margin: 16px 0 0;
+}
+.breeder-breed-list li {
+  padding: 8px 12px;
+  background: #eef0e8;
+  border: 1px solid #dce2d6;
+  border-radius: 20px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.breeder-website-link {
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.breeder-website-link:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+.seller-profile-listings {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.seller-profile-listings > .button {
+  justify-self: start;
+}
+.profile-skeleton-title {
+  height: 32px;
+  width: 65%;
+  margin-bottom: 20px;
+}
+.profile-skeleton-line {
+  height: 18px;
+  width: 90%;
+  margin: 12px 0;
+}
+@media (min-width: 768px) {
+  .breeder-profile-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

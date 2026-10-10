@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "../features/breeder/editor/breeder-editor.css";
+@import "../features/breeder/public-profile/breeder-profile.css";
 @import "../features/auth/account-type.css";
 @import "../features/listing/filters/filters.css";
 @import "../features/listing/filters/mobile-filters.css";
@@ -1045,7 +1047,7 @@ form {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
 }
-.listing-card-link:hover h2 {
+.listing-card-link:hover :is(h2, h3) {
   color: var(--accent);
 }
 .listing-visual {
@@ -1101,7 +1103,7 @@ form {
   background: #f4ece1;
   color: #805e36;
 }
-.listing-card h2 {
+.listing-card :is(h2, h3) {
   font-size: 23px;
   line-height: 1.25;
   font-weight: 600;

@@ -103,3 +103,39 @@ test("account update sends only explicit type via authenticated PATCH/CSRF and s
     globalThis.fetch = saved;
   }
 });
+
+test("existing breeder profile conflict keeps the localized account transition reason; unknown conflicts stay generic", async () => {
+  const { updateAccountType } = await load(
+    "src/features/auth/account-type-api.ts",
+  );
+  const saved = globalThis.fetch;
+  let message = "Спочатку видаліть або деактивуйте профіль заводчика.";
+  globalThis.fetch = async (url) => {
+    if (url.endsWith("/csrf"))
+      return Response.json({ data: { csrfToken: "fixture-csrf" } });
+    if (url.endsWith("/refresh"))
+      return Response.json({
+        data: {
+          user: { id: "fixture", accountType: "BREEDER" },
+          accessToken: "fixture-access",
+          expiresIn: 900,
+        },
+      });
+    return Response.json({ message }, { status: 409 });
+  };
+  try {
+    await assert.rejects(
+      updateAccountType("SELLER"),
+      (error) => error.status === 409 && error.message === message,
+    );
+    message = "PRIVATE_CONSTRAINT_PROVIDER";
+    await assert.rejects(
+      updateAccountType("SELLER"),
+      (error) =>
+        error.status === 409 &&
+        error.message === "Дані змінилися. Оновіть сторінку та спробуйте знову",
+    );
+  } finally {
+    globalThis.fetch = saved;
+  }
+});

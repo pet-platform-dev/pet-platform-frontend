@@ -1,0 +1,217 @@
+// Database access is confined to local test setup/cleanup; application code uses REST.
+import { createRequire } from "node:module";
+import { resolve } from "node:path";
+import { randomUUID, createHash } from "node:crypto";
+import assert from "node:assert/strict";
+const require = createRequire(resolve("../pet-platform-backend/package.json"));
+require("dotenv").config({
+  path: resolve("../pet-platform-backend/.env"),
+  quiet: true,
+});
+const db = new URL(process.env.DATABASE_URL);
+assert.ok(
+  ["localhost", "127.0.0.1", "[::1]"].includes(db.hostname) &&
+    db.pathname === "/pet_platform",
+);
+const { PrismaService } =
+  await import("../../../pet-platform-backend/dist/src/prisma/prisma.service.js");
+const models = [
+  "user",
+  "authSession",
+  "authRefreshToken",
+  "sellerProfile",
+  "breederProfile",
+  "breederProfileBreed",
+  "pet",
+  "listing",
+  "listingImage",
+  "breed",
+  "location",
+  "species",
+  "listingUploadSession",
+  "listingUploadAsset",
+  "favorite",
+  "review",
+  "matingListing",
+];
+async function fingerprint(p) {
+  const result = {};
+  for (const model of models) {
+    const rows = (await p[model].findMany())
+      .map((r) => JSON.stringify(r))
+      .sort();
+    result[model] = createHash("sha256")
+      .update(JSON.stringify(rows))
+      .digest("hex");
+  }
+  return result;
+}
+export async function breederProfileFixtures({ onboarding = false } = {}) {
+  const p = new PrismaService(),
+    marker = randomUUID(),
+    ids = [],
+    locations = [];
+  const before = await fingerprint(p);
+  async function cleanup() {
+    try {
+      await p.listing.deleteMany({ where: { sellerId: { in: ids } } });
+      await p.pet.deleteMany({ where: { ownerId: { in: ids } } });
+      await p.user.deleteMany({ where: { id: { in: ids } } });
+      await p.location.deleteMany({ where: { id: { in: locations } } });
+      assert.deepEqual(
+        await fingerprint(p),
+        before,
+        "Original 17 model fingerprints must remain identical",
+      );
+    } finally {
+      await p.$disconnect();
+    }
+  }
+  try {
+    const breeds = await Promise.all(
+      ["dog", "cat"].map((slug) =>
+        p.breed.findFirstOrThrow({
+          where: { isActive: true, species: { slug } },
+          orderBy: { id: "asc" },
+        }),
+      ),
+    );
+    const location = await p.location.create({
+      data: {
+        region: "Кіровоградська область",
+        city: "Світловодськ",
+        slug: marker,
+      },
+    });
+    locations.push(location.id);
+    const longLocation = await p.location.create({
+      data: {
+        region: "Довга назва області ".repeat(8).slice(0, 145),
+        city: "Довга назва населеного пункту ".repeat(7).slice(0, 145),
+        slug: marker + "-long",
+      },
+    });
+    locations.push(longLocation.id);
+    const result = {};
+    for (const label of ["seller", "full", "fallback", "empty"]) {
+      const user = await p.user.create({
+        data: {
+          email: "breeder-browser-" + label + "-" + marker + "@example.invalid",
+          passwordHash: await require("argon2").hash("Fixture-password-42"),
+          firstName: "Олександр",
+          lastName: "Єпік",
+          accountType: label === "seller" ? "SELLER" : "BREEDER",
+        },
+      });
+      ids.push(user.id);
+      result[label] = { user, listings: [] };
+    }
+    await p.sellerProfile.create({
+      data: {
+        userId: result.full.user.id,
+        phone: "+380501234567",
+        telegram: "breeder_fixture",
+        viber: "+380501234568",
+        whatsapp: "+380501234569",
+      },
+    });
+    if (!onboarding)
+      await p.breederProfile.create({
+        data: {
+          userId: result.full.user.id,
+          kennelName: "Royal Malinois",
+          description:
+            "Розплідник собак і котів.\nЗ турботою про кожну тварину.",
+          locationId: location.id,
+          startedYear: 2018,
+          website: "https://example.com/",
+          breeds: { create: breeds.map((b) => ({ breedId: b.id })) },
+        },
+      });
+    await p.breederProfile.create({
+      data: { userId: result.empty.user.id, kennelName: "Тихий розплідник" },
+    });
+    for (const label of ["seller", "full"]) {
+      const statuses =
+        label === "seller"
+          ? ["ACTIVE"]
+          : [
+              ...Array(25).fill("ACTIVE"),
+              "DRAFT",
+              "ARCHIVED",
+              "SOLD",
+              "TRANSFERRED",
+              "ADOPTED",
+              "PENDING",
+              "REJECTED",
+              "HIDDEN",
+            ];
+      for (const [index, status] of statuses.entries()) {
+        const breed = breeds[index % 2],
+          pet = await p.pet.create({
+            data: {
+              ownerId: result[label].user.id,
+              speciesId: breed.speciesId,
+              breedId: breed.id,
+            },
+          });
+        const listing = await p.listing.create({
+          data: {
+            sellerId: result[label].user.id,
+            petId: pet.id,
+            locationId: location.id,
+            title: "Тестове оголошення " + index,
+            description: "Phase 7C fixture",
+            type:
+              status === "SOLD"
+                ? "SALE"
+                : status === "ADOPTED"
+                  ? "ADOPTION"
+                  : "FREE",
+            price: status === "SOLD" ? "100.00" : null,
+            status,
+            publishedAt:
+              status === "ACTIVE" ? new Date("2026-10-10T10:00:00Z") : null,
+            closedAt: ["SOLD", "TRANSFERRED", "ADOPTED"].includes(status)
+              ? new Date("2026-10-10T12:00:00Z")
+              : null,
+          },
+        });
+        result[label].listings.push(listing);
+      }
+    }
+    return {
+      ...result,
+      breeds,
+      longLocation,
+      location,
+      domainSnapshot: async () => ({
+        user: await p.user.findUnique({
+          where: { id: result.full.user.id },
+          select: {
+            id: true,
+            accountType: true,
+            firstName: true,
+            lastName: true,
+          },
+        }),
+        contacts: await p.sellerProfile.findUnique({
+          where: { userId: result.full.user.id },
+        }),
+        pets: await p.pet.findMany({
+          where: { ownerId: result.full.user.id },
+          orderBy: { id: "asc" },
+        }),
+        listings: await p.listing.findMany({
+          where: { sellerId: result.full.user.id },
+          orderBy: { id: "asc" },
+        }),
+      }),
+      password: "Fixture-password-42",
+      cleanup,
+    };
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
+}

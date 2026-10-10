@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AccountBreederLink } from "@/features/breeder/editor/account-breeder-link";
 import { AccountTypeSettings } from "./account-type-settings";
 import { ApiError } from "@/shared/api/client";
 import { useLogout, useSession } from "./session-provider";
@@ -89,6 +90,9 @@ export function Account() {
         ))}
       </dl>
       <AccountTypeSettings key={user.id} user={user} />
+      {user.accountType === "BREEDER" && (
+        <AccountBreederLink key={user.id} userId={user.id} />
+      )}
       {message && (
         <p className="error-banner" role="alert">
           {message}

@@ -1,103 +1,71 @@
 "use client";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { BreederCreatedNotice } from "@/features/breeder/editor/breeder-created-notice";
+import { useQuery } from "@tanstack/react-query";
 import { ApiError } from "@/shared/api/client";
-import { getSeller, getSellerListings } from "@/entities/seller/api";
-import { SellerContacts } from "@/entities/seller/seller-card";
-import { ListingCard } from "@/entities/listing/ui/listing-card";
-import { listingDate } from "@/entities/listing/model/presentation";
+import { getSeller } from "@/entities/seller/api";
 import type { Seller } from "@/entities/seller/model";
+import { getBreeder } from "@/entities/breeder/api";
+import type { Breeder } from "@/entities/breeder/model";
+import { BreederProfilePage } from "@/features/breeder/public-profile/breeder-profile-page";
+import { BreederProfileSkeleton } from "@/features/breeder/public-profile/breeder-profile-skeleton";
+import { SellerProfileHeader } from "./seller-profile-header";
+import { SellerProfileListings } from "./seller-profile-listings";
+import { ProfileError } from "./profile-error";
 export function SellerProfile({
   id,
   initialSeller,
+  initialBreeder,
 }: {
   id: string;
   initialSeller?: Seller;
+  initialBreeder?: Breeder | null;
 }) {
   const seller = useQuery({
     queryKey: ["seller", id],
     queryFn: ({ signal }) => getSeller(id, signal),
     initialData: initialSeller,
+    staleTime: 30_000,
   });
-  const listings = useInfiniteQuery({
-    queryKey: ["seller-listings", id],
-    queryFn: ({ pageParam, signal }) =>
-      getSellerListings(id, pageParam, signal),
-    initialPageParam: 1,
-    enabled: seller.isSuccess,
-    getNextPageParam: (page) =>
-      page.meta.page < page.meta.pages ? page.meta.page + 1 : undefined,
+  const breeder = useQuery({
+    queryKey: ["breeder", id],
+    queryFn: async ({ signal }) => {
+      try {
+        return await getBreeder(id, signal);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) return null;
+        throw error;
+      }
+    },
+    enabled: Boolean(seller.data?.breeder),
+    initialData: initialBreeder,
+    staleTime: 30_000,
   });
-  if (seller.isPending)
-    return <p role="status">Завантажуємо профіль продавця…</p>;
+  if (seller.isPending || (seller.data?.breeder && breeder.isPending))
+    return <BreederProfileSkeleton />;
   if (seller.isError)
     return (
-      <section>
-        <h1>
-          {seller.error instanceof ApiError && seller.error.status === 404
-            ? "Продавця не знайдено"
-            : "Не вдалося завантажити профіль"}
-        </h1>
-        {!(seller.error instanceof ApiError && seller.error.status === 404) && (
-          <button
-            className="button secondary"
-            onClick={() => void seller.refetch()}
-          >
-            Спробувати ще раз
-          </button>
-        )}
-      </section>
+      <ProfileError error={seller.error} retry={() => void seller.refetch()} />
     );
-  const profile = seller.data;
+  if (seller.data.breeder && breeder.isError)
+    return (
+      <ProfileError
+        error={breeder.error}
+        retry={() => void breeder.refetch()}
+      />
+    );
+  const profile =
+    seller.data.breeder && breeder.data
+      ? { ...breeder.data, contactPerson: seller.data }
+      : null;
   return (
     <section className="seller-profile">
-      <div className="listing-detail-panel">
-        <h1>{profile.displayName}</h1>
-        {profile.location && (
-          <p>
-            {profile.location.city}, {profile.location.region}
-          </p>
-        )}
-        <p className="muted">
-          На платформі з {listingDate(profile.memberSince)}
-        </p>
-        <SellerContacts
-          key={profile.id + (profile.phone ?? "")}
-          seller={profile}
-        />
-      </div>
-      <h2>Оголошення продавця</h2>
-      {listings.isPending ? (
-        <p role="status">Завантажуємо оголошення…</p>
-      ) : listings.isError ? (
-        <div role="alert">
-          <p>Не вдалося завантажити оголошення.</p>
-          <button
-            className="button secondary"
-            onClick={() => void listings.refetch()}
-          >
-            Спробувати ще раз
-          </button>
-        </div>
-      ) : listings.data?.pages.some((page) => page.data.length) ? (
-        <div className="listings-grid">
-          {listings.data.pages
-            .flatMap((page) => page.data)
-            .map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
-            ))}
-        </div>
+      <BreederCreatedNotice userId={id} />
+      {profile ? (
+        <BreederProfilePage profile={profile} />
       ) : (
-        <p>У продавця поки немає активних оголошень.</p>
+        <SellerProfileHeader profile={seller.data} />
       )}
-      {listings.hasNextPage && (
-        <button
-          className="button secondary"
-          disabled={listings.isFetchingNextPage}
-          onClick={() => void listings.fetchNextPage()}
-        >
-          {listings.isFetchingNextPage ? "Завантажуємо…" : "Показати ще"}
-        </button>
-      )}
+      <SellerProfileListings id={id} breeder={Boolean(profile)} />
     </section>
   );
 }

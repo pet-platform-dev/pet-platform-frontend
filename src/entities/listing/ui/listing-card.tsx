@@ -13,11 +13,14 @@ import { ListingPlaceholder } from "./listing-placeholder";
 import { ListingImage } from "./listing-image";
 export function ListingCard({
   listing,
+  headingLevel = 2,
   detailHref = `/listings/${listing.id}`,
 }: {
   listing: Listing;
   detailHref?: string;
+  headingLevel?: 2 | 3;
 }) {
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   const { pet } = listing;
   const age = formatPetAge(pet.birthDate);
   const gender = listingGender(pet.gender);
@@ -50,7 +53,7 @@ export function ListingCard({
           >
             {listingTypeLabels[listing.type]}
           </span>
-          <h2>{listingHeading(pet)}</h2>
+          <Heading>{listingHeading(pet)}</Heading>
           {(gender || age) && (
             <p className="listing-metadata">
               {[age, gender].filter(Boolean).join(" • ")}

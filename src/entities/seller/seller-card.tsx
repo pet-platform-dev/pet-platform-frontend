@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { messengerLinks, type Seller } from "./model";
+import { messengerLinks, sellerIdentity, type Seller } from "./model";
 export function SellerContacts({ seller }: { seller: Seller }) {
   const [revealed, setRevealed] = useState(false);
   const phoneLink = useRef<HTMLAnchorElement>(null);
@@ -50,7 +50,8 @@ export function SellerCard({ seller }: { seller: Seller }) {
       aria-label="Продавець"
     >
       <h2>Продавець</h2>
-      <p className="listing-seller-name">{seller.displayName}</p>
+      <p className="listing-seller-name">{sellerIdentity(seller)}</p>
+      {seller.breeder && <p className="muted">{seller.displayName}</p>}
       {seller.location && (
         <p>
           {seller.location.city}, {seller.location.region}
