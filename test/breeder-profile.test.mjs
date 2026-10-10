@@ -36,6 +36,7 @@ const seller = {
   memberSince: "2026-10-10T00:00:00Z",
 };
 const profile = {
+  media: { logo: null, cover: null, gallery: [], videos: [] },
   userId: id,
   kennelName: "Royal Malinois",
   description: "Любимо тварин.\nРозводимо собак і котів.",

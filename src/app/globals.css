@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../features/breeder/editor/breeder-editor.css";
+@import "../features/breeder/media/breeder-media.css";
 @import "../features/breeder/public-profile/breeder-profile.css";
 @import "../features/auth/account-type.css";
 @import "../features/listing/filters/filters.css";

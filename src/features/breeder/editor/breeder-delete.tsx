@@ -38,11 +38,21 @@ export function BreederDelete({
     return () => onPending(false);
   }, [mutation.isPending, onPending]);
   return (
-    <section className="breeder-delete">
+    <section
+      className="breeder-delete breeder-media-section"
+      aria-labelledby="breeder-danger-title"
+    >
+      <header className="breeder-section-heading">
+        <h2 id="breeder-danger-title">Видалення профілю</h2>
+        <p className="muted">
+          Видалення інформації про розплідник і його медіа потребує
+          підтвердження.
+        </p>
+      </header>
       <button
         ref={trigger}
         type="button"
-        className="button danger"
+        className="button breeder-destructive"
         disabled={disabled || mutation.isPending}
         onClick={() => {
           mutation.reset();
@@ -84,6 +94,10 @@ export function BreederDelete({
         <p id="breeder-delete-help">
           Буде видалено інформацію про розплідник і вибрані породи. Ваш акаунт,
           тварини, оголошення та контакти залишаться.
+        </p>
+        <p>
+          Логотип, обкладинка, фотографії та посилання на відео розплідника
+          також буде видалено.
         </p>
         {mutation.isError && (
           <p role="alert" className="field-error">

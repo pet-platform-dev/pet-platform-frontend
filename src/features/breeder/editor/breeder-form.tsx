@@ -1,3 +1,4 @@
+import { BreederMediaEditor } from "../media/breeder-media-editor";
 import Link from "next/link";
 import { useState, useRef } from "react";
 import type { OwnBreeder } from "@/entities/breeder/owner-api";
@@ -26,7 +27,8 @@ export function BreederForm({
     recoveryKey,
   } = useBreederFormState(userId, profile);
   const [errors, setErrors] = useState<Record<string, string>>({}),
-    [deleting, setDeleting] = useState(false);
+    [deleting, setDeleting] = useState(false),
+    [mediaBusy, setMediaBusy] = useState(false);
   const mutation = useBreederSave(userId, profile),
     submitted = useRef(false);
   return (
@@ -72,59 +74,80 @@ export function BreederForm({
         <p className="muted">
           Інформація про розплідник буде показана у вашому публічному профілі.
         </p>
-        <BreederTextFields
-          values={values}
-          errors={errors}
-          disabled={mutation.isPending || deleting}
-          onChange={(key, value) => {
-            setValue(key, value);
-            mutation.reset();
-          }}
-        />
-        <fieldset
-          disabled={mutation.isPending || deleting}
-          className="breeder-selectors"
+        <section
+          className="breeder-basic-info breeder-media-section"
+          aria-labelledby="breeder-basic-title"
         >
-          <LocationSelector
-            label="Місто або село"
-            selected={location}
-            onSelect={setLocation}
-            error={errors.locationId}
+          <header className="breeder-section-heading">
+            <h2 id="breeder-basic-title">Основна інформація</h2>
+            <p className="muted">
+              Після редагування натисніть «Зберегти зміни». Медіа зберігаються
+              окремо й одразу.
+            </p>
+          </header>
+          <BreederTextFields
+            values={values}
+            errors={errors}
+            disabled={mutation.isPending || deleting || mediaBusy}
+            onChange={(key, value) => {
+              setValue(key, value);
+              mutation.reset();
+            }}
           />
-          <BreederBreedSelector
-            selected={breeds}
-            onChange={setBreeds}
-            error={errors.breedIds}
-          />
-        </fieldset>
-        <p className="muted">
-          Контакти налаштовуються окремо.{" "}
-          <Link href="/profile">Редагувати контакти</Link>
-        </p>
-        {mutation.isError && (
-          <p role="alert" className="field-error">
-            Не вдалося зберегти профіль. Перевірте дані та спробуйте ще раз.
-          </p>
-        )}
-        {mutation.isSuccess && profile && <p role="status">Зміни збережено.</p>}
-        <div className="form-actions">
-          <button
-            className="button primary"
-            disabled={mutation.isPending || deleting}
+          <fieldset
+            disabled={mutation.isPending || deleting || mediaBusy}
+            className="breeder-selectors"
           >
-            {mutation.isPending ? "Зберігаємо…" : "Зберегти профіль"}
-          </button>
-          {profile && (
-            <Link href={"/sellers/" + userId}>
-              Переглянути публічний профіль
-            </Link>
+            <LocationSelector
+              label="Місто або село"
+              selected={location}
+              onSelect={setLocation}
+              error={errors.locationId}
+            />
+            <BreederBreedSelector
+              selected={breeds}
+              onChange={setBreeds}
+              error={errors.breedIds}
+            />
+          </fieldset>
+          <p className="muted">
+            Контакти налаштовуються окремо.{" "}
+            <Link href="/profile">Редагувати контакти</Link>
+          </p>
+          {mutation.isError && (
+            <p role="alert" className="field-error">
+              Не вдалося зберегти профіль. Перевірте дані та спробуйте ще раз.
+            </p>
           )}
-        </div>
+          {mutation.isSuccess && profile && (
+            <p role="status">Зміни збережено.</p>
+          )}
+          <div className="form-actions breeder-save-actions">
+            <button
+              className="button primary"
+              disabled={mutation.isPending || deleting || mediaBusy}
+            >
+              {mutation.isPending ? "Зберігаємо…" : "Зберегти зміни"}
+            </button>
+            {profile && (
+              <Link href={"/sellers/" + userId}>
+                Переглянути публічний профіль
+              </Link>
+            )}
+          </div>
+        </section>
       </form>
+      {profile && (
+        <BreederMediaEditor
+          profile={profile}
+          disabled={mutation.isPending || deleting}
+          onBusy={setMediaBusy}
+        />
+      )}
       {profile && (
         <BreederDelete
           userId={userId}
-          disabled={mutation.isPending}
+          disabled={mutation.isPending || mediaBusy}
           onPending={setDeleting}
         />
       )}

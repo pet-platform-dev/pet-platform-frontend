@@ -22,6 +22,8 @@ const models = [
   "sellerProfile",
   "breederProfile",
   "breederProfileBreed",
+  "breederMedia",
+  "breederMediaAsset",
   "pet",
   "listing",
   "listingImage",
@@ -54,6 +56,64 @@ export async function breederProfileFixtures({ onboarding = false } = {}) {
   const before = await fingerprint(p);
   async function cleanup() {
     try {
+      const assets = await p.breederMediaAsset.findMany({
+        where: { ownerId: { in: ids } },
+        select: { id: true },
+      });
+      if (assets.length) {
+        await p.breederMedia.deleteMany({
+          where: { breederProfile: { userId: { in: ids } } },
+        });
+        await p.breederMediaAsset.updateMany({
+          where: {
+            id: { in: assets.map((asset) => asset.id) },
+            status: "ATTACHED",
+          },
+          data: { status: "DELETE_PENDING", expiresAt: new Date(0) },
+        });
+        await p.breederMediaAsset.updateMany({
+          where: {
+            id: { in: assets.map((asset) => asset.id) },
+            status: "RESERVED",
+          },
+          data: {
+            status: "DELETE_PENDING",
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+          },
+        });
+        const { CloudinaryService } =
+          await import("../../../pet-platform-backend/dist/src/media/cloudinary.service.js");
+        const { BreederMediaCleanupService } =
+          await import("../../../pet-platform-backend/dist/src/breeders/media/breeder-media-cleanup.service.js");
+        await new BreederMediaCleanupService(
+          p,
+          new CloudinaryService(),
+        ).cleanup(
+          100,
+          assets.map((asset) => asset.id),
+        );
+        for (let attempt = 0; attempt < 75; attempt++) {
+          if (
+            !(await p.breederMediaAsset.count({
+              where: { ownerId: { in: ids } },
+            }))
+          )
+            break;
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await new BreederMediaCleanupService(
+            p,
+            new CloudinaryService(),
+          ).cleanup(
+            100,
+            assets.map((asset) => asset.id),
+          );
+        }
+        assert.equal(
+          await p.breederMediaAsset.count({ where: { ownerId: { in: ids } } }),
+          0,
+          "Fixture provider cleanup must succeed before removing ownership metadata",
+        );
+      }
       await p.listing.deleteMany({ where: { sellerId: { in: ids } } });
       await p.pet.deleteMany({ where: { ownerId: { in: ids } } });
       await p.user.deleteMany({ where: { id: { in: ids } } });
@@ -61,7 +121,7 @@ export async function breederProfileFixtures({ onboarding = false } = {}) {
       assert.deepEqual(
         await fingerprint(p),
         before,
-        "Original 17 model fingerprints must remain identical",
+        "Original 19 model fingerprints must remain identical",
       );
     } finally {
       await p.$disconnect();

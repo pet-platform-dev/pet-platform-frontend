@@ -1,0 +1,355 @@
+.breeder-media-editor,
+.breeder-media-section {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.breeder-media-editor {
+  margin-top: 32px;
+  gap: 24px;
+}
+.breeder-media-section {
+  padding: 20px;
+  border: 1px solid var(--border, #dce2d6);
+  border-radius: 16px;
+  background: var(--surface, #fff);
+}
+.breeder-media-section h2,
+.breeder-media-section p {
+  margin: 0;
+}
+.breeder-media-section input {
+  max-width: 100%;
+  min-width: 0;
+}
+.breeder-logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #eef0e8;
+}
+.breeder-cover {
+  aspect-ratio: 3/1;
+  overflow: hidden;
+  border-radius: 12px;
+  min-width: 0;
+  margin-bottom: 24px;
+  background: #eef0e8;
+}
+.breeder-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.breeder-identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  min-width: 0;
+}
+.breeder-identity > div {
+  flex: 1;
+  min-width: min(100%, 180px);
+  overflow-wrap: anywhere;
+}
+.breeder-gallery-editor-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.breeder-gallery-editor-list li {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.breeder-gallery-editor-list img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.breeder-gallery-editor-list button {
+  min-height: 44px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.breeder-gallery-editor-list li[draggable="true"] {
+  cursor: grab;
+}
+.breeder-video-list {
+  display: grid;
+  gap: 16px;
+  padding-left: 20px;
+  overflow-wrap: anywhere;
+}
+.breeder-video-player {
+  aspect-ratio: 16/9;
+  min-width: 0;
+  background: #eef0e8;
+  border-radius: 12px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.breeder-video-player iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.image-fallback {
+  display: grid;
+  place-items: center;
+  min-height: 96px;
+  height: 100%;
+  padding: 16px;
+  background: #eef0e8;
+  color: #4e5849;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.breeder-upload-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.breeder-upload-list li {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.breeder-upload-list img {
+  max-width: 100%;
+  object-fit: cover;
+}
+.breeder-media-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.breeder-video-editor-list {
+  padding-left: 20px;
+  overflow-wrap: anywhere;
+  display: grid;
+  gap: 16px;
+}
+.breeder-media-item-actions button {
+  min-height: 44px;
+}
+.breeder-public-gallery .gallery-open > .image-fallback {
+  aspect-ratio: 4/3;
+}
+@media (min-width: 768px) {
+  .breeder-gallery-editor-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .breeder-media-section {
+    padding: 24px;
+  }
+}
+.breeder-profile-header,
+.breeder-public-gallery,
+.breeder-public-videos {
+  min-width: 0;
+}
+.breeder-public-videos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+.breeder-media-section img.breeder-cover {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Editor-only rhythm; public media presentation remains independent. */
+.breeder-editor-content .auth-form {
+  gap: 24px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.breeder-section-heading {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.breeder-editor-content .breeder-media-section h2 {
+  font-size: 20px;
+  line-height: 1.3;
+}
+.breeder-media-editor .breeder-media-section > .button {
+  justify-self: start;
+}
+.breeder-section-heading p {
+  line-height: 1.5;
+}
+.breeder-basic-info {
+  gap: 20px;
+}
+.breeder-save-actions {
+  padding-top: 16px;
+  border-top: 1px solid #e8e3d8;
+}
+.breeder-editor-content .breeder-delete {
+  margin-top: 24px;
+  padding: 20px;
+}
+.breeder-delete > .button {
+  justify-self: start;
+}
+.breeder-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.breeder-image-control {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.breeder-image-control-logo:has(.breeder-editor-preview) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.breeder-editor-preview {
+  border: 1px solid #e8e3d8;
+  border-radius: 12px;
+  background: #f5f3ed;
+}
+.breeder-editor-preview-logo {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.breeder-editor-preview-cover {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 1;
+  object-fit: cover;
+}
+.breeder-upload-empty {
+  padding: 20px;
+  border: 1px dashed #d5d9ce;
+  border-radius: 12px;
+  background: #faf9f5;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.breeder-media-editor .button,
+.breeder-delete > .button {
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+.breeder-destructive {
+  color: #8c3f35;
+  background: transparent;
+  border: 1px solid #e3d8d2;
+  border-radius: 10px;
+}
+.breeder-destructive:hover:not(:disabled) {
+  background: #faf0ec;
+  border-color: #cbb3aa;
+}
+.breeder-section-feedback:empty {
+  display: none;
+}
+.breeder-media-editor .breeder-gallery-editor-list:empty,
+.breeder-media-editor .breeder-video-editor-list:empty {
+  display: none;
+}
+.breeder-media-editor .breeder-gallery-editor-list li {
+  padding: 10px;
+  border: 1px solid #e8e3d8;
+  border-radius: 12px;
+  background: #faf9f5;
+  gap: 12px;
+}
+.breeder-media-editor .breeder-gallery-editor-list {
+  grid-template-columns: 1fr;
+}
+.breeder-media-editor .breeder-upload-list {
+  margin: 0;
+}
+.breeder-media-editor .breeder-upload-list li {
+  padding: 12px;
+  border: 1px solid #e8e3d8;
+  border-radius: 12px;
+  background: #faf9f5;
+}
+.breeder-media-editor .breeder-upload-list img {
+  border-radius: 8px;
+}
+.breeder-media-editor .breeder-video-editor-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.breeder-media-editor .breeder-video-editor-list li {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e8e3d8;
+  border-radius: 12px;
+}
+.breeder-empty-note {
+  padding: 12px;
+  background: #faf9f5;
+  border-radius: 8px;
+}
+.breeder-media-editor #breeder-video-url {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #d7d7cb;
+  border-radius: 10px;
+  padding: 12px;
+  background: white;
+}
+.breeder-media-editor #breeder-video-error:empty {
+  display: none;
+}
+@media (min-width: 768px) {
+  .breeder-media-editor .breeder-gallery-editor-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .breeder-editor-content .breeder-delete {
+    padding: 24px;
+  }
+}
+@media (max-width: 430px) {
+  .breeder-media-editor .breeder-media-section > .button {
+    width: 100%;
+  }
+  .breeder-media-editor .breeder-media-item-actions {
+    width: 100%;
+  }
+  .breeder-media-editor .breeder-media-item-actions > .button,
+  .breeder-upload-empty > .button {
+    width: 100%;
+  }
+  .breeder-upload-empty {
+    padding: 16px;
+  }
+}

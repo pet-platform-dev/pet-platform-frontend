@@ -103,7 +103,7 @@ try {
     .click();
   await heading("Налаштувати профіль заводчика");
   await page
-    .getByRole("button", { name: "Зберегти профіль", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   await page.getByText("Вкажіть назву розплідника", { exact: true }).waitFor();
   assert.equal(writes.length, 0);
@@ -115,7 +115,7 @@ try {
   await page.locator("#breeder-startedYear").fill("1899");
   await page.locator("#breeder-website").fill("javascript:alert(1)");
   await page
-    .getByRole("button", { name: "Зберегти профіль", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   await page
     .getByText("Рік початку роботи має бути не раніше 1900", { exact: true })
@@ -185,7 +185,7 @@ try {
       : route.continue(),
   );
   await page
-    .getByRole("button", { name: "Зберегти профіль", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   await page
     .getByRole("alert")
@@ -202,7 +202,7 @@ try {
   pass("failed create preserves all input and selected references; safe error");
   await context.unroute("**/api/v1/breeders/me");
   await page
-    .getByRole("button", { name: "Зберегти профіль", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   await page.waitForURL("**/sellers/" + fixture.full.user.id);
   await heading("Новий розплідник 🐾");
@@ -264,7 +264,7 @@ try {
   await page.locator("#breeder-kennelName").fill("Оновлений розплідник");
   await geometry("edit");
   await page
-    .getByRole("button", { name: "Зберегти профіль", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   await page.getByText("Зміни збережено.", { exact: true }).waitFor();
   assert.equal(new URL(page.url()).pathname, "/profile/breeder");
