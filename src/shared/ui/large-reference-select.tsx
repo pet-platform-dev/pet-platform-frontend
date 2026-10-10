@@ -28,6 +28,7 @@ export function LargeReferenceSelect<T extends { id: string }>({
   itemLabel,
   itemContext,
   selected,
+  selectedIds,
   onSelect,
   onSearching,
   error,
@@ -46,6 +47,7 @@ export function LargeReferenceSelect<T extends { id: string }>({
   itemLabel: (item: T) => string;
   itemContext?: (item: T) => string;
   selected: T | null;
+  selectedIds?: readonly string[];
   onSelect: (item: T | null) => void;
   onSearching?: (value: boolean) => void;
   error?: string;
@@ -246,6 +248,7 @@ export function LargeReferenceSelect<T extends { id: string }>({
             ref={list}
             id={`${id}-list`}
             role="listbox"
+            aria-multiselectable={selectedIds ? true : undefined}
             aria-label={`Доступні: ${label}`}
             aria-busy={query.isFetching}
             onScroll={(event) => {
@@ -269,7 +272,11 @@ export function LargeReferenceSelect<T extends { id: string }>({
                 key={item.id}
                 id={`${id}-option-${item.id}`}
                 role="option"
-                aria-selected={item.id === selected?.id}
+                aria-selected={
+                  selectedIds
+                    ? selectedIds.includes(item.id)
+                    : item.id === selected?.id
+                }
                 aria-posinset={
                   (query.data?.pages[0].meta.page ?? 1) *
                     (query.data?.pages[0].meta.limit ?? 50) -

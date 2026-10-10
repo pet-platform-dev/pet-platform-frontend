@@ -222,7 +222,7 @@ test("catalog error shows retry without rendering backend details", () => {
 test("valid response renders reusable cards and total", () => {
   const html = catalog(response());
   assert.ok(html.includes("listing-card"));
-  assert.ok(html.includes("Активних оголошень: 1"));
+  assert.ok(html.includes("Знайдено 1 оголошення"));
 });
 test("URL parsing permits only supported sorts and positive bounded pages", () => {
   assert.deepEqual(catalogQuery({ page: "2", sort: "oldest" }), {
@@ -232,7 +232,7 @@ test("URL parsing permits only supported sorts and positive bounded pages", () =
   });
   for (const page of ["0", "-1", "1.5", "100001", ["1", "2"]])
     assert.equal(catalogQuery({ page }).page, 1);
-  assert.equal(catalogQuery({ sort: "price_asc" }).sort, "newest");
+  assert.equal(catalogQuery({ sort: "price_asc" }).sort, "price_asc");
   assert.equal(catalogHref(0, "newest"), "/listings?page=1&sort=newest");
 });
 test("pagination links use URL state and compact numbered windows", () => {

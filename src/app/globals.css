@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../features/listing/filters/filters.css";
 
 .seller-contacts {
   display: flex;
@@ -1799,4 +1800,52 @@ form {
   .owner-card-body {
     padding: 18px;
   }
+}
+
+.reference-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: 8px 0 0;
+  list-style: none;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.reference-chips li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  min-width: 0;
+  background: #edf1e5;
+  border-radius: 8px;
+  padding: 5px 7px;
+}
+.reference-chips span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.reference-chips strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.reference-chips small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.reference-chips button {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  min-width: 28px;
+  min-height: 28px;
+  font-size: 19px;
+}
+.reference-chips button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }

@@ -14,10 +14,12 @@ export function BreedSelector({
   onSelect,
   error,
   onSearching,
+  hint,
 }: {
   species: "dog" | "cat" | undefined;
   selected: BreedChoice | null;
   onSelect: (breed: BreedChoice | null) => void;
+  hint?: string;
   error?: string;
   onSearching: (value: boolean) => void;
 }) {
@@ -27,7 +29,10 @@ export function BreedSelector({
       label="Порода"
       clearLabel="Очистити породу"
       optional
-      hint="Якщо порода невідома або змішана, залиште поле порожнім. Назви без перевіреного перекладу подано англійською."
+      hint={
+        hint ??
+        "Якщо порода невідома або змішана, залиште поле порожнім. Назви без перевіреного перекладу подано англійською."
+      }
       placeholder={
         species
           ? "Почніть вводити назву породи"

@@ -17,14 +17,16 @@ export function LocationSelector({
   selected,
   onSelect,
   error,
+  label = "Місце",
 }: {
   selected: Location | null;
   onSelect: (location: Location | null) => void;
   error?: string;
+  label?: string;
 }) {
   return (
     <LargeReferenceSelect<Location>
-      label="Місце"
+      label={label}
       placeholder="Введіть назву міста або села"
       hint="Введіть щонайменше 2 символи та оберіть місце зі списку."
       queryKey={["locations"]}

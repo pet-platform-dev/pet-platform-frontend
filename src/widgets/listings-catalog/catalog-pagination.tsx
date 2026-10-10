@@ -8,10 +8,12 @@ export function CatalogPagination({
   page,
   pages,
   sort,
+  onPage,
 }: {
   page: number;
   pages: number;
   sort: CatalogSort;
+  onPage?: (page: number) => void;
 }) {
   if (pages <= 1 && page <= pages) return null;
   const numbers = catalogPageNumbers(page, pages);
@@ -20,6 +22,7 @@ export function CatalogPagination({
       {page > 1 ? (
         <Link
           href={catalogHref(Math.min(page - 1, pages), sort)}
+          onNavigate={() => onPage?.(Math.min(page - 1, pages))}
           className="catalog-page-direction"
           aria-label="Попередня сторінка"
           scroll={false}
@@ -39,6 +42,7 @@ export function CatalogPagination({
           <Link
             key={number}
             href={catalogHref(number, sort)}
+            onNavigate={() => onPage?.(number)}
             aria-label={`Сторінка ${number}`}
             aria-current={number === page ? "page" : undefined}
             scroll={false}
@@ -50,6 +54,7 @@ export function CatalogPagination({
       {page < pages ? (
         <Link
           href={catalogHref(page + 1, sort)}
+          onNavigate={() => onPage?.(page + 1)}
           className="catalog-page-direction"
           aria-label="Наступна сторінка"
           scroll={false}
