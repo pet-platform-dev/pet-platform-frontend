@@ -9,7 +9,7 @@ function OwnBreederEditor({ userId }: { userId: string }) {
   if (query.isPending)
     return (
       <div role="status" className="breeder-editor-loading">
-        Завантажуємо профіль заводчика…
+        Завантажуємо профіль розплідника…
         <div aria-hidden="true" className="skeleton-block" />
         <div aria-hidden="true" className="skeleton-block" />
       </div>
@@ -17,7 +17,7 @@ function OwnBreederEditor({ userId }: { userId: string }) {
   if (query.isError)
     return (
       <div>
-        <p role="alert">Не вдалося завантажити профіль заводчика.</p>
+        <p role="alert">Не вдалося завантажити профіль розплідника.</p>
         <button
           className="button secondary"
           onClick={() => void query.refetch()}
@@ -33,7 +33,7 @@ function BreederAccess() {
   if (session.data?.accountType !== "BREEDER")
     return (
       <section className="status-panel">
-        <h1>Профіль заводчика</h1>
+        <h1>Профіль розплідника</h1>
         <p>Редактор доступний для акаунта заводчика.</p>
         <Link href="/account" className="button secondary">
           До акаунта

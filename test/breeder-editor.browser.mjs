@@ -95,13 +95,13 @@ try {
   pass("logged-out editor follows existing login flow");
   await login(fixture.full);
   await page
-    .getByRole("link", { name: "Налаштувати профіль заводчика", exact: true })
+    .getByRole("link", { name: "Налаштувати профіль розплідника", exact: true })
     .waitFor();
   pass("new BREEDER account shows setup CTA");
   await page
-    .getByRole("link", { name: "Налаштувати профіль заводчика", exact: true })
+    .getByRole("link", { name: "Налаштувати профіль розплідника", exact: true })
     .click();
-  await heading("Налаштувати профіль заводчика");
+  await heading("Налаштувати профіль розплідника");
   await page
     .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
@@ -207,7 +207,7 @@ try {
   await page.waitForURL("**/sellers/" + fixture.full.user.id);
   await heading("Новий розплідник 🐾");
   await page
-    .getByText("Профіль заводчика створено.", { exact: true })
+    .getByText("Профіль розплідника створено.", { exact: false })
     .waitFor();
   for (const value of [
     "З турботою про собак і котів.",
@@ -243,13 +243,13 @@ try {
     .click();
   await page.waitForURL("**/account");
   await page
-    .getByRole("link", { name: "Редагувати профіль заводчика", exact: true })
+    .getByRole("link", { name: "Редагувати профіль розплідника", exact: true })
     .waitFor();
   pass("existing profile account edit/public CTA");
   await page
-    .getByRole("link", { name: "Редагувати профіль заводчика", exact: true })
+    .getByRole("link", { name: "Редагувати профіль розплідника", exact: true })
     .click();
-  await heading("Редагувати профіль заводчика");
+  await heading("Редагувати профіль розплідника");
   assert.equal(
     await page.locator("#breeder-kennelName").inputValue(),
     "Новий розплідник 🐾",
@@ -287,11 +287,11 @@ try {
     .first()
     .click();
   await page
-    .getByRole("link", { name: "Редагувати профіль заводчика", exact: true })
+    .getByRole("link", { name: "Редагувати профіль розплідника", exact: true })
     .click();
-  await heading("Редагувати профіль заводчика");
+  await heading("Редагувати профіль розплідника");
   const trigger = page.getByRole("button", {
-    name: "Видалити профіль заводчика",
+    name: "Видалити профіль розплідника",
     exact: true,
   });
   await trigger.click();
@@ -323,7 +323,7 @@ try {
     .click();
   await page.waitForURL("**/account");
   await page
-    .getByRole("link", { name: "Налаштувати профіль заводчика", exact: true })
+    .getByRole("link", { name: "Налаштувати профіль розплідника", exact: true })
     .waitFor();
   assert.deepEqual(await fixture.domainSnapshot(), before);
   pass(
@@ -351,7 +351,7 @@ try {
   await page.waitForURL("**/login");
   await login(fixture.seller);
   assert.equal(
-    await page.getByRole("link", { name: /профіль заводчика/ }).count(),
+    await page.getByRole("link", { name: /профіль розплідника/ }).count(),
     0,
   );
   await go("/profile/breeder");

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { breederPetEditorHref } from "@/features/pet/navigation/editor-return";
 import { useQuery } from "@tanstack/react-query";
 import {
   getOwnBreederAnimals,
@@ -22,7 +23,7 @@ export function BreederAnimalsEntry({ userId }: { userId: string }) {
       </p>
       <Link
         className="button primary"
-        href={empty ? "/pets/new" : "/profile/breeder/animals"}
+        href={empty ? breederPetEditorHref() : "/profile/breeder/animals"}
       >
         {empty ? "Додати тварину" : "Керувати тваринами"}
       </Link>

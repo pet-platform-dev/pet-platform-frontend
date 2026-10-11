@@ -4,11 +4,11 @@ import { useOwnBreeder } from "./use-own-breeder";
 export function AccountBreederLink({ userId }: { userId: string }) {
   const query = useOwnBreeder(userId);
   if (query.isPending)
-    return <p role="status">Завантажуємо профіль заводчика…</p>;
+    return <p role="status">Завантажуємо профіль розплідника…</p>;
   if (query.isError)
     return (
       <div>
-        <p role="alert">Не вдалося завантажити профіль заводчика.</p>
+        <p role="alert">Не вдалося завантажити профіль розплідника.</p>
         <button
           className="button secondary"
           onClick={() => void query.refetch()}
@@ -21,8 +21,8 @@ export function AccountBreederLink({ userId }: { userId: string }) {
     <div className="breeder-account-links">
       <Link className="button primary" href="/profile/breeder">
         {query.data
-          ? "Редагувати профіль заводчика"
-          : "Налаштувати профіль заводчика"}
+          ? "Редагувати профіль розплідника"
+          : "Налаштувати профіль розплідника"}
       </Link>
       {query.data && (
         <Link className="button secondary" href="/profile/breeder/animals">

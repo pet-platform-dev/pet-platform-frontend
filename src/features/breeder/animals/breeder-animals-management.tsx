@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { breederPetEditorHref } from "@/features/pet/navigation/editor-return";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { RequireSession } from "@/features/auth/require-session";
@@ -27,7 +28,7 @@ function Animals({ userId }: { userId: string }) {
             Оберіть тварин для публічного профілю. Оголошення керуються окремо.
           </p>
         </div>
-        <Link className="button primary" href="/pets/new">
+        <Link className="button primary" href={breederPetEditorHref()}>
           Додати тварину
         </Link>
       </header>
@@ -69,11 +70,11 @@ function Animals({ userId }: { userId: string }) {
 function ProfileGate({ userId }: { userId: string }) {
   const profile = useOwnBreeder(userId);
   if (profile.isPending)
-    return <p role="status">Завантажуємо профіль заводчика…</p>;
+    return <p role="status">Завантажуємо профіль розплідника…</p>;
   if (profile.isError)
     return (
       <div>
-        <p role="alert">Не вдалося завантажити профіль заводчика.</p>
+        <p role="alert">Не вдалося завантажити профіль розплідника.</p>
         <button
           className="button secondary"
           onClick={() => void profile.refetch()}
@@ -85,7 +86,7 @@ function ProfileGate({ userId }: { userId: string }) {
   if (!profile.data)
     return (
       <section className="status-panel">
-        <h1>Спочатку налаштуйте профіль заводчика</h1>
+        <h1>Спочатку налаштуйте профіль розплідника</h1>
         <Link className="button primary" href="/profile/breeder">
           Налаштувати профіль
         </Link>

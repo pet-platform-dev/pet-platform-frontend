@@ -180,7 +180,10 @@ try {
       "/pet-platform/pets/",
     ),
   );
-  assert.equal(await card(petId).locator("a").count(), 0);
+  assert.equal(
+    await card(petId).locator("a").getAttribute("href"),
+    "/pets/" + petId,
+  );
   pass(
     "B: management and opted-in public animal use own photo without sale/listing",
   );
@@ -239,7 +242,12 @@ try {
   );
   await go("/sellers/" + fixture.full.user.id);
   await card(historicalId).waitFor();
-  assert.equal(await card(historicalId).locator("img,a").count(), 0);
+  assert.equal(await card(historicalId).locator("img").count(), 0);
+  assert.ok(
+    await card(historicalId)
+      .locator('a[href="/pets/' + historicalId + '"]')
+      .count(),
+  );
   pass("D: SOLD historical Listing image stays out of public animal card");
   await go("/account");
   await page
@@ -256,7 +264,7 @@ try {
     }),
   );
   await page
-    .getByRole("button", { name: "Зберегти особисті дані", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   await page.getByRole("alert").waitFor();
   assert.equal(
@@ -270,7 +278,7 @@ try {
   await page.unroute("**/account/profile");
   pass("failed identity mutation preserves both fields");
   await page
-    .getByRole("button", { name: "Зберегти особисті дані", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   await page.getByText("Особисті дані збережено.", { exact: true }).waitFor();
   await page.reload();
@@ -292,7 +300,7 @@ try {
   await sellerPage.getByLabel("Ім’я", { exact: true }).fill("Тарас");
   await sellerPage.getByLabel("Прізвище", { exact: true }).fill("Шевченко");
   await sellerPage
-    .getByRole("button", { name: "Зберегти особисті дані", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   await sellerPage
     .getByText("Особисті дані збережено.", { exact: true })

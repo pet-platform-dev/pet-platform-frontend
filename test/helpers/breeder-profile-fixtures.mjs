@@ -379,6 +379,32 @@ export async function breederProfileFixtures({
         }),
       }),
       password: "Fixture-password-42",
+      marker,
+      trackUser(user) {
+        assert.ok(user.email.endsWith(marker + "@example.invalid"));
+        assert.ok(!ids.includes(user.id));
+        ids.push(user.id);
+      },
+      trackedDomain: async (userId) => {
+        assert.ok(ids.includes(userId));
+        return {
+          user: await p.user.findUnique({
+            where: { id: userId },
+            select: { id: true, accountType: true, role: true },
+          }),
+          pets: await p.pet.findMany({
+            where: { ownerId: userId },
+            select: { id: true, showOnBreederProfile: true },
+          }),
+          listings: await p.listing.findMany({
+            where: { sellerId: userId },
+            select: { id: true, status: true },
+          }),
+          legacyBreederRoleCount: await p.user.count({
+            where: { role: "BREEDER" },
+          }),
+        };
+      },
       cleanup,
     };
   } catch (error) {

@@ -728,6 +728,10 @@ form {
 .delete-link:hover {
   text-decoration: underline;
 }
+.pet-card-actions > .button,
+.pet-card-actions > .delete-link {
+  min-height: 44px;
+}
 .pet-form-card {
   background: #fffdf9;
   border: 1px solid #e8e3d8;

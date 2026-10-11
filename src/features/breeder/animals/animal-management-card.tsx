@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { breederPetEditorHref } from "@/features/pet/navigation/editor-return";
 import type { OwnBreederAnimal } from "@/entities/breeder/animals";
 import { AnimalCard } from "./animal-card";
 import { VisibilityControl } from "./visibility-control";
@@ -30,7 +31,7 @@ export function AnimalManagementCard({
         )}
         <Link
           className="button secondary"
-          href={"/pets/" + animal.id + "/edit"}
+          href={breederPetEditorHref(animal.id)}
         >
           Редагувати тварину
         </Link>

@@ -1,6 +1,6 @@
 import { BreederEditor } from "@/features/breeder/editor/breeder-editor";
 export const metadata = {
-  title: "Профіль заводчика — Лапа",
+  title: "Профіль розплідника — Лапа",
   robots: { index: false, follow: false },
 };
 export default function BreederEditorPage() {

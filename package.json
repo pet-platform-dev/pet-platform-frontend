@@ -25,7 +25,8 @@
     "test:browser:breeder-media": "node test/breeder-media.browser.mjs",
     "test:browser:breeder-animals": "node test/breeder-animals.browser.mjs",
     "test:browser:profile-pet-ux": "node test/profile-pet-ux.browser.mjs",
-    "test:browser:public-pets": "node test/public-pet.browser.mjs"
+    "test:browser:public-pets": "node test/public-pet.browser.mjs",
+    "test:browser:phase7": "node test/phase7-journeys.browser.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

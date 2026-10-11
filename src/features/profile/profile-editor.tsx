@@ -1,4 +1,7 @@
 "use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { updateContactCache } from "./cache";
 import { useRef, useState } from "react";
 import { useForm, useFormState } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +18,7 @@ import { LocationSelector } from "@/entities/location/location-selector";
 import type { Location } from "@/entities/location/model";
 import { ApiError } from "@/shared/api/client";
 function ProfileForm({ seller }: { seller: Seller }) {
+  const router = useRouter();
   const client = useQueryClient(),
     submitting = useRef(false);
   const [location, setLocation] = useState<Location | null>(
@@ -42,18 +46,7 @@ function ProfileForm({ seller }: { seller: Seller }) {
     mutationFn: (input: ProfileInput) =>
       saveProfile(input, location?.id ?? null),
     onSuccess: async (updated) => {
-      client.setQueryData(["profile", seller.id], updated);
-      client.setQueryData(["seller", seller.id], updated);
-      await client.invalidateQueries({
-        predicate: (query) =>
-          [
-            "listing",
-            "listings",
-            "owned-listing",
-            "my-listings",
-            "seller-listings",
-          ].includes(String(query.queryKey[0])),
-      });
+      if (await updateContactCache(client, updated)) router.refresh();
     },
     onSettled: () => {
       submitting.current = false;
@@ -71,10 +64,13 @@ function ProfileForm({ seller }: { seller: Seller }) {
         })(event)
       }
     >
-      <h1>Публічний профіль продавця</h1>
+      <Link href="/account" className="text-link">
+        ← До акаунта
+      </Link>
+      <h1>Контакти та місце розташування</h1>
       <p className="listing-seller-name">{seller.displayName}</p>
       <p className="muted">
-        Ім’я та прізвище з вашого акаунта показуються публічно.
+        Ім’я та прізвище можна змінити в розділі «Особисті дані» вашого акаунта.
       </p>
       <p>
         Ці контакти можуть бути показані у ваших активних оголошеннях та
@@ -123,7 +119,7 @@ function ProfileForm({ seller }: { seller: Seller }) {
       )}
       {mutation.isSuccess && <p role="status">Публічний профіль збережено.</p>}
       <button className="button primary" disabled={mutation.isPending}>
-        {mutation.isPending ? "Зберігаємо…" : "Зберегти профіль"}
+        {mutation.isPending ? "Зберігаємо…" : "Зберегти зміни"}
       </button>
     </form>
   );

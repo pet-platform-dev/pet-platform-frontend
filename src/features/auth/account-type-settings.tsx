@@ -49,7 +49,8 @@ export function AccountTypeSettings({ user }: { user: User }) {
         <strong>{accountTypePresentation[user.accountType].label}</strong>
       </p>
       <p className="muted">
-        Зміна типу акаунта збереже ваших тварин, оголошення та контакти.
+        {accountTypePresentation[user.accountType].description} Зміна типу
+        акаунта збереже ваших тварин, оголошення та контакти.
       </p>
       <button
         className="button secondary"

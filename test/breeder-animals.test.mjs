@@ -124,7 +124,11 @@ test("owner per-pet visibility checkbox and existing Pet/create links", () => {
   });
   assert.ok(html.includes('type="checkbox"'));
   assert.ok(html.includes("Показувати у профілі розплідника"));
-  assert.ok(html.includes('href="/pets/' + id + '/edit"'));
+  assert.ok(
+    html.includes(
+      'href="/pets/' + id + '/edit?returnTo=%2Fprofile%2Fbreeder%2Fanimals"',
+    ),
+  );
   assert.ok(html.includes('href="/listings/new?petId=' + id + '"'));
 });
 test("ACTIVE/current listings offer view/edit rather than duplicate creation", () => {

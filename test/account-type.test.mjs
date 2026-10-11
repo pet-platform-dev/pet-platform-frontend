@@ -109,7 +109,8 @@ test("existing breeder profile conflict keeps the localized account transition r
     "src/features/auth/account-type-api.ts",
   );
   const saved = globalThis.fetch;
-  let message = "Спочатку видаліть або деактивуйте профіль заводчика.";
+  let message =
+    "Щоб змінити тип акаунта, спочатку видаліть профіль розплідника.";
   globalThis.fetch = async (url) => {
     if (url.endsWith("/csrf"))
       return Response.json({ data: { csrfToken: "fixture-csrf" } });

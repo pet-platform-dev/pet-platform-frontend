@@ -167,7 +167,7 @@ async function register(type) {
   );
   await navigate(page, base + "/profile");
   await page
-    .getByRole("heading", { name: "Публічний профіль продавця" })
+    .getByRole("heading", { name: "Контакти та місце розташування" })
     .waitFor();
   for (const label of ["Телефон", "Telegram", "Viber", "WhatsApp"]) {
     const input = page.getByLabel(label, { exact: false });
@@ -301,14 +301,14 @@ try {
   );
   await navigate(page, base + "/profile");
   await page
-    .getByRole("heading", { name: "Публічний профіль продавця" })
+    .getByRole("heading", { name: "Контакти та місце розташування" })
     .waitFor();
   await page.getByLabel("Telegram", { exact: false }).fill("@updated_fixture");
   const profileSave = page.waitForResponse(
     (r) => r.url() === api + "/profile" && r.request().method() === "PATCH",
   );
   await page
-    .getByRole("button", { name: "Зберегти профіль", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .click();
   assert.equal((await profileSave).status(), 200);
   await page

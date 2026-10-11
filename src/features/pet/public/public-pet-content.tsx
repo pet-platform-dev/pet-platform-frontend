@@ -42,10 +42,6 @@ export function PublicPetContent({ pet }: { pet: PublicPet }) {
               </time>
             </p>
           )}
-          <p className="muted">Розплідник</p>
-          <Link href={pet.breederSummary.href} className="text-link">
-            {pet.breederSummary.kennelName}
-          </Link>
         </section>
       </div>
       {pet.description?.trim() && (

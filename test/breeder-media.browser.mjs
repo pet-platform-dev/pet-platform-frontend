@@ -481,7 +481,7 @@ try {
   );
   pass("individual image logo cover video deletion survives refresh");
   await page
-    .getByRole("button", { name: "Видалити профіль заводчика", exact: true })
+    .getByRole("button", { name: "Видалити профіль розплідника", exact: true })
     .click();
   await mutation(
     () =>

@@ -74,7 +74,7 @@ async function saveContacts(values = {}) {
   await navigate(base + "/profile");
   await page.waitForLoadState("networkidle");
   await page
-    .getByRole("heading", { name: "Публічний профіль продавця" })
+    .getByRole("heading", { name: "Контакти та місце розташування" })
     .waitFor();
   for (const [field, label] of [
     ["phone", "Телефон"],
@@ -87,7 +87,7 @@ async function saveContacts(values = {}) {
     (r) => r.url() === api + "/profile" && r.request().method() === "PATCH",
   );
   await page
-    .getByRole("button", { name: "Зберегти профіль", exact: true })
+    .getByRole("button", { name: "Зберегти зміни", exact: true })
     .evaluate((button) => {
       button.click();
       button.click();
@@ -164,7 +164,7 @@ try {
     .getByRole("link", { name: "Редагувати публічний профіль" })
     .click();
   await page
-    .getByRole("heading", { name: "Публічний профіль продавця" })
+    .getByRole("heading", { name: "Контакти та місце розташування" })
     .waitFor();
   await expect(page.locator(".listing-seller-name")).toHaveText(
     "Олександр Єпік",
@@ -178,7 +178,7 @@ try {
   await page
     .getByLabel("Telegram", { exact: false })
     .fill("javascript:alert(1)");
-  await page.getByRole("button", { name: "Зберегти профіль" }).click();
+  await page.getByRole("button", { name: "Зберегти зміни" }).click();
   await page
     .getByText(
       "Вкажіть Telegram username: 5–32 латинські символи, цифри або _",
@@ -208,7 +208,7 @@ try {
     .first()
     .getByRole("button")
     .click();
-  await page.getByRole("button", { name: "Зберегти профіль" }).click();
+  await page.getByRole("button", { name: "Зберегти зміни" }).click();
   await expect
     .poll(async () => (await data(await call("GET", "/profile"))).location?.id)
     .toBe(location.id);

@@ -89,7 +89,8 @@ export function MobileNavigation({
               aria-current={
                 pathname === item.href ||
                 pathname.startsWith(item.href + "/") ||
-                (item.href === "/account" && pathname === "/profile")
+                (item.href === "/account" &&
+                  (pathname === "/profile" || pathname.startsWith("/profile/")))
                   ? "page"
                   : undefined
               }

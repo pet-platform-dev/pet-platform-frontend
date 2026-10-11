@@ -202,7 +202,7 @@ try {
   pass("listing publication refreshes management status");
   await go("/profile/breeder");
   await page
-    .getByRole("button", { name: "Видалити профіль заводчика", exact: true })
+    .getByRole("button", { name: "Видалити профіль розплідника", exact: true })
     .click();
   const deletion = page.waitForResponse(
     (response) =>
@@ -281,7 +281,7 @@ try {
           ? "Розділ доступний для акаунта заводчика."
           : label === "empty"
             ? "У вас ще немає тварин."
-            : "Спочатку налаштуйте профіль заводчика",
+            : "Спочатку налаштуйте профіль розплідника",
         { exact: true },
       )
       .waitFor();

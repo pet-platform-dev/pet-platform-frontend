@@ -1,5 +1,11 @@
 "use client";
 import { invalidateBreederAnimals } from "@/features/breeder/animals/cache";
+import { useSession } from "@/features/auth/session-provider";
+import type { User } from "@/entities/user/model";
+import {
+  petEditorReturn,
+  breederAnimalsPath,
+} from "./navigation/editor-return";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
@@ -19,9 +25,19 @@ import { BreedSelector, type BreedChoice } from "./breed-selector";
 import { petFormSchema, todayKyiv } from "./validation";
 
 type FormInput = z.input<typeof petFormSchema>;
-function PetForm({ pet }: { pet?: Pet }) {
+function PetForm({
+  pet,
+  ownerId,
+  returnTo,
+}: {
+  pet?: Pet;
+  ownerId: string;
+  returnTo: string;
+}) {
   const router = useRouter();
   const client = useQueryClient();
+  const currentOwner = () =>
+    client.getQueryData<User | null>(["current-user"])?.id === ownerId;
   const savedId = useRef(pet?.id);
   const [created, setCreated] = useState(false);
   const [photo, setPhoto] = useState<File | null | undefined>(undefined);
@@ -54,16 +70,21 @@ function PetForm({ pet }: { pet?: Pet }) {
   const mutation = useMutation({
     mutationFn: async (input: z.output<typeof petFormSchema>) => {
       const saved = await savePet(input, savedId.current);
+      if (!currentOwner())
+        throw new DOMException("Session changed", "AbortError");
       savedId.current = saved.id;
       setCreated(true);
       if (photo !== undefined) await savePetPhoto(saved.id, photo);
       return getPet(saved.id);
     },
     onSuccess: async (saved) => {
+      if (!currentOwner()) return;
+      await client.cancelQueries({ queryKey: ["pet", saved.id] });
+      if (!currentOwner()) return;
       client.setQueryData(["pet", saved.id], saved);
-      await client.invalidateQueries({ queryKey: ["my-pets"] });
-      await invalidateBreederAnimals(client);
-      router.push("/pets");
+      if (!(await invalidateBreederAnimals(client, ownerId))) return;
+      router.refresh();
+      router.push(returnTo);
     },
     onError: (error) => {
       if (error instanceof ApiError)
@@ -96,8 +117,10 @@ function PetForm({ pet }: { pet?: Pet }) {
   });
   return (
     <section className="pet-form-card">
-      <Link className="text-link" href="/pets">
-        ← Мої тварини
+      <Link className="text-link" href={returnTo}>
+        {returnTo === breederAnimalsPath
+          ? "← Тварини розплідника"
+          : "← Мої тварини"}
       </Link>
       <p className="eyebrow">Профіль улюбленця</p>
       <h1>{pet ? "Редагувати тварину" : "Додати тварину"}</h1>
@@ -314,7 +337,7 @@ function PetForm({ pet }: { pet?: Pet }) {
                   ? "Зберегти зміни"
                   : "Додати тварину"}
             </button>
-            <Link href="/pets" className="button secondary">
+            <Link href={returnTo} className="button secondary">
               Скасувати
             </Link>
           </div>
@@ -331,7 +354,15 @@ function PetForm({ pet }: { pet?: Pet }) {
     </section>
   );
 }
-export function PetFormPage({ id }: { id?: string }) {
+export function PetFormPage({
+  id,
+  returnTo: requestedReturn,
+}: {
+  id?: string;
+  returnTo?: string;
+}) {
+  const session = useSession();
+  const returnTo = petEditorReturn(requestedReturn);
   const query = useQuery({
     queryKey: ["pet", id],
     queryFn: () => getPet(id!),
@@ -351,10 +382,20 @@ export function PetFormPage({ id }: { id?: string }) {
             ? query.error.message
             : "Не вдалося завантажити профіль."}
         </p>
-        <Link href="/pets" className="button secondary">
-          До моїх тварин
+        <Link href={returnTo} className="button secondary">
+          {returnTo === breederAnimalsPath
+            ? "До тварин розплідника"
+            : "До моїх тварин"}
         </Link>
       </div>
     );
-  return <PetForm key={id ?? "new"} pet={id ? query.data : undefined} />;
+  if (!session.data) return null;
+  return (
+    <PetForm
+      key={session.data.id + ":" + (id ?? "new")}
+      ownerId={session.data.id}
+      returnTo={returnTo}
+      pet={id ? query.data : undefined}
+    />
+  );
 }

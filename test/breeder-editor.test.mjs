@@ -198,14 +198,14 @@ test("BREEDER without profile setup CTA", () => {
   const c = client();
   c.setQueryData(ownBreederKey(id), null);
   const html = render(AccountBreederLink, { userId: id }, c);
-  assert.match(html, /Налаштувати профіль заводчика/);
+  assert.match(html, /Налаштувати профіль розплідника/);
   assert.doesNotMatch(html, /Переглянути публічний профіль/);
 });
 test("BREEDER existing edit and animal management CTA", () => {
   const c = client();
   c.setQueryData(ownBreederKey(id), profile);
   const html = render(AccountBreederLink, { userId: id }, c);
-  assert.match(html, /Редагувати профіль заводчика/);
+  assert.match(html, /Редагувати профіль розплідника/);
   assert.ok(html.includes("/profile/breeder/animals"));
 });
 test("SELLER direct editor denied without form", () => {
@@ -217,7 +217,7 @@ test("SELLER direct editor denied without form", () => {
 });
 test("loading never flashes empty form", () => {
   const html = render(BreederEditor, {});
-  assert.match(html, /Завантажуємо профіль заводчика/);
+  assert.match(html, /Завантажуємо профіль розплідника/);
   assert.doesNotMatch(html, /<form/);
 });
 test("existing form prefilled, no contact inputs", () => {
@@ -231,7 +231,7 @@ test("existing form prefilled, no contact inputs", () => {
 });
 test("explicit deletion dialog states preservation and buttons", () => {
   const html = render(BreederForm, { userId: id, profile });
-  assert.ok(html.includes("Видалити профіль заводчика?"));
+  assert.ok(html.includes("Видалити профіль розплідника?"));
   assert.match(html, /Ваш акаунт, тварини, оголошення та контакти залишаться/);
   assert.match(html, /Скасувати/);
   assert.match(html, /aria-labelledby="breeder-delete-title"/);

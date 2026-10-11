@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect } from "react";
 import { useQuery, useQueryClient, skipToken } from "@tanstack/react-query";
 export function BreederCreatedNotice({ userId }: { userId: string }) {
@@ -15,7 +16,8 @@ export function BreederCreatedNotice({ userId }: { userId: string }) {
   );
   return notice.data ? (
     <p role="status" className="success-banner">
-      {notice.data}
+      {notice.data}{" "}
+      <Link href="/profile/breeder">Додати медіа та керувати тваринами</Link>
     </p>
   ) : null;
 }

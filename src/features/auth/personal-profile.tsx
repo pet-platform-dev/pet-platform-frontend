@@ -137,7 +137,7 @@ export function PersonalProfile({ user }: { user: User }) {
             )}
             <div className="form-actions">
               <button className="button primary" type="submit">
-                {pending ? "Зберігаємо…" : "Зберегти особисті дані"}
+                {pending ? "Зберігаємо…" : "Зберегти зміни"}
               </button>
               <button
                 className="button secondary"

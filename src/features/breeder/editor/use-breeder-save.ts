@@ -27,7 +27,7 @@ export function useBreederSave(userId: string, profile: OwnBreeder | null) {
       if (!profile) {
         client.setQueryData(
           ["breeder-notice", userId],
-          "Профіль заводчика створено.",
+          "Профіль розплідника створено.",
         );
         router.push("/sellers/" + userId);
       }

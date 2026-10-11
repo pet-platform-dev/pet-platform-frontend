@@ -59,7 +59,7 @@ export function BreederDelete({
           dialog.current?.showModal();
         }}
       >
-        Видалити профіль заводчика
+        Видалити профіль розплідника
       </button>
       <dialog
         ref={dialog}
@@ -90,7 +90,7 @@ export function BreederDelete({
           }
         }}
       >
-        <h2 id="breeder-delete-title">Видалити профіль заводчика?</h2>
+        <h2 id="breeder-delete-title">Видалити профіль розплідника?</h2>
         <p id="breeder-delete-help">
           Буде видалено інформацію про розплідник і вибрані породи. Ваш акаунт,
           тварини, оголошення та контакти залишаться.

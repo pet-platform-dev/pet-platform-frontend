@@ -314,7 +314,10 @@ try {
     .click();
   await page.waitForURL("**/profile");
   await page
-    .getByRole("heading", { name: "Публічний профіль продавця", exact: true })
+    .getByRole("heading", {
+      name: "Контакти та місце розташування",
+      exact: true,
+    })
     .waitFor();
   pass("Profile edit still opens existing public-contact editor");
   await page.goto("http://localhost:3000/account");
