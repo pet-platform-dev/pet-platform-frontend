@@ -27,7 +27,8 @@
     "test:browser:profile-pet-ux": "node test/profile-pet-ux.browser.mjs",
     "test:browser:public-pets": "node test/public-pet.browser.mjs",
     "test:browser:phase7": "node test/phase7-journeys.browser.mjs",
-    "test:browser:favorites": "node test/favorites.browser.mjs"
+    "test:browser:favorites": "node test/favorites.browser.mjs",
+    "test:browser:reviews": "node test/reviews.browser.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

@@ -1,5 +1,6 @@
 "use client";
 import { PublicBreederAnimals } from "@/features/breeder/animals/public-breeder-animals";
+import { SellerReviews } from "@/features/reviews/seller-reviews";
 import { BreederCreatedNotice } from "@/features/breeder/editor/breeder-created-notice";
 import { useQuery } from "@tanstack/react-query";
 import { ApiError } from "@/shared/api/client";
@@ -70,6 +71,11 @@ export function SellerProfile({
         <SellerProfileHeader profile={seller.data} />
       )}
       <SellerProfileListings id={id} breeder={Boolean(profile)} />
+      <SellerReviews
+        key={id}
+        targetId={id}
+        initialSummary={profile?.reviewSummary ?? seller.data.reviewSummary}
+      />
     </section>
   );
 }

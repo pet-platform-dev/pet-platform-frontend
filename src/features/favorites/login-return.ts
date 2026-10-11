@@ -22,7 +22,10 @@ export function favoriteLoginReturn(value: unknown): string {
   if (
     url.pathname !== "/listings" &&
     url.pathname !== "/favorites" &&
-    !/^\/listings\/[0-9a-f-]{36}$/i.test(url.pathname)
+    !/^\/listings\/[0-9a-f-]{36}$/i.test(url.pathname) &&
+    !/^\/sellers\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      url.pathname,
+    )
   )
     return "/account";
   if (url.pathname !== value.split("?")[0]) return "/account";

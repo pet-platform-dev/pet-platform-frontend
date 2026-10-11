@@ -9,6 +9,7 @@
 @import "../widgets/header/mobile-navigation.css";
 @import "../shared/ui/select-dropdown.css";
 @import "../features/auth/account-actions.css";
+@import "../features/reviews/reviews.css";
 
 .seller-contacts {
   display: flex;

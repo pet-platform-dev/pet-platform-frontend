@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { reviewSummarySchema } from "@/entities/review/model";
 const phone = z
   .string()
   .regex(/^\+[1-9]\d{7,14}$/)
   .nullable();
 export const sellerSchema = z.object({
+  reviewSummary: reviewSummarySchema.optional(),
   id: z.string(),
   displayName: z.string().min(1).max(201),
   location: z

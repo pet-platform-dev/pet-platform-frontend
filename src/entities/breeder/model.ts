@@ -1,7 +1,9 @@
 import { breederMediaSchema, emptyBreederMedia } from "./media";
 import { z } from "zod";
+import { reviewSummarySchema } from "@/entities/review/model";
 import { sellerSchema } from "@/entities/seller/model";
 export const breederSchema = z.object({
+  reviewSummary: reviewSummarySchema.optional(),
   userId: z.uuid(),
   media: breederMediaSchema.default(emptyBreederMedia),
   kennelName: z.string().min(1).max(160),

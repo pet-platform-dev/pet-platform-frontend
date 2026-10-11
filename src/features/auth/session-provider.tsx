@@ -29,6 +29,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "favorites",
     "favorite-state",
     "favorite-batch",
+    "seller-review-me",
   ].includes(String(queryKey[0]));
 }
 export function clearPrivateQueries(client: QueryClient) {
@@ -60,6 +61,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
             queryKey: ["favorite-batch", user.id],
           });
         }
+        return;
+      }
+      if (kind === "reviews") {
+        const user = client.getQueryData<User>(sessionKey);
+        if (user && user.id === event.data?.userId)
+          void client.invalidateQueries({
+            queryKey: ["seller-review-me", user.id],
+          });
         return;
       }
       if (kind === "account-type" || kind === "profile") {
@@ -94,7 +103,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 export function notifySessionChange(
-  kind: "login" | "logout" | "account-type" | "profile" | "favorites" = "login",
+  kind:
+    | "login"
+    | "logout"
+    | "account-type"
+    | "profile"
+    | "favorites"
+    | "reviews" = "login",
   userId?: string,
 ) {
   const channel = new BroadcastChannel("pet-platform-session");

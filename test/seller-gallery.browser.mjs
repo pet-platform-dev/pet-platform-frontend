@@ -62,7 +62,11 @@ page.on("pageerror", (error) => errors.push(error.message));
 page.on("request", (request) => {
   if (request.url().startsWith("https://res.cloudinary.com/"))
     imageRequests.push(request.url());
-  if (request.url().includes("/api/v1/sellers/") && request.method() === "GET")
+  if (
+    request.url().includes("/api/v1/sellers/") &&
+    !new URL(request.url()).pathname.endsWith("/reviews/me") &&
+    request.method() === "GET"
+  )
     publicHeaders.push(request.headers());
 });
 async function navigate(url) {
