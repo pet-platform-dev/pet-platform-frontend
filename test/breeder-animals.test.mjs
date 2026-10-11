@@ -106,7 +106,7 @@ test("public animal breed primary, optional name omitted without invented identi
   assert.ok(!html.includes("Без імені"));
   assert.ok(!html.includes("Переглянути оголошення"));
 });
-test("optional registered pet name is secondary and safe ACTIVE link/price appears", () => {
+test("optional pet name remains secondary and universal Pet link is offered", () => {
   const html = render(PublicAnimalCard, {
     animal: {
       ...animal,
@@ -115,7 +115,7 @@ test("optional registered pet name is secondary and safe ACTIVE link/price appea
     },
   });
   assert.ok(html.indexOf("Малінуа") < html.indexOf("Rex"));
-  assert.ok(html.includes('href="/listings/' + other + '"'));
+  assert.ok(html.includes('href="/pets/' + id + '"'));
 });
 test("owner per-pet visibility checkbox and existing Pet/create links", () => {
   const html = render(AnimalManagementCard, {

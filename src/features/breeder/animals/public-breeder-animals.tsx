@@ -10,18 +10,12 @@ import {
 import { AnimalCard } from "./animal-card";
 import { AnimalsPagination } from "./animals-pagination";
 import { ApiError } from "@/shared/api/client";
-import { listingPrice } from "@/entities/listing/model/presentation";
 export function PublicAnimalCard({ animal }: { animal: BreederAnimal }) {
   return (
     <AnimalCard animal={animal}>
-      {animal.activeListing && (
-        <>
-          <p>{listingPrice(animal.activeListing)}</p>
-          <Link className="button secondary" href={animal.activeListing.href}>
-            Переглянути оголошення
-          </Link>
-        </>
-      )}
+      <Link className="button secondary" href={"/pets/" + animal.id}>
+        Переглянути профіль тварини
+      </Link>
     </AnimalCard>
   );
 }

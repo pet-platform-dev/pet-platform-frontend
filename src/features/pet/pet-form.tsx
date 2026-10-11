@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
 import { FormSelect } from "@/shared/ui/form-select";
 import { PetPhotoField } from "./pet-photo-field";
+import { PetMediaEditor } from "./media/pet-media-editor";
 import { savePetPhoto } from "./profile-image-api";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,6 +39,7 @@ function PetForm({ pet }: { pet?: Pet }) {
       birthDate: pet?.birthDate ?? "",
       color: pet?.color ?? "",
       description: pet?.description ?? "",
+      specialTraits: pet?.specialTraits ?? "",
       chipNumber: pet?.chipNumber ?? "",
       hasPassport: pet?.hasPassport ?? false,
       hasPedigree: pet?.hasPedigree ?? false,
@@ -106,11 +108,13 @@ function PetForm({ pet }: { pet?: Pet }) {
       <form onSubmit={submit} noValidate>
         <fieldset disabled={mutation.isPending}>
           <PetPhotoField
+            heading="Фото профілю"
             current={pet?.profileImage}
             value={photo}
             disabled={mutation.isPending}
             onChange={setPhoto}
           />
+          <h2>Основна інформація</h2>
           <div className="form-grid">
             <div className="field">
               <label htmlFor="name">Ім’я (необов’язково)</label>
@@ -236,7 +240,7 @@ function PetForm({ pet }: { pet?: Pet }) {
           </div>
           <div className="field">
             <label htmlFor="description">
-              Опис <span className="optional">необов’язково</span>
+              Про тварину <span className="optional">необов’язково</span>
             </label>
             <textarea
               id="description"
@@ -246,6 +250,27 @@ function PetForm({ pet }: { pet?: Pet }) {
               {...attrs("description")}
             />
             {fieldError("description")}
+            <p className="muted">
+              Розкажіть про характер, темперамент, виховання та інші важливі
+              особливості.
+            </p>
+          </div>
+          <div className="field">
+            <label htmlFor="specialTraits">
+              Чим особлива <span className="optional">необов’язково</span>
+            </label>
+            <textarea
+              id="specialTraits"
+              rows={4}
+              maxLength={3000}
+              {...form.register("specialTraits")}
+              {...attrs("specialTraits")}
+            />
+            <p className="muted">
+              Наприклад: робочі якості, спортивні досягнення, характерні риси
+              або інші особливості.
+            </p>
+            {fieldError("specialTraits")}
           </div>
           <div className="pet-checks">
             {[
@@ -295,6 +320,14 @@ function PetForm({ pet }: { pet?: Pet }) {
           </div>
         </fieldset>
       </form>
+      {pet ? (
+        <PetMediaEditor petId={pet.id} disabled={mutation.isPending} />
+      ) : (
+        <p className="muted">
+          Після створення тварини можна додати фотогалерею та відео на сторінці
+          редагування.
+        </p>
+      )}
     </section>
   );
 }

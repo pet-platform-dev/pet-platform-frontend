@@ -23,6 +23,11 @@ export function AnimalManagementCard({
         {offer?.status === "ACTIVE" && " · " + listingPrice(offer)}
       </p>
       <div className="breeder-animal-actions">
+        {animal.showOnBreederProfile && (
+          <Link className="text-link" href={"/pets/" + animal.id}>
+            Переглянути профіль тварини
+          </Link>
+        )}
         <Link
           className="button secondary"
           href={"/pets/" + animal.id + "/edit"}

@@ -9,6 +9,7 @@ export type Pet = {
   birthDate: string | null;
   color: string | null;
   description: string | null;
+  specialTraits?: string | null;
   chipNumber: string | null;
   hasPassport: boolean;
   hasPedigree: boolean;
@@ -30,6 +31,7 @@ export const genderLabel = {
   UNKNOWN: "Не вказано",
 };
 export type PetInput = {
+  specialTraits?: string | null;
   name: string | null;
   speciesId: string;
   breedId: string | null;

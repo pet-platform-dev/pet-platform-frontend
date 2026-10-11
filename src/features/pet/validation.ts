@@ -8,6 +8,12 @@ export function todayKyiv() {
   }).format(new Date());
 }
 export const petFormSchema = z.object({
+  specialTraits: z
+    .string()
+    .trim()
+    .max(3000, "Особливості мають містити не більше 3000 символів")
+    .optional()
+    .transform((value) => value || null),
   name: z
     .string()
     .trim()

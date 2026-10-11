@@ -19,6 +19,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "current-user",
     "my-pets",
     "pet",
+    "pet-media",
     "my-listings",
     "owned-listing",
     "profile",

@@ -14,11 +14,13 @@ export function PetPhotoField({
   value,
   disabled,
   onChange,
+  heading = "Фото тварини",
 }: {
   current?: { url: string } | null;
   value: File | null | undefined;
   disabled: boolean;
   onChange: (file: File | null) => void;
+  heading?: string;
 }) {
   const [error, setError] = useState<string | null>(null),
     [preview, setPreview] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export function PetPhotoField({
   const src = value === null ? null : (preview ?? current?.url);
   return (
     <section className="pet-photo-field" aria-labelledby="pet-photo-title">
-      <h2 id="pet-photo-title">Фото тварини</h2>
+      <h2 id="pet-photo-title">{heading}</h2>
       <p id="pet-photo-help" className="muted">
         Необов’язково. JPEG, PNG або WebP, до 8 МБ. Це власне фото тварини,
         незалежне від оголошень.

@@ -114,11 +114,19 @@ try {
   assert.equal(await page.locator(".breeder-animal-card").count(), 2);
   assert.equal(await card(C).count(), 0);
   assert.equal(
-    await card(A).getByRole("link", { name: "Переглянути оголошення" }).count(),
+    await card(A)
+      .getByRole("link", { name: "Переглянути профіль тварини" })
+      .count(),
     1,
   );
   assert.equal(await card(A).locator("img").count(), 1);
-  assert.equal(await card(B).locator("img,a").count(), 0);
+  assert.equal(await card(B).locator("img").count(), 0);
+  assert.equal(
+    await card(B)
+      .getByRole("link", { name: "Переглянути профіль тварини" })
+      .getAttribute("href"),
+    "/pets/" + B,
+  );
   assert.equal(await card(B).locator(".breeder-animal-name").count(), 0);
   assert.equal(
     (await page.locator("main").innerText()).includes(fixture.full.user.email),

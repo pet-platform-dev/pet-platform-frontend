@@ -1890,3 +1890,30 @@ form {
   white-space: normal;
   overflow-wrap: anywhere;
 }
+
+.public-pet-profile {
+  display: grid;
+  gap: 24px;
+}
+.public-pet-top {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.public-pet-profile .listing-detail-panel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.public-pet-name {
+  overflow-wrap: anywhere;
+}
+.public-pet-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 768px) {
+  .public-pet-top {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}

@@ -1,3 +1,4 @@
+import { RequireSession } from "@/features/auth/require-session";
 import { PetFormPage } from "@/features/pet/pet-form";
 export const metadata = { title: "Редагувати тварину — Лапа" };
 export default async function EditPetPage({
@@ -7,8 +8,10 @@ export default async function EditPetPage({
 }) {
   const { id } = await params;
   return (
-    <main className="pets-shell">
-      <PetFormPage id={id} />
-    </main>
+    <RequireSession>
+      <main className="pets-shell">
+        <PetFormPage id={id} />
+      </main>
+    </RequireSession>
   );
 }
