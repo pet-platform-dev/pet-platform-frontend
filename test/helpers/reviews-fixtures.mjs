@@ -90,6 +90,17 @@ export async function reviewsFixtures() {
       ...base,
       authors,
       cleanup,
+      async hideOldestApprovedReview() {
+        await p.review.update({
+          where: {
+            authorId_targetUserId: {
+              authorId: authors[0],
+              targetUserId: base.seller.user.id,
+            },
+          },
+          data: { status: "HIDDEN" },
+        });
+      },
       async setOwnReview(authorId, targetId, status) {
         if (
           !targets.includes(authorId) ||

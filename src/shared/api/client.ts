@@ -230,23 +230,38 @@ export async function authenticatedRequest<T>(
   options: RequestInit = {},
   envelope = false,
 ): Promise<T> {
-  options.signal?.throwIfAborted();
+  const generation = sessionGeneration;
+  const ensureCurrent = () => {
+    options.signal?.throwIfAborted();
+    if (generation !== sessionGeneration)
+      throw new DOMException("Session changed", "AbortError");
+  };
+  // A failed refresh clears its own generation. Never expire a newer login.
+  const expireCurrent = () => {
+    if (generation === sessionGeneration) {
+      clearSession();
+      expiredSession();
+    } else if (generation + 1 === sessionGeneration && !accessToken)
+      expiredSession();
+  };
+  ensureCurrent();
   try {
     if (!accessToken || expiresAt <= Date.now() + 5000) await refreshSession();
   } catch (error) {
-    if (error instanceof ApiError && error.status === 401) expiredSession();
+    if (error instanceof ApiError && error.status === 401) expireCurrent();
     throw error;
   }
-  options.signal?.throwIfAborted();
+  ensureCurrent();
   const headers = {
     ...options.headers,
     ...(["POST", "PATCH", "DELETE"].includes(options.method ?? "GET")
       ? { "X-CSRF-Token": await csrf() }
       : {}),
   };
+  ensureCurrent();
   const usedToken = accessToken;
   try {
-    return await request<T>(
+    const result = await request<T>(
       path,
       {
         ...options,
@@ -254,11 +269,15 @@ export async function authenticatedRequest<T>(
       },
       envelope,
     );
+    ensureCurrent();
+    return result;
   } catch (error) {
+    ensureCurrent();
     if (!(error instanceof ApiError) || error.status !== 401) throw error;
     try {
       if (accessToken === usedToken) await refreshSession();
-      return await request<T>(
+      ensureCurrent();
+      const result = await request<T>(
         path,
         {
           ...options,
@@ -266,11 +285,13 @@ export async function authenticatedRequest<T>(
         },
         envelope,
       );
+      ensureCurrent();
+      return result;
     } catch (retryError) {
       if (retryError instanceof ApiError && retryError.status === 401) {
-        clearSession();
-        expiredSession();
-      }
+        if (generation !== sessionGeneration && accessToken) ensureCurrent();
+        expireCurrent();
+      } else ensureCurrent();
       throw retryError;
     }
   }

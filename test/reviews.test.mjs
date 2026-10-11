@@ -356,3 +356,16 @@ test("empty public history and own pending review are separate labelled concepts
   assert.equal((html.match(/Публічних відгуків ще немає\./g) || []).length, 1);
   c.clear();
 });
+
+test("profile-provided review summary stays fresh initially and expires after 30 seconds", () => {
+  const c = client();
+  render(c, SellerReviews, { targetId: target, initialSummary: summary });
+  const query = c.getQueryCache().find({ queryKey: reviewSummaryKey(target) });
+  assert.equal(query.options.staleTime, 30_000);
+  assert.equal(query.isStaleByTime(30_000), false);
+  c.setQueryData(reviewSummaryKey(target), summary, {
+    updatedAt: Date.now() - 31_000,
+  });
+  assert.equal(query.isStaleByTime(30_000), true);
+  c.clear();
+});

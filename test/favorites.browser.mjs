@@ -180,8 +180,13 @@ try {
   await page.getByRole("link", { name: /До оголошень/ }).click();
   await pressed(heart(page, a), false);
   pass("B: detail state sync, remove and exact catalog back state");
+  await page.waitForLoadState("networkidle");
   const oldUrl = page.url();
   await heart(page, a).focus();
+  await page.waitForFunction(
+    (id) => document.activeElement?.getAttribute("data-favorite-id") === id,
+    a,
+  );
   await page.keyboard.press("Enter");
   await pressed(heart(page, a), true);
   assert.equal(page.url(), oldUrl);
@@ -196,6 +201,10 @@ try {
   await pressed(heart(page, c), true);
   await go(page, "/favorites");
   assert.equal(await page.locator(".listing-card").count(), 3);
+  assert.match(
+    await page.locator(".catalog-heading").innerText(),
+    /Збережених оголошень: 3/,
+  );
   await geometry(page, "favorites");
   await page.route("**/api/v1/favorites/" + b, async (route) => {
     if (route.request().method() === "DELETE")
@@ -299,7 +308,19 @@ try {
       exact: true,
     })
     .waitFor();
-  pass("final card removal shows real empty state without refresh");
+  assert.match(
+    await page.locator(".catalog-heading").innerText(),
+    /Збережених оголошень: 0/,
+  );
+  assert.ok(
+    await page
+      .locator(".favorites-empty")
+      .evaluate((el) => el.getBoundingClientRect().height < 280),
+  );
+  await geometry(page, "favorites-empty");
+  pass(
+    "final card removal shows compact empty state and count without refresh",
+  );
   assert.ok(
     !(await page.locator("main").innerText()).includes(
       fixture.seller.user.email,

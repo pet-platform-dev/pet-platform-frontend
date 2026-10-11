@@ -238,3 +238,55 @@ test("API errors are localized and server internals are not rendered", async () 
     message: "Не вдалося виконати запит. Спробуйте ще раз.",
   });
 });
+for (const status of [200, 401])
+  test(
+    "late private response " + status + " cannot replay with a different login",
+    async () => {
+      const client = await load("../src/shared/api/client.ts"),
+        saved = globalThis.fetch;
+      let finish,
+        started,
+        actor = "A",
+        mutations = 0;
+      const ready = new Promise((resolve) => (started = resolve));
+      globalThis.fetch = async (url) => {
+        if (url.endsWith("/csrf")) return reply({ csrfToken: "csrf" });
+        if (url.endsWith("/login"))
+          return reply({
+            ...auth,
+            user: { ...user, id: actor },
+            accessToken: actor,
+          });
+        if (url.endsWith("/favorites/listing")) {
+          mutations++;
+          started();
+          return new Promise(
+            (resolve) =>
+              (finish = () => resolve(reply({ private: "A" }, status))),
+          );
+        }
+        if (url.endsWith("/me")) return reply({ ...user, id: actor });
+        throw Error("Unexpected refresh/retry");
+      };
+      try {
+        await client.signIn("login", {});
+        const pending = client.authenticatedRequest("/favorites/listing", {
+          method: "POST",
+          body: "{}",
+        });
+        const rejected = assert.rejects(
+          pending,
+          (error) => error.name === "AbortError",
+        );
+        await ready;
+        actor = "B";
+        await client.signIn("login", {});
+        finish();
+        await rejected;
+        assert.equal(mutations, 1);
+        assert.equal((await client.currentUser()).id, "B");
+      } finally {
+        globalThis.fetch = saved;
+      }
+    },
+  );

@@ -169,3 +169,17 @@ test("all favorite families are private session caches, public catalog remains p
     assert.equal(isSessionQuery({ queryKey: [kind, "owner"] }), true);
   assert.equal(isSessionQuery({ queryKey: ["listings"] }), false);
 });
+
+test("favorites shows available count and a compact useful empty state", () => {
+  const c = client();
+  c.setQueryData(["favorites", "owner", 1], {
+    data: [],
+    meta: { page: 1, limit: 24, total: 0, pages: 0 },
+  });
+  const html = render(c, FavoritesPage, {});
+  assert.match(html, /Збережених оголошень: 0/);
+  assert.match(html, /favorites-empty/);
+  assert.match(html, /В обраному поки нічого немає/);
+  assert.match(html, /Переглянути оголошення/);
+  c.clear();
+});

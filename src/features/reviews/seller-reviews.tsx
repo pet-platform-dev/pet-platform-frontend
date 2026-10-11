@@ -19,13 +19,21 @@ export function SellerReviews({
     queryKey: reviewSummaryKey(targetId),
     queryFn: ({ signal }) => getReviewSummary(targetId, signal),
     initialData: initialSummary,
-    staleTime: initialSummary ? Infinity : 30_000,
+    staleTime: 30_000,
   });
   const reviews = useQuery({
     placeholderData: keepPreviousData,
     queryKey: reviewListKey(targetId, page),
     queryFn: ({ signal }) => getReviews(targetId, page, signal),
   });
+  // Only clamp against a completed response for the current page.
+  if (
+    reviews.data &&
+    !reviews.isPlaceholderData &&
+    !reviews.isFetching &&
+    page > Math.max(1, reviews.data.meta.pages)
+  )
+    setPage(Math.max(1, reviews.data.meta.pages));
   const displayedSummary = summary.data ?? initialSummary;
   return (
     <section

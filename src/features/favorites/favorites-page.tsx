@@ -19,9 +19,14 @@ function OwnerFavoritesPage({ userId }: { userId: string }) {
     setPage(Math.max(1, query.data.meta.pages));
   return (
     <>
-      <div className="catalog-heading">
+      <div className="catalog-heading favorites-heading">
         <p className="eyebrow">Ваші збережені оголошення</p>
         <h1>Обране</h1>
+        {query.data && !query.isError && (
+          <p className="muted" role="status">
+            Збережених оголошень: {query.data.meta.total}
+          </p>
+        )}
       </div>
       {query.isPending ? (
         <ListingSkeletons />
@@ -33,7 +38,7 @@ function OwnerFavoritesPage({ userId }: { userId: string }) {
           </button>
         </div>
       ) : query.data.data.length === 0 ? (
-        <section className="catalog-state">
+        <section className="catalog-state favorites-empty">
           <h2>В обраному поки нічого немає.</h2>
           <p>Зберігайте оголошення, щоб швидко повернутися до них пізніше.</p>
           <Link className="button primary" href="/listings">

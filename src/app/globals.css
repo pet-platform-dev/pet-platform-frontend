@@ -1983,3 +1983,12 @@ form {
 .favorite-action-detail {
   margin: 12px 0;
 }
+
+.catalog-state.favorites-empty {
+  min-height: 0;
+  padding: 28px 20px;
+}
+
+.favorites-heading {
+  margin-bottom: 24px;
+}
