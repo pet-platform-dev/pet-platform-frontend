@@ -90,6 +90,27 @@ export async function reviewsFixtures() {
       ...base,
       authors,
       cleanup,
+      async setOwnReview(authorId, targetId, status) {
+        if (
+          !targets.includes(authorId) ||
+          !targets.includes(targetId) ||
+          authorId === targetId
+        )
+          throw Error("Foreign fixture identity");
+        const data = {
+          rating: 5,
+          text: "Власний схвалений відгук для перевірки. ".repeat(45),
+          status,
+          createdAt: new Date("2026-11-01T10:00:00Z"),
+        };
+        return p.review.upsert({
+          where: {
+            authorId_targetUserId: { authorId, targetUserId: targetId },
+          },
+          update: data,
+          create: { ...data, authorId, targetUserId: targetId },
+        });
+      },
       async ownReview(authorId, targetId) {
         if (!targets.includes(authorId) || !targets.includes(targetId))
           throw Error("Foreign fixture identity");

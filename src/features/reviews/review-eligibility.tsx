@@ -7,6 +7,7 @@ import { favoriteLoginHref } from "@/features/favorites/login-return";
 import { getOwnReview } from "./api";
 import { ownReviewKey } from "./cache";
 import { ReviewForm } from "./review-form";
+import { OwnReviewCard } from "./own-review";
 function OwnReviewEligibility({
   targetId,
   authorId,
@@ -17,7 +18,8 @@ function OwnReviewEligibility({
   empty: boolean;
 }) {
   const [submitted, setSubmitted] = useState(false),
-    [duplicate, setDuplicate] = useState(false);
+    [duplicate, setDuplicate] = useState(false),
+    [notice, setNotice] = useState("");
   const own = useQuery({
     queryKey: ownReviewKey(authorId, targetId),
     queryFn: ({ signal }) => getOwnReview(targetId, signal),
@@ -40,24 +42,37 @@ function OwnReviewEligibility({
   const state = own.data;
   if (state.isSelf)
     return <p className="muted">Ви не можете залишити відгук самому собі.</p>;
-  if (state.review || state.hasReviewed || duplicate)
+  if (state.review)
+    return (
+      <div className="review-own-status">
+        {submitted && (
+          <p role="status">Дякуємо! Ваш відгук надіслано на модерацію.</p>
+        )}
+        {notice && <p role="status">{notice}</p>}
+        <OwnReviewCard
+          review={state.review}
+          authorId={authorId}
+          targetId={targetId}
+          onNotice={(message) => {
+            setSubmitted(false);
+            setDuplicate(false);
+            setNotice(message);
+          }}
+        />
+      </div>
+    );
+  if (state.hasReviewed || duplicate)
     return (
       <div className="review-own-status" role="status">
         {submitted && <p>Дякуємо! Ваш відгук надіслано на модерацію.</p>}
         {duplicate && <p>Ви вже залишили відгук цьому користувачу.</p>}
-        <p>
-          {state.review?.status === "PENDING"
-            ? "Ваш відгук на модерації."
-            : state.review?.status === "REJECTED" ||
-                state.review?.status === "HIDDEN"
-              ? "Ви вже залишили відгук. Зараз він не відображається публічно."
-              : "Ви вже залишили відгук."}
-        </p>
+        <p>Ви вже залишили відгук.</p>
       </div>
     );
   if (!state.canReview) return null;
   return (
     <>
+      {notice && <p role="status">{notice}</p>}
       {empty && (
         <p className="muted">Будьте першим, хто поділиться враженнями.</p>
       )}

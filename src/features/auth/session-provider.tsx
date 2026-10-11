@@ -11,6 +11,7 @@ import type { User } from "@/entities/user/model";
 import { clearSession, currentUser, signOut } from "@/shared/api/client";
 import { clearFormRecovery } from "@/features/listing/form-recovery";
 import { refreshPersonalIdentity } from "./personal-profile-cache";
+import { refreshReviewPublicCache } from "@/features/reviews/cache";
 
 export const sessionKey = ["current-user"] as const;
 const sessionSource = crypto.randomUUID();
@@ -71,6 +72,21 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
           });
         return;
       }
+      if (kind === "review-management") {
+        const user = client.getQueryData<User>(sessionKey);
+        if (
+          user &&
+          user.id === event.data?.userId &&
+          typeof event.data?.targetId === "string" &&
+          /^[0-9a-f-]{36}$/i.test(event.data.targetId)
+        ) {
+          void client.invalidateQueries({
+            queryKey: ["seller-review-me", user.id, event.data.targetId],
+          });
+          void refreshReviewPublicCache(client, event.data.targetId);
+        }
+        return;
+      }
       if (kind === "account-type" || kind === "profile") {
         if (kind === "profile") {
           const user = client.getQueryData<User>(sessionKey);
@@ -109,14 +125,17 @@ export function notifySessionChange(
     | "account-type"
     | "profile"
     | "favorites"
-    | "reviews" = "login",
+    | "reviews"
+    | "review-management" = "login",
   userId?: string,
+  targetId?: string,
 ) {
   const channel = new BroadcastChannel("pet-platform-session");
   channel.postMessage({
     kind,
     source: sessionSource,
     ...(userId ? { userId } : {}),
+    ...(targetId ? { targetId } : {}),
   });
   channel.close();
 }

@@ -4,7 +4,7 @@ import { StarRating } from "./star-rating";
 export function ReviewCard({ review }: { review: Review }) {
   return (
     <article className="review-card">
-      <h3>{review.author.displayName}</h3>
+      <h4>{review.author.displayName}</h4>
       <div className="review-card-meta">
         <StarRating value={review.rating} />
         <time dateTime={review.createdAt}>{reviewDate(review.createdAt)}</time>

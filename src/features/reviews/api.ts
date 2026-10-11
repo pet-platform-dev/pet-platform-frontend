@@ -40,3 +40,17 @@ export async function createReview(id: string, input: ReviewInput) {
     }),
   );
 }
+export async function editReview(id: string, input: ReviewInput) {
+  return ownReviewSchema.parse(
+    await authenticatedRequest<unknown>(`${path(id)}/reviews/me`, {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    }),
+  );
+}
+export async function deleteReview(id: string) {
+  await authenticatedRequest<void>(`${path(id)}/reviews/me`, {
+    method: "DELETE",
+    body: "{}",
+  });
+}

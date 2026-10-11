@@ -7,8 +7,13 @@ import {
   notifySessionChange,
   sessionKey,
 } from "@/features/auth/session-provider";
-import { createReview } from "./api";
-import { acceptOwnReview, ownReviewKey } from "./cache";
+import { createReview, editReview } from "./api";
+import {
+  acceptOwnReview,
+  ownReviewKey,
+  refreshReviewPublicCache,
+} from "./cache";
+import type { OwnReview } from "@/entities/review/model";
 import { reviewInputSchema, type ReviewInput } from "./validation";
 import { StarInput } from "./star-rating";
 export function ReviewForm({
@@ -16,17 +21,21 @@ export function ReviewForm({
   authorId,
   onSuccess,
   onDuplicate,
+  initialReview,
+  onCancel,
 }: {
   targetId: string;
   authorId: string;
   onSuccess: () => void;
   onDuplicate: () => void;
+  initialReview?: OwnReview;
+  onCancel?: () => void;
 }) {
   const id = useId(),
     client = useQueryClient(),
     lock = useRef(false);
-  const [rating, setRating] = useState(0),
-    [comment, setComment] = useState("");
+  const [rating, setRating] = useState(initialReview?.rating ?? 0),
+    [comment, setComment] = useState(initialReview?.comment ?? "");
   const [errors, setErrors] = useState<{ rating?: string; comment?: string }>(
     {},
   );
@@ -36,7 +45,9 @@ export function ReviewForm({
   const mutation = useMutation({
     mutationFn: (input: ReviewInput) => {
       if (!current()) throw new Error("Session changed");
-      return createReview(targetId, input);
+      return initialReview
+        ? editReview(targetId, input)
+        : createReview(targetId, input);
     },
     onSuccess: (review) => {
       if (!current()) return;
@@ -45,11 +56,19 @@ export function ReviewForm({
       onSuccess();
       acceptOwnReview(client, authorId, targetId, review);
       notifySessionChange("reviews", authorId);
+      if (initialReview) {
+        void refreshReviewPublicCache(client, targetId, initialReview.id);
+        notifySessionChange("review-management", authorId, targetId);
+      }
     },
     onError: (error) => {
       if (!current()) return;
       if (error instanceof ApiError && error.status === 409) {
-        onDuplicate();
+        if (initialReview)
+          setMessage(
+            "Цей відгук приховано модерацією і його не можна редагувати.",
+          );
+        else onDuplicate();
         void client.invalidateQueries({
           queryKey: ownReviewKey(authorId, targetId),
         });
@@ -58,7 +77,12 @@ export function ReviewForm({
         void client.invalidateQueries({
           queryKey: ownReviewKey(authorId, targetId),
         });
-      } else setMessage("Не вдалося надіслати відгук. Спробуйте ще раз.");
+      } else
+        setMessage(
+          initialReview
+            ? "Не вдалося зберегти зміни. Спробуйте ще раз."
+            : "Не вдалося надіслати відгук. Спробуйте ще раз.",
+        );
     },
     onSettled: () => {
       lock.current = false;
@@ -96,7 +120,13 @@ export function ReviewForm({
         mutation.mutate(parsed.data);
       }}
     >
-      <h3>Залишити відгук</h3>
+      <h3>{initialReview ? "Редагувати відгук" : "Залишити відгук"}</h3>
+      {initialReview?.status === "APPROVED" && (
+        <p className="review-edit-warning">
+          Після редагування відгук знову буде надіслано на модерацію та
+          тимчасово зникне з публічного списку.
+        </p>
+      )}
       <StarInput
         value={rating}
         onChange={setRating}
@@ -130,8 +160,22 @@ export function ReviewForm({
         disabled={mutation.isPending}
         type="submit"
       >
-        {mutation.isPending ? "Надсилаємо…" : "Надіслати відгук"}
+        {mutation.isPending
+          ? "Надсилаємо…"
+          : initialReview
+            ? "Зберегти зміни"
+            : "Надіслати відгук"}
       </button>
+      {onCancel && (
+        <button
+          className="button secondary"
+          type="button"
+          disabled={mutation.isPending}
+          onClick={onCancel}
+        >
+          Скасувати
+        </button>
+      )}
       {mutation.isPending && <p role="status">Надсилаємо відгук…</p>}
     </form>
   );

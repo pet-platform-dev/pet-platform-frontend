@@ -77,7 +77,7 @@ test("empty summary does not display 0.0 or misleading stars", () => {
       summary: { averageRating: null, reviewCount: 0 },
     }),
   );
-  assert.match(html, /Ще немає відгуків/);
+  assert.match(html, /Публічних відгуків ще немає/);
   assert.doesNotMatch(html, /<svg|0[,.]0/);
 });
 test("cards render safe author, accessible stars, Ukrainian date and escaped multiline text", () => {
@@ -173,10 +173,10 @@ test("eligible viewer sees labelled form, textarea, rating and submit button", (
   c.clear();
 });
 for (const [status, text] of [
-  ["PENDING", "Ваш відгук на модерації."],
-  ["APPROVED", "Ви вже залишили відгук."],
-  ["REJECTED", "Зараз він не відображається публічно."],
-  ["HIDDEN", "Зараз він не відображається публічно."],
+  ["PENDING", "Відгук перевіряється перед публікацією."],
+  ["APPROVED", "Ваш відгук опубліковано."],
+  ["REJECTED", "Відгук відхилено."],
+  ["HIDDEN", "Відгук приховано модерацією."],
 ])
   test("own state " + status + " prevents another form", () => {
     const c = client({ id: author });
@@ -329,4 +329,30 @@ test("same reviews section integrates with normal seller and kennel profile", ()
     if (breeder) assert.match(html, /Royal Malinois/);
     c.clear();
   }
+});
+
+test("empty public history and own pending review are separate labelled concepts", () => {
+  const c = client({ id: author });
+  c.setQueryData(reviewListKey(target, 1), {
+    data: [],
+    meta: { page: 1, limit: 20, total: 0, pages: 0 },
+  });
+  c.setQueryData(ownReviewKey(author, target), {
+    ...eligible,
+    review: own,
+    canReview: false,
+    hasReviewed: true,
+    reason: "ALREADY_REVIEWED",
+  });
+  const html = render(c, SellerReviews, {
+    targetId: target,
+    initialSummary: { averageRating: null, reviewCount: 0 },
+  });
+  assert.match(html, /<h3 id="public-reviews-heading">Публічні відгуки<\/h3>/);
+  assert.match(html, /Публічних відгуків ще немає\./);
+  assert.match(html, /Ваш відгук/);
+  assert.match(html, /На модерації/);
+  assert.doesNotMatch(html, /Ваш відгук на модерації\.|Ще немає відгуків\./);
+  assert.equal((html.match(/Публічних відгуків ще немає\./g) || []).length, 1);
+  c.clear();
 });

@@ -3,7 +3,7 @@ import { reviewCountLabel } from "@/entities/review/model";
 import { StarRating } from "./star-rating";
 export function ReviewSummaryView({ summary }: { summary: ReviewSummary }) {
   if (!summary.reviewCount || summary.averageRating === null)
-    return <p className="review-empty">Ще немає відгуків.</p>;
+    return <p className="review-empty">Публічних відгуків ще немає.</p>;
   return (
     <div className="review-summary">
       <strong>

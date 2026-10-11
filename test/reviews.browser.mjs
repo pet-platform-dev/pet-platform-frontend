@@ -98,7 +98,10 @@ try {
   await section(page)
     .getByRole("heading", { name: "Відгуки", exact: true })
     .waitFor();
-  assert.equal(await section(page).locator(".review-card").count(), 20);
+  assert.equal(
+    await section(page).locator(".review-list .review-card").count(),
+    20,
+  );
   assert.match(await section(page).innerText(), /4,8/);
   assert.match(await section(page).innerText(), /21 відгук/);
   assert.match(await section(page).innerText(), /Марія Д\./);
@@ -232,7 +235,7 @@ try {
     .locator(".review-summary")
     .innerText();
   const beforeCards = await section(page)
-    .locator(".review-card")
+    .locator(".review-list .review-card")
     .allTextContents();
   const sibling = await page.context().newPage();
   sibling.on("pageerror", (error) => errors.push(error.message));
@@ -264,7 +267,7 @@ try {
     .getByText("Дякуємо! Ваш відгук надіслано на модерацію.", { exact: true })
     .waitFor();
   await section(page)
-    .getByText("Ваш відгук на модерації.", { exact: true })
+    .getByText("Відгук перевіряється перед публікацією.", { exact: true })
     .waitFor();
   assert.equal(submissions, 1);
   assert.equal(await section(page).locator("form").count(), 0);
@@ -273,7 +276,7 @@ try {
     beforeSummary,
   );
   assert.deepEqual(
-    await section(page).locator(".review-card").allTextContents(),
+    await section(page).locator(".review-list .review-card").allTextContents(),
     beforeCards,
   );
   const stored = await fixture.ownReview(
@@ -286,7 +289,7 @@ try {
     "C: single PENDING submit, thank-you/private status, public average/count/list unchanged",
   );
   await section(sibling)
-    .getByText("Ваш відгук на модерації.", { exact: true })
+    .getByText("Відгук перевіряється перед публікацією.", { exact: true })
     .waitFor();
   assert.equal(await section(sibling).locator("form").count(), 0);
   pass(
@@ -295,7 +298,7 @@ try {
   await geometry(page, "pending");
   await page.reload();
   await section(page)
-    .getByText("Ваш відгук на модерації.", { exact: true })
+    .getByText("Відгук перевіряється перед публікацією.", { exact: true })
     .waitFor();
   assert.equal(await section(page).locator("form").count(), 0);
   pass(
@@ -311,10 +314,7 @@ try {
   pass("E: self eligibility hides form and first-review encouragement");
   await go(other, breeder);
   await section(other)
-    .getByText(
-      "Ви вже залишили відгук. Зараз він не відображається публічно.",
-      { exact: true },
-    )
+    .getByText("Відгук відхилено.", { exact: true })
     .waitFor();
   assert.equal(
     await other
@@ -322,9 +322,12 @@ try {
       .count(),
     1,
   );
-  assert.equal(await section(other).locator(".review-card").count(), 3);
+  assert.equal(
+    await section(other).locator(".review-list .review-card").count(),
+    3,
+  );
   assert.match(await section(other).innerText(), /4,7/);
-  assert.doesNotMatch(await section(other).innerText(), /PRIVATE-REJECTED/);
+  assert.match(await section(other).innerText(), /PRIVATE-REJECTED/);
   pass(
     "F: kennel primary identity and shared reviews; rejected own state neutral/private",
   );
@@ -360,7 +363,7 @@ try {
   const anon = await tab();
   await go(anon, "/sellers/" + fixture.empty.user.id);
   assert.equal(await section(anon).locator(".review-stars").count(), 0);
-  assert.match(await section(anon).innerText(), /Ще немає відгуків/);
+  assert.match(await section(anon).innerText(), /Публічних відгуків ще немає/);
   pass("empty approved summary has no 0.0 or misleading stars");
   await anon.route(
     `**/api/v1/sellers/${fixture.seller.user.id}/reviews?*`,
@@ -379,7 +382,7 @@ try {
   await section(anon)
     .getByRole("button", { name: "Спробувати ще раз", exact: true })
     .click();
-  await section(anon).locator(".review-card").first().waitFor();
+  await section(anon).locator(".review-list .review-card").first().waitFor();
   pass("public list loading failure has focused retry");
   await go(
     anon,
