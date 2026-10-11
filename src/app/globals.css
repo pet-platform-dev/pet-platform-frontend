@@ -1921,3 +1921,64 @@ form {
     align-items: start;
   }
 }
+
+.listing-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 16px 12px;
+}
+.favorite-action {
+  position: relative;
+}
+.favorite-button {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #e4dfd4;
+  border-radius: 12px;
+  background: #fffdf9;
+  color: var(--muted);
+  padding: 10px;
+  cursor: pointer;
+}
+.favorite-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.favorite-button.is-favorite {
+  color: var(--accent);
+}
+.favorite-button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.favorite-button:disabled,
+.favorite-button[aria-disabled="true"] {
+  cursor: wait;
+  opacity: 0.65;
+}
+.favorite-error {
+  color: #a43728;
+  font-size: 12px;
+  line-height: 1.5;
+  max-width: 240px;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+.listing-card-actions .favorite-error {
+  position: absolute;
+  bottom: 48px;
+  right: 0;
+  width: 220px;
+  padding: 8px;
+  background: #fffdf9;
+  border: 1px solid #e4dfd4;
+  border-radius: 8px;
+  z-index: 1;
+}
+.favorite-action-detail {
+  margin: 12px 0;
+}

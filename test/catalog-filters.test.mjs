@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup } from "./helpers/render-with-session.mjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { load } from "./helpers/load-frontend.mjs";
 const { emptyFilters, filterReducer, filtersToQuery, agePresets, hasFilters } =

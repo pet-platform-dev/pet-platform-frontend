@@ -1,4 +1,5 @@
 import type { Listing } from "../model/listing";
+import { FavoriteButton } from "@/features/favorites/favorite-button";
 import Link from "next/link";
 import {
   listingDate,
@@ -83,6 +84,9 @@ export function ListingCard({
           </div>
         </div>
       </Link>
+      <div className="listing-card-actions">
+        <FavoriteButton listingId={listing.id} returnTo={detailHref} />
+      </div>
     </article>
   );
 }

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup } from "./helpers/render-with-session.mjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { load } from "./helpers/load-frontend.mjs";
 const { ListingDetailContent } = await load(
@@ -250,7 +250,10 @@ test("catalog card is one semantic detail link without nested links/buttons", ()
   assert.equal((html.match(/<a /g) ?? []).length, 1);
   assert.ok(html.includes(`href="/listings/${fixture.id}"`));
   assert.ok(html.includes("Переглянути оголошення: Малінуа"));
-  assert.ok(!html.includes("<button"));
+  assert.ok(
+    !html.slice(html.indexOf("<a "), html.indexOf("</a>")).includes("<button"),
+  );
+  assert.ok(html.indexOf("favorite-button") > html.indexOf("</a>"));
 });
 test("public detail helper validates ACTIVE identity and omits Bearer/CSRF even after sign-in", async () => {
   const original = globalThis.fetch,

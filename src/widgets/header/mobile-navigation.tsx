@@ -23,6 +23,7 @@ export function MobileNavigation({
   const items = authenticated
     ? [
         { href: "/listings", label: "Оголошення" },
+        { href: "/favorites", label: "Обране" },
         { href: "/my-listings", label: "Мої оголошення" },
         { href: "/pets", label: "Мої тварини" },
         { href: "/account", label: "Мій профіль" },

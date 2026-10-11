@@ -12,6 +12,7 @@ import { ListingGallery } from "@/entities/listing/ui/listing-gallery";
 import { speciesLabel } from "@/entities/species/model";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 import { SellerCard } from "@/entities/seller/seller-card";
+import { FavoriteButton } from "@/features/favorites/favorite-button";
 
 export function ListingDetailContent({ listing }: { listing: Listing }) {
   const { pet } = listing;
@@ -33,6 +34,7 @@ export function ListingDetailContent({ listing }: { listing: Listing }) {
         >
           <p className="eyebrow">З турботою до нової родини</p>
           <h1 id="listing-heading">{heading}</h1>
+          <FavoriteButton listingId={listing.id} detail />
           <span
             className={`listing-type listing-type-${listing.type.toLowerCase()}`}
           >

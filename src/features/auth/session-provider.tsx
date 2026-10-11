@@ -26,6 +26,9 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "own-breeder",
     "breeder-animals",
     "breeder-notice",
+    "favorites",
+    "favorite-state",
+    "favorite-batch",
   ].includes(String(queryKey[0]));
 }
 export function clearPrivateQueries(client: QueryClient) {
@@ -49,6 +52,16 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (event.data?.source === sessionSource) return;
       const kind =
         typeof event.data === "string" ? event.data : event.data?.kind;
+      if (kind === "favorites") {
+        const user = client.getQueryData<User>(sessionKey);
+        if (user && user.id === event.data?.userId) {
+          void client.invalidateQueries({ queryKey: ["favorites", user.id] });
+          void client.invalidateQueries({
+            queryKey: ["favorite-batch", user.id],
+          });
+        }
+        return;
+      }
       if (kind === "account-type" || kind === "profile") {
         if (kind === "profile") {
           const user = client.getQueryData<User>(sessionKey);
@@ -81,10 +94,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 export function notifySessionChange(
-  kind: "login" | "logout" | "account-type" | "profile" = "login",
+  kind: "login" | "logout" | "account-type" | "profile" | "favorites" = "login",
+  userId?: string,
 ) {
   const channel = new BroadcastChannel("pet-platform-session");
-  channel.postMessage({ kind, source: sessionSource });
+  channel.postMessage({
+    kind,
+    source: sessionSource,
+    ...(userId ? { userId } : {}),
+  });
   channel.close();
 }
 export function useSession() {

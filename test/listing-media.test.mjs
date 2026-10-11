@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup } from "./helpers/render-with-session.mjs";
 import { load } from "./helpers/load-frontend.mjs";
 const { imageError, reorderImages, MAX_IMAGE_BYTES } = await load(
   "src/features/listing/create-listing/model/images.ts",

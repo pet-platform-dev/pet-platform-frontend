@@ -22,6 +22,9 @@ export function Header() {
           <span className="muted">Зачекайте…</span>
         ) : data ? (
           <>
+            <Link className="nav-link" href="/favorites">
+              Обране
+            </Link>
             <Link className="nav-link" href="/my-listings">
               Мої оголошення
             </Link>

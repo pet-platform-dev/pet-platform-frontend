@@ -14,8 +14,15 @@ import {
   sessionKey,
 } from "./session-provider";
 import { clearFormRecovery } from "@/features/listing/form-recovery";
+import { favoriteLoginReturn } from "@/features/favorites/login-return";
 
-export function AuthForm({ mode }: { mode: "login" | "register" }) {
+export function AuthForm({
+  mode,
+  returnTo,
+}: {
+  mode: "login" | "register";
+  returnTo?: unknown;
+}) {
   const registering = mode === "register";
   const router = useRouter();
   const client = useQueryClient();
@@ -60,7 +67,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       clearPrivateQueries(client);
       client.setQueryData(sessionKey, user);
       notifySessionChange();
-      router.replace("/account");
+      router.replace(favoriteLoginReturn(returnTo));
     } catch (error) {
       setMessage(
         error instanceof ApiError
