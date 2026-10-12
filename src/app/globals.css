@@ -1793,6 +1793,29 @@ form {
   background: #ecebe8;
   color: #5c5b58;
 }
+.publication-state {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin-bottom: 8px;
+}
+.publication-state .listing-status {
+  justify-self: start;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.publication-state .form-hint {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.status-rejected {
+  background: #fff0db;
+  color: #79501e;
+}
+.status-hidden {
+  background: #eee6e4;
+  color: #744c45;
+}
 @media (max-width: 600px) {
   .owner-status-filters {
     flex-wrap: nowrap;

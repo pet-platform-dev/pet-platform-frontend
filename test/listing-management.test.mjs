@@ -44,6 +44,7 @@ const listing = {
   id,
   type: "SALE",
   status: "DRAFT",
+  moderationStatus: "NOT_SUBMITTED",
   title: "Тварина шукає родину",
   description: "Опис тварини",
   price: "125.50",
@@ -92,7 +93,17 @@ function render(component, setup = () => {}) {
 }
 for (const [status, label] of Object.entries(statusLabels))
   test(`${status} owner badge is Ukrainian`, () => {
-    const value = ownListingSchema.parse({ ...listing, status });
+    const value = ownListingSchema.parse({
+      ...listing,
+      status: ["PENDING", "REJECTED", "HIDDEN"].includes(status)
+        ? "DRAFT"
+        : status,
+      moderationStatus: ["PENDING", "REJECTED", "HIDDEN"].includes(status)
+        ? status
+        : status === "ACTIVE"
+          ? "APPROVED"
+          : "NOT_SUBMITTED",
+    });
     const html = render(
       React.createElement(OwnerListingCard, { listing: value }),
     );
@@ -110,7 +121,7 @@ test("status grouping keeps reserved moderation states out of dedicated tabs", (
   assert.deepEqual(statusGroups.draft.statuses, ["DRAFT"]);
   assert.deepEqual(statusGroups.active.statuses, ["ACTIVE"]);
   assert.deepEqual(statusGroups.archived.statuses, ["ARCHIVED"]);
-  assert.ok(!Object.keys(statusGroups).includes("pending"));
+  assert.ok(Object.keys(statusGroups).includes("pending"));
 });
 for (const [type, status, label] of [
   ["SALE", "SOLD", "продано"],
@@ -126,6 +137,7 @@ for (const [type, status, label] of [
           type,
           price: type === "SALE" ? listing.price : null,
           status: "ACTIVE",
+          moderationStatus: "APPROVED",
         },
       }),
     );
@@ -184,7 +196,7 @@ test("DRAFT editor shows save/publish and staged existing images", () => {
   );
   for (const text of [
     "Зберегти зміни",
-    "Опублікувати",
+    "Надіслати на модерацію",
     "В архів",
     "Дані тварини редагуються окремо",
     "Головне фото",
@@ -200,12 +212,13 @@ test("ACTIVE editor locks type and retains safe edits without publish", () => {
     client.setQueryData(["owned-listing", id, user.id], {
       ...listing,
       status: "ACTIVE",
+      moderationStatus: "APPROVED",
     }),
   );
-  assert.ok(html.includes("Тип опублікованого оголошення змінити не можна"));
+  assert.ok(html.includes("Тип активного оголошення змінити не можна"));
   assert.ok(html.includes('disabled=""'));
   assert.ok(html.includes("Зберегти зміни"));
-  assert.ok(!html.includes(">Опублікувати<"));
+  assert.ok(!html.includes(">Надіслати на модерацію<"));
 });
 for (const status of ["SOLD", "TRANSFERRED", "ADOPTED", "ARCHIVED"])
   test(`${status} editor is read-only`, () => {
@@ -262,6 +275,11 @@ test("mutation invalidation targets own list, catalog, public detail and owned d
     ["listing", id],
     ["owned-listing", id],
     ["my-pets"],
+    ["seller-listings"],
+    ["favorites"],
+    ["favorite-state"],
+    ["favorite-batch"],
+    ["public-pet"],
   ]);
 });
 test("session isolation includes management but preserves public queries", () => {

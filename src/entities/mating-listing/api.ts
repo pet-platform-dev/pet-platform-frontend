@@ -6,7 +6,14 @@ export type MatingFields = {
   locationId: string;
   fee: string | null;
 };
-export type OwnerStatusFilter = "DRAFT" | "ACTIVE" | "CLOSED" | "ARCHIVED";
+export type OwnerStatusFilter =
+  | "DRAFT"
+  | "ACTIVE"
+  | "CLOSED"
+  | "ARCHIVED"
+  | "PENDING"
+  | "REJECTED"
+  | "HIDDEN";
 const pageSchema = z.object({
   data: z.array(ownMatingSchema),
   meta: z.object({
@@ -27,7 +34,13 @@ export async function getMyMating(
   signal?: AbortSignal,
 ) {
   const query = new URLSearchParams({ page: String(page), limit: "24" });
-  if (status) query.set("status", status);
+  if (status && ["PENDING", "REJECTED", "HIDDEN"].includes(status))
+    query.set("moderationStatus", status);
+  else if (status) {
+    query.set("status", status);
+    if (status === "ACTIVE") query.set("moderationStatus", "APPROVED");
+    if (status === "DRAFT") query.set("moderationStatus", "NOT_SUBMITTED");
+  }
   return pageSchema.parse(
     await authenticatedRequest<unknown>(
       `/mating-listings/me?${query}`,
@@ -93,7 +106,7 @@ export async function actOnMating(id: string, action: MatingAction) {
   }
   return ownMatingSchema.parse(
     await authenticatedRequest<unknown>(
-      `/mating-listings/${safeId(id)}/${action}`,
+      `/mating-listings/${safeId(id)}/${action === "publish" ? "submit" : action}`,
       { method: "POST" },
     ),
   );

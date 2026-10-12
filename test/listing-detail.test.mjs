@@ -27,6 +27,7 @@ const fixture = {
   id: "b3281413-c333-4752-9031-6a2df9274b1a",
   type: "SALE",
   status: "ACTIVE",
+  moderationStatus: "APPROVED",
   title: "Цуценя бельгійської вівчарки малінуа",
   description: "Перший абзац.\n\nДругий абзац із турботою.",
   price: "25000.00",

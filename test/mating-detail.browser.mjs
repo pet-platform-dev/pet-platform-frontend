@@ -52,6 +52,7 @@ try {
       locationId: f.location.id,
       description: "Публічні умови розплідника.",
       status: "ACTIVE",
+      moderationStatus: "APPROVED",
       publishedAt: new Date(),
       price: "1234.56",
     },

@@ -15,6 +15,7 @@ const ownerId = "22222222-2222-4222-8222-222222222222";
 export const row = {
   id,
   status: "ACTIVE",
+  moderationStatus: "APPROVED",
   fee: null,
   currency: "UAH",
   createdAt: "2026-10-01T00:00:00Z",

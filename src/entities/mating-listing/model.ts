@@ -1,3 +1,8 @@
+import {
+  moderationSchema,
+  canSubmitPublication,
+  type ModerationStatus,
+} from "@/shared/lib/moderation";
 import { z } from "zod";
 import { locationSchema } from "@/entities/location/model";
 const classification = z.object({
@@ -22,6 +27,7 @@ export const ownMatingSchema = z.object({
   description: z.string(),
   fee: z.string().nullable(),
   currency: z.literal("UAH"),
+  moderationStatus: moderationSchema,
   status: z.enum([
     "DRAFT",
     "ACTIVE",
@@ -59,18 +65,25 @@ export const statusLabels: Record<MatingStatus, string> = {
   REJECTED: "Відхилено",
   HIDDEN: "Приховано",
 };
-export const canEdit = (status: MatingStatus) =>
-  status === "DRAFT" || status === "ACTIVE";
+export const canEdit = (
+  status: MatingStatus,
+  moderationStatus?: ModerationStatus,
+) =>
+  (status === "DRAFT" || status === "ACTIVE") && moderationStatus !== "HIDDEN";
 export function matingActions(
-  row: Pick<OwnMating, "status" | "publishedAt">,
+  row: Pick<OwnMating, "status" | "publishedAt" | "moderationStatus">,
 ): MatingAction[] {
   if (row.status === "DRAFT")
     return [
-      "publish",
+      ...(canSubmitPublication(row) ? ["publish" as const] : []),
       "archive",
       ...(row.publishedAt === null ? ["delete" as const] : []),
     ];
-  if (row.status === "ACTIVE") return ["close", "archive"];
+  if (row.status === "ACTIVE")
+    return [
+      ...(row.moderationStatus === "APPROVED" ? ["close" as const] : []),
+      "archive",
+    ];
   return row.status === "CLOSED" ? ["archive"] : [];
 }
 export function feeLabel(fee: string | null): string {

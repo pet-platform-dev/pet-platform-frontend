@@ -321,7 +321,15 @@ export async function breederProfileFixtures({
                   ? "ADOPTION"
                   : "FREE",
             price: status === "SOLD" ? "100.00" : null,
-            status,
+            status: ["PENDING", "REJECTED", "HIDDEN"].includes(status)
+              ? "DRAFT"
+              : status,
+            moderationStatus:
+              status === "ACTIVE"
+                ? "APPROVED"
+                : ["PENDING", "REJECTED", "HIDDEN"].includes(status)
+                  ? status
+                  : "NOT_SUBMITTED",
             publishedAt:
               status === "ACTIVE" ? new Date("2026-10-10T10:00:00Z") : null,
             closedAt: ["SOLD", "TRANSFERRED", "ADOPTED"].includes(status)

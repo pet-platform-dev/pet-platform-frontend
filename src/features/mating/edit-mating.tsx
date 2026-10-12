@@ -1,4 +1,5 @@
 "use client";
+import { PublicationState } from "@/shared/ui/publication-state";
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session-provider";
@@ -8,11 +9,7 @@ import {
   updateMating,
   actOnMating,
 } from "@/entities/mating-listing/api";
-import {
-  canEdit,
-  statusLabels,
-  feeLabel,
-} from "@/entities/mating-listing/model";
+import { canEdit, feeLabel } from "@/entities/mating-listing/model";
 import { listingLocation } from "@/entities/listing/model/presentation";
 import { ListingManagementSkeleton } from "@/features/listing/manage-listing/listing-management-skeleton";
 import { MatingForm } from "./mating-form";
@@ -54,7 +51,9 @@ export function EditMating({ id }: { id: string }) {
       }
       await refreshMating(client, userId, id, row);
       if (currentMatingUser(client, userId))
-        setNotice(publish ? "Оголошення опубліковано." : "Зміни збережено.");
+        setNotice(
+          publish ? "Оголошення надіслано на модерацію." : "Зміни збережено.",
+        );
     } catch (e) {
       if (currentMatingUser(client, userId)) {
         setError(
@@ -98,9 +97,7 @@ export function EditMating({ id }: { id: string }) {
         tabIndex={-1}
         aria-label="Стан оголошення"
       >
-        <span className={`listing-status status-${row.status.toLowerCase()}`}>
-          {statusLabels[row.status]}
-        </span>
+        <PublicationState row={row} />
         {notice && <p role="status">{notice}</p>}
       </div>
       {(query.isError || active.isError) && (
@@ -121,7 +118,7 @@ export function EditMating({ id }: { id: string }) {
           </button>
         </section>
       )}
-      {canEdit(row.status) ? (
+      {canEdit(row.status, row.moderationStatus) ? (
         <MatingForm
           key={`${id}:${row.updatedAt}`}
           listing={row}

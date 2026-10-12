@@ -88,6 +88,7 @@ try {
       title: "В’язка",
       description: "Умови обговорюються з власником.",
       status: "ACTIVE",
+      moderationStatus: "APPROVED",
       publishedAt: new Date(),
     },
   });

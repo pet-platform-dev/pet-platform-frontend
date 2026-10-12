@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { moderationSchema } from "@/shared/lib/moderation";
 import { authenticatedRequest, publicRequest } from "@/shared/api/client";
 const image = z.object({
   thumbnailUrl: z.url().refine((value) => {
@@ -40,13 +41,18 @@ export const breederAnimalSchema = z.object({
 });
 export const ownBreederAnimalSchema = breederAnimalSchema.extend({
   activeMatingListing: z
-    .object({ id: z.uuid(), status: z.literal("ACTIVE") })
+    .object({
+      id: z.uuid(),
+      status: z.literal("ACTIVE"),
+      moderationStatus: moderationSchema,
+    })
     .nullable()
     .default(null),
   showOnBreederProfile: z.boolean(),
   currentListing: offer
     .extend({
       status: z.enum(["ACTIVE", "DRAFT", "PENDING", "REJECTED", "HIDDEN"]),
+      moderationStatus: moderationSchema,
     })
     .transform((value) => ({ ...value, href: "/listings/" + value.id }))
     .nullable(),

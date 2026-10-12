@@ -172,6 +172,7 @@ test("public image contract rejects arbitrary host and excessive images", () => 
   const fixture = {
     ...listing,
     status: "ACTIVE",
+    moderationStatus: "APPROVED",
     views: 0,
     closedAt: null,
     updatedAt: "2026-10-09",

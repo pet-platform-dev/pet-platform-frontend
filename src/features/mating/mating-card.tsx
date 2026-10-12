@@ -1,10 +1,7 @@
+import { PublicationState } from "@/shared/ui/publication-state";
 import Link from "next/link";
 import type { OwnMating } from "@/entities/mating-listing/model";
-import {
-  canEdit,
-  statusLabels,
-  feeLabel,
-} from "@/entities/mating-listing/model";
+import { canEdit, feeLabel } from "@/entities/mating-listing/model";
 import {
   listingDate,
   listingLocation,
@@ -13,9 +10,7 @@ import { MatingPetSummary } from "./pet-selection";
 export function MatingCard({ row }: { row: OwnMating }) {
   return (
     <article className="mating-panel mating-card">
-      <span className={`listing-status status-${row.status.toLowerCase()}`}>
-        {statusLabels[row.status]}
-      </span>
+      <PublicationState row={row} />
       <MatingPetSummary pet={row.pet} />
       <p className="muted">{listingLocation(row.location)}</p>
       <p className="mating-price">{feeLabel(row.fee)}</p>
@@ -24,7 +19,9 @@ export function MatingCard({ row }: { row: OwnMating }) {
         <time dateTime={row.updatedAt}>{listingDate(row.updatedAt)}</time>
       </p>
       <Link className="button secondary" href={`/mating/${row.id}/edit`}>
-        {canEdit(row.status) ? "Редагувати" : "Переглянути"}
+        {canEdit(row.status, row.moderationStatus)
+          ? "Редагувати"
+          : "Переглянути"}
       </Link>
     </article>
   );

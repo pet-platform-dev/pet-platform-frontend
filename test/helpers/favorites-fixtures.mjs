@@ -22,6 +22,7 @@ export async function favoritesFixtures() {
             title: `Обране ${base.marker} ${index}`,
             description: "Ізольоване оголошення для перевірки обраного",
             status: "ACTIVE",
+            moderationStatus: "APPROVED",
             type: "SALE",
             price: "100.00",
             publishedAt: new Date(),

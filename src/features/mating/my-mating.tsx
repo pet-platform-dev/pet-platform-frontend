@@ -50,6 +50,9 @@ export function MyMating() {
             { value: "", label: "Усі" },
             { value: "DRAFT", label: "Чернетка" },
             { value: "ACTIVE", label: "Активне" },
+            { value: "PENDING", label: "На модерації" },
+            { value: "REJECTED", label: "Відхилено" },
+            { value: "HIDDEN", label: "Приховано" },
             { value: "CLOSED", label: "Завершено" },
             { value: "ARCHIVED", label: "Архів" },
           ]}

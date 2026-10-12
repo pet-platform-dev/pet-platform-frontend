@@ -23,9 +23,18 @@ test("no active summary shows find pair and encoded owned context", () => {
   assert.match(s, /returnTo=%2Fpets/);
 });
 test("ACTIVE replaces creation with clearly named detail/edit links", () => {
-  const s = html({ id, status: "ACTIVE" });
-  assert.match(s, /Активне оголошення про в’язку/);
+  const s = html({ id, status: "ACTIVE", moderationStatus: "APPROVED" });
+  assert.match(s, /Активне/);
   assert.doesNotMatch(s, /Знайти пару/);
   assert.match(s, /Переглянути оголошення про в’язку: Локі/);
   assert.match(s, /Редагувати оголошення про в’язку: Локі/);
+});
+
+test("private ACTIVE reservation has moderation state without public link", () => {
+  for (const moderationStatus of ["PENDING", "REJECTED", "HIDDEN"]) {
+    const s = html({ id, status: "ACTIVE", moderationStatus });
+    assert.doesNotMatch(s, /Переглянути оголошення про в’язку/);
+    assert.match(s, /Редагувати оголошення про в’язку/);
+    assert.doesNotMatch(s, /Знайти пару/);
+  }
 });

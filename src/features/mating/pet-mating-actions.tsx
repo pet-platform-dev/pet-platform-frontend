@@ -1,4 +1,9 @@
 import Link from "next/link";
+import {
+  isPublicPublication,
+  type ModerationStatus,
+} from "@/shared/lib/moderation";
+import { PublicationState } from "@/shared/ui/publication-state";
 import { safeOwnerMatingReturn } from "./detail/navigation";
 export function PetMatingActions({
   petId,
@@ -8,7 +13,11 @@ export function PetMatingActions({
 }: {
   petId: string;
   petLabel: string;
-  activeMatingListing?: { id: string; status: "ACTIVE" } | null;
+  activeMatingListing?: {
+    id: string;
+    status: "ACTIVE";
+    moderationStatus: ModerationStatus;
+  } | null;
   returnTo: string;
 }) {
   const context = new URLSearchParams({
@@ -18,16 +27,18 @@ export function PetMatingActions({
     <section className="pet-mating-actions" aria-label={`В’язка: ${petLabel}`}>
       {activeMatingListing ? (
         <>
-          <p className="form-hint">Активне оголошення про в’язку</p>
+          <PublicationState row={activeMatingListing} />
           <div className="pet-mating-links">
-            <Link
-              className="button secondary compact"
-              aria-label={`Переглянути оголошення про в’язку: ${petLabel}`}
-              href={`/mating/${activeMatingListing.id}`}
-              prefetch={false}
-            >
-              Переглянути
-            </Link>
+            {isPublicPublication(activeMatingListing) && (
+              <Link
+                className="button secondary compact"
+                aria-label={`Переглянути оголошення про в’язку: ${petLabel}`}
+                href={`/mating/${activeMatingListing.id}`}
+                prefetch={false}
+              >
+                Переглянути
+              </Link>
+            )}
             <Link
               className="button secondary compact"
               aria-label={`Редагувати оголошення про в’язку: ${petLabel}`}

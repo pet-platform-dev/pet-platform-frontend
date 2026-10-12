@@ -76,7 +76,11 @@ for (const [status, label, actions] of [
   test(`${status} has Ukrainian label and explicit lifecycle actions`, () => {
     assert.equal(entity.statusLabels[status], label);
     assert.deepEqual(
-      entity.matingActions({ status, publishedAt: null }),
+      entity.matingActions({
+        status,
+        moderationStatus: status === "ACTIVE" ? "APPROVED" : "NOT_SUBMITTED",
+        publishedAt: null,
+      }),
       actions,
     );
     assert.equal(entity.canEdit(status), ["DRAFT", "ACTIVE"].includes(status));

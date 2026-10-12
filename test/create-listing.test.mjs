@@ -140,6 +140,7 @@ test("payload contains only six allowed SALE keys and strips seller/status/owner
     sellerId: "injected",
     ownerId: "injected",
     status: "ACTIVE",
+    moderationStatus: "APPROVED",
     views: 9,
     publishedAt: "now",
     createdAt: "now",
@@ -198,7 +199,7 @@ test("authenticated form defaults to new animal and keeps accessible listing fie
   assert.ok(html.includes("Вибрати з моїх тварин"));
   assert.ok(
     html.includes(
-      "Збережіть чернетку або опублікуйте оголошення, додавши щонайменше одну фотографію.",
+      "Збережіть чернетку або надішліть на модерацію оголошення, додавши щонайменше одну фотографію.",
     ),
   );
   assert.ok(html.includes("Зберегти чернетку"));

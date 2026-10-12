@@ -1,6 +1,11 @@
 import type { Species } from "@/entities/species/model";
+import type { ModerationStatus } from "@/shared/lib/moderation";
 export type Pet = {
-  activeMatingListing?: { id: string; status: "ACTIVE" } | null;
+  activeMatingListing?: {
+    id: string;
+    status: "ACTIVE";
+    moderationStatus: ModerationStatus;
+  } | null;
   profileImage?: { url: string; thumbnailUrl: string } | null;
   showOnBreederProfile?: boolean;
   id: string;

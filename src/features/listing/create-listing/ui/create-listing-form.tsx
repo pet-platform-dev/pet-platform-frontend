@@ -180,12 +180,15 @@ export function CreateListingForm({
         <h1>Оголошення створено</h1>
         <p>
           {mutation.data.publishFailed
-            ? "Чернетку створено, але опублікувати не вдалося."
-            : mutation.data.status === "DRAFT"
-              ? "Воно збережене як чернетка."
-              : mutation.data.status === "ACTIVE"
-                ? "Оголошення опубліковано."
-                : "Оголошення надіслано на розгляд."}
+            ? "Чернетку створено, але надіслати на модерацію не вдалося."
+            : "moderationStatus" in mutation.data &&
+                mutation.data.moderationStatus === "PENDING"
+              ? "Оголошення надіслано на модерацію. Воно перевіряється перед публікацією."
+              : mutation.data.status === "DRAFT"
+                ? "Воно збережене як чернетка."
+                : mutation.data.status === "ACTIVE"
+                  ? "Оголошення опубліковано."
+                  : "Оголошення надіслано на модерацію."}
         </p>
         <Link
           href={`/listings/${mutation.data.id}/edit`}
@@ -293,8 +296,8 @@ export function CreateListingForm({
             onLocation={setLocation}
           />
           <p className="listing-draft-note">
-            Збережіть чернетку або опублікуйте оголошення, додавши щонайменше
-            одну фотографію.
+            Збережіть чернетку або надішліть на модерацію оголошення, додавши
+            щонайменше одну фотографію.
           </p>
           {mutation.isError && (
             <p className="field-error" role="alert">
@@ -325,7 +328,7 @@ export function CreateListingForm({
                 action.current = "publish";
               }}
             >
-              Опублікувати
+              Надіслати на модерацію
             </button>
             <Link href="/listings" className="button secondary">
               Скасувати

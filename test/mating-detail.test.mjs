@@ -11,6 +11,7 @@ const ownerId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const row = {
   id,
   status: "ACTIVE",
+  moderationStatus: "APPROVED",
   title: "Оголошення",
   description: "Перший рядок\nДругий рядок",
   fee: null,

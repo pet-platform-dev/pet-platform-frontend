@@ -26,6 +26,7 @@ const row = {
   id,
   pet,
   status: "DRAFT",
+  moderationStatus: "NOT_SUBMITTED",
   publishedAt: null,
   description: "Збережений опис",
   fee: "123.45",
@@ -73,7 +74,7 @@ test("unknown gender exposes edit Pet CTA and prevents save/publish", () => {
   });
   assert.match(m, /href="\/pets\/11111111-1111-4111-8111-111111111111\/edit"/);
   assert.match(m, /<button[^>]*disabled=""[^>]*>Зберегти зміни/);
-  assert.match(m, /<button[^>]*disabled=""[^>]*>Опублікувати/);
+  assert.match(m, /<button[^>]*disabled=""[^>]*>Надіслати на модерацію/);
 });
 test("edit hydrates current description/location/exact fee and Pet is read-only", () => {
   const m = html(MatingForm, {
@@ -96,7 +97,7 @@ test("active competitor blocks publish but keeps saving draft and edit CTA", () 
     onSubmit: async () => {},
   });
   assert.match(m, /Для цієї тварини вже є активне/);
-  assert.match(m, /<button[^>]*disabled=""[^>]*>Опублікувати/);
+  assert.match(m, /<button[^>]*disabled=""[^>]*>Надіслати на модерацію/);
   assert.doesNotMatch(m, /<button[^>]*disabled=""[^>]*>Зберегти зміни/);
 });
 for (const status of ["ACTIVE", "CLOSED", "ARCHIVED"])
@@ -122,7 +123,7 @@ test("uncertain eligibility disables publishing without discarding editable draf
     publishBlocked: true,
     onSubmit: async () => {},
   });
-  assert.match(m, /<button[^>]*disabled=""[^>]*>Опублікувати/);
+  assert.match(m, /<button[^>]*disabled=""[^>]*>Надіслати на модерацію/);
   assert.doesNotMatch(m, /<button[^>]*disabled=""[^>]*>Зберегти зміни/);
   assert.match(m, /value="123.45"/);
 });

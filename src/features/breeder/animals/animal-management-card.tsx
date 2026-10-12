@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { isPublicPublication } from "@/shared/lib/moderation";
+import { PublicationState } from "@/shared/ui/publication-state";
 import { breederPetEditorHref } from "@/features/pet/navigation/editor-return";
 import type { OwnBreederAnimal } from "@/entities/breeder/animals";
 import { AnimalCard } from "./animal-card";
@@ -17,14 +19,14 @@ export function AnimalManagementCard({
   return (
     <AnimalCard animal={animal}>
       <VisibilityControl animal={animal} userId={userId} />
-      <p className="breeder-listing-status">
-        {offer?.status === "ACTIVE"
-          ? "Активне оголошення"
-          : offer
-            ? "Незавершене оголошення"
-            : "Немає активного оголошення"}
-        {offer?.status === "ACTIVE" && " · " + listingPrice(offer)}
-      </p>
+      {offer ? (
+        <>
+          <PublicationState row={offer} />
+          <p className="breeder-listing-status">{listingPrice(offer)}</p>
+        </>
+      ) : (
+        <p className="breeder-listing-status">Немає активного оголошення</p>
+      )}
       <div className="breeder-animal-actions">
         {animal.showOnBreederProfile && (
           <Link className="text-link" href={"/pets/" + animal.id}>
@@ -39,7 +41,7 @@ export function AnimalManagementCard({
         </Link>
         {offer ? (
           <>
-            {offer.status === "ACTIVE" && (
+            {isPublicPublication(offer) && (
               <Link className="button secondary" href={offer.href}>
                 Переглянути оголошення
               </Link>

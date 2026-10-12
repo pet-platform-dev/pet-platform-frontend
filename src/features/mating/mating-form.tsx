@@ -1,4 +1,5 @@
 "use client";
+import { canSubmitPublication } from "@/shared/lib/moderation";
 import { useState, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -170,10 +171,10 @@ export function MatingForm({
             {error}
           </p>
         )}
-        {listing?.status === "DRAFT" && (
+        {listing && canSubmitPublication(listing) && (
           <p className="muted">
-            Після публікації оголошення стане видимим у розділі в’язки. Поточні
-            зміни буде збережено.
+            Після надсилання оголошення перевірятиметься перед публікацією.
+            Поточні зміни буде збережено.
           </p>
         )}
         <div className="form-actions">
@@ -184,7 +185,7 @@ export function MatingForm({
                 ? "Зберегти зміни"
                 : "Зберегти чернетку"}
           </button>
-          {listing?.status === "DRAFT" && (
+          {listing && canSubmitPublication(listing) && (
             <button
               className="button secondary"
               type="button"
@@ -193,7 +194,7 @@ export function MatingForm({
               }
               onClick={() => void submit(true)}
             >
-              Опублікувати
+              Надіслати на модерацію
             </button>
           )}
         </div>

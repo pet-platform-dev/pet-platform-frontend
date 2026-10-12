@@ -87,6 +87,7 @@ export async function accountTypeFixtures() {
         description: "Phase7A browser fixture",
         type: "FREE",
         status: "ACTIVE",
+        moderationStatus: "APPROVED",
       },
     });
     await prisma.sellerProfile.create({

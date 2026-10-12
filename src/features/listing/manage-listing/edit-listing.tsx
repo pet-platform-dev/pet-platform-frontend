@@ -1,4 +1,6 @@
 "use client";
+import { PublicationState } from "@/shared/ui/publication-state";
+import { canSubmitPublication } from "@/shared/lib/moderation";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -20,18 +22,13 @@ import {
   type CreateListingFormInput,
 } from "../create-listing/model/schema";
 import {
-  changeListingStatus,
+  submitListing,
   updateListing,
   getOwnedListing,
   invalidateListings,
   managementError,
 } from "./api";
-import {
-  editable,
-  statusLabels,
-  noImagesMessage,
-  type OwnListing,
-} from "./model";
+import { editable, noImagesMessage, type OwnListing } from "./model";
 import { ListingActions } from "./listing-actions";
 import { ListingManagementSkeleton } from "./listing-management-skeleton";
 import {
@@ -83,9 +80,15 @@ function Editor({
           price: listing.price ?? "",
         },
   });
-  useFormRecovery(editable(listing.status) ? recoveryKey : undefined, form, {
-    location,
-  });
+  useFormRecovery(
+    editable(listing.status, listing.moderationStatus)
+      ? recoveryKey
+      : undefined,
+    form,
+    {
+      location,
+    },
+  );
   const mutation = useMutation({
     retry: false,
     mutationFn: async ({
@@ -116,20 +119,23 @@ function Editor({
       forgetRecoveredForm(recoveryKey);
       if (publish) {
         try {
-          const result = await changeListingStatus(listing.id, "ACTIVE");
+          const result = await submitListing(listing.id);
           client.setQueryData(
             ["owned-listing", listing.id, listing.seller.id],
             result,
           );
           setMessage(
             result.status === "ACTIVE"
-              ? "Оголошення опубліковано."
-              : "Оголошення надіслано на розгляд.",
+              ? "Оголошення надіслано на модерацію."
+              : "Оголошення надіслано на модерацію.",
           );
         } catch (error) {
           setMessage(
-            "Чернетку збережено, але опублікувати не вдалося. " +
-              managementError(error, "Спробуйте опублікувати її ще раз."),
+            "Чернетку збережено, але надіслати на модерацію не вдалося. " +
+              managementError(
+                error,
+                "Спробуйте надіслати її на модерацію ще раз.",
+              ),
           );
           client.setQueryData(
             ["owned-listing", listing.id, listing.seller.id],
@@ -191,11 +197,11 @@ function Editor({
       locked.current = false;
     }
   }
-  if (!editable(listing.status))
+  if (!editable(listing.status, listing.moderationStatus))
     return (
       <section className="pet-form-card">
         <h1>{listingHeading(listing.pet)}</h1>
-        <p className="listing-status">{statusLabels[listing.status]}</p>
+        <PublicationState row={listing} />
         <p>Завершені та архівні оголошення не можна редагувати.</p>
         <p>{listing.title}</p>
         <p className="listing-description">{listing.description}</p>
@@ -214,7 +220,7 @@ function Editor({
           додайте нові знову.
         </p>
       )}
-      <p className="listing-status">{statusLabels[listing.status]}</p>
+      <PublicationState row={listing} />
       <p>
         {listingHeading(listing.pet)}
         {listing.pet.name?.trim() ? ` · ${listing.pet.name}` : ""}
@@ -222,7 +228,7 @@ function Editor({
       <p className="form-hint">
         Дані тварини редагуються окремо в її профілі.{" "}
         {listing.status === "ACTIVE" &&
-          "Тип опублікованого оголошення змінити не можна."}
+          "Тип активного оголошення змінити не можна."}
       </p>
       <form
         noValidate
@@ -255,7 +261,7 @@ function Editor({
                 ? noImagesMessage
                 : managementError(
                     mutation.error,
-                    "Не вдалося зберегти або опублікувати оголошення.",
+                    "Не вдалося зберегти або надіслати оголошення на модерацію.",
                   )}
             </p>
           )}
@@ -267,14 +273,14 @@ function Editor({
             >
               Зберегти зміни
             </button>
-            {listing.status === "DRAFT" && (
+            {canSubmitPublication(listing) && (
               <button
                 type="button"
                 className="button primary"
                 disabled={uploading}
                 onClick={() => void submit(true)}
               >
-                Опублікувати
+                Надіслати на модерацію
               </button>
             )}
             <Link className="button secondary" href="/my-listings">

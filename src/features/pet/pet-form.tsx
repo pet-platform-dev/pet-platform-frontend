@@ -1,5 +1,6 @@
 "use client";
 import { invalidateBreederAnimals } from "@/features/breeder/animals/cache";
+import { refreshPetPublications } from "@/shared/lib/publication-cache";
 import { useSession } from "@/features/auth/session-provider";
 import type { User } from "@/entities/user/model";
 import {
@@ -83,6 +84,7 @@ function PetForm({
       if (!currentOwner()) return;
       client.setQueryData(["pet", saved.id], saved);
       if (!(await invalidateBreederAnimals(client, ownerId))) return;
+      if (ownerId) await refreshPetPublications(client, ownerId, saved.id);
       router.refresh();
       router.push(returnTo);
     },

@@ -8,6 +8,7 @@ const id = "11111111-1111-4111-8111-111111111111";
 const row = {
   id,
   status: "ACTIVE",
+  moderationStatus: "APPROVED",
   currency: "UAH",
   fee: "1234.56",
   createdAt: "2026-10-01T00:00:00Z",

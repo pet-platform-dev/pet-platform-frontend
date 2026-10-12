@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { matingCatalogFixtures } from "./helpers/mating-catalog-fixtures.mjs";
+import { MatingListingsService } from "../../pet-platform-backend/dist/src/mating-listings/mating-listings.service.js";
 const { chromium } = await import(
   process.env.PLAYWRIGHT_MODULE_URL ?? "playwright"
 );
@@ -152,6 +153,7 @@ try {
       title: "В’язка",
       description: "Умови в’язки розплідника.",
       status: "ACTIVE",
+      moderationStatus: "APPROVED",
       publishedAt: new Date(),
     },
   });
@@ -164,6 +166,7 @@ try {
       description: "Публічний опис.",
       type: "FREE",
       status: "ACTIVE",
+      moderationStatus: "APPROVED",
       publishedAt: new Date(),
     },
   });
@@ -214,10 +217,24 @@ try {
   await page.waitForURL("**/mating/" + row.id + "/edit?*");
   await page.waitForLoadState("networkidle");
   assert.equal(await page.locator(".back-link").getAttribute("href"), "/pets");
-  await page.getByRole("button", { name: "Опублікувати", exact: true }).click();
-  await page.getByText("Оголошення опубліковано.", { exact: true }).waitFor();
+  await page
+    .getByRole("button", { name: "Надіслати на модерацію", exact: true })
+    .click();
+  await page
+    .getByText("Оголошення надіслано на модерацію.", { exact: true })
+    .waitFor();
+  const pending = await f.db.matingListing.findUniqueOrThrow({
+    where: { id: row.id },
+  });
+  assert.equal(pending.moderationStatus, "PENDING");
+  await new MatingListingsService(f.db).moderate(
+    row.id,
+    pending.updatedAt,
+    "approve",
+  );
   await page.locator(".back-link").click();
   await page.waitForURL("**/pets");
+  await page.reload();
   await page.waitForLoadState("networkidle");
   const ownCard = page
     .locator(".pet-card")
@@ -229,17 +246,18 @@ try {
   assert.deepEqual((await currentPetResponse.json()).data.activeMatingListing, {
     id: row.id,
     status: "ACTIVE",
+    moderationStatus: "APPROVED",
   });
-  await ownCard
-    .getByText("Активне оголошення про в’язку", { exact: true })
-    .waitFor();
+  await ownCard.getByText("Активне", { exact: true }).waitFor();
   assert.equal(
     await ownCard
       .getByRole("link", { name: "Знайти пару: Рекс", exact: true })
       .count(),
     0,
   );
-  pass("draft save/publish updates Pet summary and owner return context");
+  pass(
+    "draft submit/internal approval updates Pet summary and owner return context",
+  );
   await go("/mating/new?petId=" + f.breeder.id);
   assert.equal(
     await page

@@ -1,3 +1,7 @@
+import {
+  moderationSchema,
+  type ModerationStatus,
+} from "@/shared/lib/moderation";
 import { z } from "zod";
 import { listingSchema } from "@/entities/listing/model/listing";
 export const statusLabels = {
@@ -6,8 +10,8 @@ export const statusLabels = {
   SOLD: "Продано",
   TRANSFERRED: "Передано",
   ADOPTED: "Прилаштовано",
-  ARCHIVED: "В архіві",
-  PENDING: "На розгляді",
+  ARCHIVED: "Архів",
+  PENDING: "На модерації",
   REJECTED: "Відхилено",
   HIDDEN: "Приховано",
 } as const;
@@ -15,6 +19,7 @@ export type Status = keyof typeof statusLabels;
 export const ownListingSchema = z
   .object({
     ...listingSchema.shape,
+    moderationStatus: moderationSchema,
     status: z.enum(Object.keys(statusLabels) as [Status, ...Status[]]),
   })
   .refine((listing) =>
@@ -29,6 +34,9 @@ export const statusGroups = {
   all: { label: "Усі", statuses: [] },
   draft: { label: "Чернетки", statuses: ["DRAFT"] },
   active: { label: "Активні", statuses: ["ACTIVE"] },
+  pending: { label: "На модерації", statuses: [] },
+  rejected: { label: "Відхилені", statuses: [] },
+  hidden: { label: "Приховані", statuses: [] },
   completed: {
     label: "Завершені",
     statuses: ["SOLD", "TRANSFERRED", "ADOPTED"],
@@ -36,8 +44,10 @@ export const statusGroups = {
   archived: { label: "Архівні", statuses: ["ARCHIVED"] },
 } as const;
 export type StatusGroup = keyof typeof statusGroups;
-export function editable(status: Status) {
-  return status === "DRAFT" || status === "ACTIVE";
+export function editable(status: Status, moderationStatus?: ModerationStatus) {
+  return (
+    (status === "DRAFT" || status === "ACTIVE") && moderationStatus !== "HIDDEN"
+  );
 }
 export function completion(type: OwnListing["type"]) {
   return {

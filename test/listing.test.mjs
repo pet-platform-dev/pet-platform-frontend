@@ -34,6 +34,7 @@ const fixture = {
   id: "listing-1",
   type: "SALE",
   status: "ACTIVE",
+  moderationStatus: "APPROVED",
   title: "Локі шукає родину",
   description: "Опис",
   price: "25000.00",

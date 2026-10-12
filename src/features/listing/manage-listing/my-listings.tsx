@@ -1,4 +1,6 @@
 "use client";
+import { PublicationState } from "@/shared/ui/publication-state";
+import { isPublicPublication } from "@/shared/lib/moderation";
 import Link from "next/link";
 import { useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -20,7 +22,6 @@ import { ListingManagementSkeleton } from "./listing-management-skeleton";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 import {
   statusGroups,
-  statusLabels,
   editable,
   type StatusGroup,
   type OwnListing,
@@ -43,11 +44,7 @@ export function OwnerListingCard({ listing }: { listing: OwnListing }) {
         )}
       </div>
       <div className="owner-card-body">
-        <span
-          className={`listing-status status-${listing.status.toLowerCase()}`}
-        >
-          {statusLabels[listing.status]}
-        </span>
+        <PublicationState row={listing} />
         <h2>{listingHeading(listing.pet)}</h2>
         <p className="muted">
           {[
@@ -77,9 +74,11 @@ export function OwnerListingCard({ listing }: { listing: OwnListing }) {
             className="button primary"
             href={`/listings/${listing.id}/edit`}
           >
-            {editable(listing.status) ? "Редагувати" : "Переглянути"}
+            {editable(listing.status, listing.moderationStatus)
+              ? "Редагувати"
+              : "Переглянути"}
           </Link>
-          {listing.status === "ACTIVE" && (
+          {isPublicPublication(listing) && (
             <Link className="button secondary" href={`/listings/${listing.id}`}>
               У каталозі
             </Link>

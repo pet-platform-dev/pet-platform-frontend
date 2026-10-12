@@ -75,6 +75,7 @@ export async function catalogFilterFixtures() {
               locationId: fixture.locations[0].id,
               type: "SALE",
               status: "ACTIVE",
+              moderationStatus: "APPROVED",
               title: `Каталог ${marker} ${i}`,
               description: `Браузерна перевірка ${marker}`,
               price: "100.01",

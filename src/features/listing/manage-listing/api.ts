@@ -39,6 +39,16 @@ export async function getOwnListings(
         sort: "newest",
       });
       if (status) params.set("status", status);
+      const moderation = (
+        {
+          draft: "NOT_SUBMITTED",
+          active: "APPROVED",
+          pending: "PENDING",
+          rejected: "REJECTED",
+          hidden: "HIDDEN",
+        } as Partial<Record<StatusGroup, string>>
+      )[group];
+      if (moderation) params.set("moderationStatus", moderation);
       return authenticatedRequest<unknown>(
         `/listings/me?${params}`,
         { signal },
@@ -81,6 +91,13 @@ export async function changeListingStatus(id: string, status: Status) {
     }),
   );
 }
+export async function submitListing(id: string) {
+  return ownListingSchema.parse(
+    await authenticatedRequest<unknown>(`/listings/${id}/submit`, {
+      method: "POST",
+    }),
+  );
+}
 export async function deleteListing(id: string) {
   await authenticatedRequest<void>(`/listings/${id}`, { method: "DELETE" });
 }
@@ -106,8 +123,13 @@ export async function createAndMaybePublish(
   const draft = await createUnifiedListing(value);
   if (!publish) return { ...draft, publishFailed: false };
   try {
-    const result = await changeListingStatus(draft.id, "ACTIVE");
-    return { id: result.id, status: result.status, publishFailed: false };
+    const result = await submitListing(draft.id);
+    return {
+      id: result.id,
+      status: result.status,
+      moderationStatus: result.moderationStatus,
+      publishFailed: false,
+    };
   } catch {
     return { ...draft, publishFailed: true };
   }
@@ -121,6 +143,11 @@ export async function invalidateListings(client: QueryClient, id: string) {
       ["listing", id],
       ["owned-listing", id],
       ["my-pets"],
+      ["seller-listings"],
+      ["favorites"],
+      ["favorite-state"],
+      ["favorite-batch"],
+      ["public-pet"],
     ].map((queryKey) => client.invalidateQueries({ queryKey })),
   );
 }

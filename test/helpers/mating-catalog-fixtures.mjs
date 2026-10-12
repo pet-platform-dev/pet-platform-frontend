@@ -51,6 +51,7 @@ export async function matingCatalogFixtures() {
             title: "Публічний каталог " + n,
             description: "Умови обговорюються з власником.",
             status: "ACTIVE",
+            moderationStatus: "APPROVED",
             price: n % 3 === 0 ? null : n % 3 === 1 ? "0" : "1234.56",
             createdAt: new Date(Date.now() - n * 1000),
             publishedAt: new Date(),

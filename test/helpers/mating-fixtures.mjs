@@ -39,6 +39,7 @@ export async function matingFixtures() {
         title: "Активний пошук",
         description: "Умови обговорюються з власником.",
         status: "ACTIVE",
+        moderationStatus: "APPROVED",
         publishedAt: new Date(),
         price: null,
       },
@@ -63,6 +64,7 @@ export async function matingFixtures() {
         title: "Сторінка " + n,
         description: "Опис ".repeat(900),
         status: "DRAFT",
+        moderationStatus: "NOT_SUBMITTED",
         price: "1234.56",
       })),
     });

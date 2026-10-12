@@ -137,7 +137,12 @@ test("ACTIVE/current listings offer view/edit rather than duplicate creation", (
       animal: {
         ...animal,
         showOnBreederProfile: true,
-        currentListing: { ...offer, href: "/listings/" + other, status },
+        currentListing: {
+          ...offer,
+          href: "/listings/" + other,
+          status,
+          moderationStatus: status === "ACTIVE" ? "APPROVED" : "NOT_SUBMITTED",
+        },
       },
       userId: id,
     });
@@ -220,4 +225,24 @@ test("visibility cache is owner scoped, catalog/other breeder unaffected and lat
 test("owner animal cache cleared with session; public animals remain public", () => {
   assert.equal(isSessionQuery({ queryKey: ownAnimalsKey(id) }), true);
   assert.equal(isSessionQuery({ queryKey: publicAnimalsKey(id) }), false);
+});
+
+test("private moderated current offer preserves owner edit without public view", () => {
+  for (const moderationStatus of ["PENDING", "REJECTED", "HIDDEN"]) {
+    const html = render(AnimalManagementCard, {
+      animal: {
+        ...animal,
+        showOnBreederProfile: true,
+        currentListing: {
+          ...offer,
+          href: "/listings/" + other,
+          status: "ACTIVE",
+          moderationStatus,
+        },
+      },
+      userId: id,
+    });
+    assert.ok(html.includes("Редагувати оголошення"));
+    assert.ok(!html.includes("Переглянути оголошення"));
+  }
 });

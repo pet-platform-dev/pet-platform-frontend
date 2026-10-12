@@ -13,6 +13,7 @@ const row = {
   fee: null,
   currency: "UAH",
   status: "DRAFT",
+  moderationStatus: "NOT_SUBMITTED",
   pet: {
     id,
     name: null,
@@ -158,7 +159,11 @@ for (const [action, status] of [
     transport(
       async (calls) => {
         assert.equal((await api.actOnMating(id, action)).status, status);
-        assert.ok(calls[0].url.endsWith("/" + id + "/" + action));
+        assert.ok(
+          calls[0].url.endsWith(
+            "/" + id + "/" + (action === "publish" ? "submit" : action),
+          ),
+        );
         assert.equal(calls[0].init.method, "POST");
       },
       () => reply({ ...row, status }),

@@ -1,4 +1,5 @@
 "use client";
+import { isPublicPublication } from "@/shared/lib/moderation";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -54,7 +55,7 @@ export function ListingActions({
   const done = completion(listing.type);
   return (
     <>
-      {listing.status === "ACTIVE" && (
+      {isPublicPublication(listing) && (
         <button
           className="button secondary"
           onClick={(event) => confirm(event, done)}
@@ -93,6 +94,25 @@ export function ListingActions({
           if (mutation.isPending) event.preventDefault();
         }}
         onClose={() => trigger.current?.focus()}
+        onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          const nodes = Array.from(
+            event.currentTarget.querySelectorAll<HTMLButtonElement>(
+              "button:not(:disabled)",
+            ),
+          );
+          const first = nodes[0],
+            last = nodes.at(-1);
+          if (
+            first &&
+            last &&
+            ((event.shiftKey && document.activeElement === first) ||
+              (!event.shiftKey && document.activeElement === last))
+          ) {
+            event.preventDefault();
+            (event.shiftKey ? last : first).focus();
+          }
+        }}
       >
         <h2 id={`confirm-${listing.id}`}>{action?.question}</h2>
         <p id={`confirm-help-${listing.id}`}>
