@@ -9,7 +9,7 @@ const modules = new Map();
 const dataModule = (source) =>
   `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`;
 const navigation = dataModule(
-  "export function useRouter() { return { push() {}, replace() {} }; } export function useSearchParams() { return null; } export function usePathname() { return '/listings'; }",
+  "export function notFound() { throw new Error('NEXT_HTTP_ERROR_FALLBACK;404'); } export function useRouter() { return { push() {}, replace() {} }; } export function useSearchParams() { return null; } export function usePathname() { return '/listings'; }",
 );
 const link = dataModule(
   `import React from ${JSON.stringify(pathToFileURL(require.resolve("react")).href)}; export default function Link({children,href,scroll,prefetch,onNavigate,...props}) { return React.createElement('a',{...props,href},children); }`,

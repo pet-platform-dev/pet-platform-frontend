@@ -1,3 +1,4 @@
+import { selectFormOption } from "./helpers/select-form-option.mjs";
 import {
   verifyFinalCatalogFlows,
   verifyCatalogGeometry,
@@ -201,9 +202,9 @@ try {
     "Однакова назва",
     data.fixture.locations[1].region,
   );
-  await page.getByLabel("Тип оголошення", { exact: true }).selectOption("SALE");
-  await page.getByLabel("Стать", { exact: true }).selectOption("MALE");
-  await page.getByLabel("Вік", { exact: true }).selectOption("0-3");
+  await selectFormOption(page, "Тип оголошення", "SALE");
+  await selectFormOption(page, "Стать", "MALE");
+  await selectFormOption(page, "Вік", "0-3");
   const priceHistory = await historyLength();
   await page.getByLabel("Від", { exact: true }).fill("100,01");
   await page.getByLabel("До", { exact: true }).fill("1000");
@@ -260,7 +261,7 @@ try {
   assert.equal(await selected("Обрані: Місто або село"), 2);
   assert.equal(await search().inputValue(), data.marker);
   assert.equal(
-    await page.getByLabel("Вік", { exact: true }).inputValue(),
+    await page.getByLabel("Вік", { exact: true }).getAttribute("data-value"),
     "0-3",
   );
   assert.equal(
@@ -367,11 +368,15 @@ try {
       2,
     );
     assert.equal(
-      await shared.getByLabel("Стать", { exact: true }).inputValue(),
+      await shared
+        .getByLabel("Стать", { exact: true })
+        .getAttribute("data-value"),
       "MALE",
     );
     assert.equal(
-      await shared.getByLabel("Тип оголошення", { exact: true }).inputValue(),
+      await shared
+        .getByLabel("Тип оголошення", { exact: true })
+        .getAttribute("data-value"),
       "SALE",
     );
   } finally {
@@ -471,7 +476,7 @@ try {
   const mobileUrl = page.url(),
     mobileRequests = catalogRequests();
   await open();
-  await dialog().getByLabel("Стать", { exact: true }).selectOption("MALE");
+  await selectFormOption(dialog(), "Стать", "MALE");
   await preview({ species: "dog", gender: "MALE" });
   assert.equal(page.url(), mobileUrl);
   assert.equal(catalogRequests(), mobileRequests);
@@ -481,7 +486,7 @@ try {
     "Mobile draft and Cancel leave applied URL/catalog untouched; count derives from URL",
   );
   await open();
-  await dialog().getByLabel("Стать", { exact: true }).selectOption("MALE");
+  await selectFormOption(dialog(), "Стать", "MALE");
   const applyHistory = await historyLength();
   await applyButton().click();
   await settled({ species: "dog", gender: "MALE" });
@@ -497,7 +502,9 @@ try {
   );
   await open();
   assert.equal(
-    await dialog().getByLabel("Стать", { exact: true }).inputValue(),
+    await dialog()
+      .getByLabel("Стать", { exact: true })
+      .getAttribute("data-value"),
     "MALE",
   );
   await close();
@@ -547,7 +554,9 @@ try {
     if (width < 1024) {
       await open();
       assert.equal(
-        await dialog().getByLabel("Стать", { exact: true }).inputValue(),
+        await dialog()
+          .getByLabel("Стать", { exact: true })
+          .getAttribute("data-value"),
         "MALE",
       );
       assert.equal(
@@ -560,7 +569,9 @@ try {
       await close();
     } else
       assert.equal(
-        await page.getByLabel("Стать", { exact: true }).inputValue(),
+        await page
+          .getByLabel("Стать", { exact: true })
+          .getAttribute("data-value"),
         "MALE",
       );
     await page.screenshot({
@@ -636,7 +647,7 @@ try {
   assert.equal(await selected("Обрані: Породи"), 1);
   assert.equal(await selected("Обрані: Місто або село"), 1);
   assert.equal(
-    await page.getByLabel("Вік", { exact: true }).inputValue(),
+    await page.getByLabel("Вік", { exact: true }).getAttribute("data-value"),
     "range:3:12",
   );
   pass(

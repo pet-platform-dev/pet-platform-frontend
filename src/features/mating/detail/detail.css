@@ -1,0 +1,44 @@
+.mating-detail-grid {
+  min-width: 0;
+}
+.mating-detail-image {
+  aspect-ratio: 5 / 4;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #eeeae0;
+}
+.mating-detail-image > :is(img, .listing-visual) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mating-detail :is(h1, h2, h3, p, dd, .button) {
+  overflow-wrap: anywhere;
+}
+.mating-detail .button {
+  min-height: 44px;
+  white-space: normal;
+}
+.mating-detail .listing-back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.mating-detail .seller-contact-heading {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 24px 0 0;
+}
+.mating-safety-note {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+@media (max-width: 430px) {
+  .mating-detail .seller-contacts > .button {
+    flex: 1 1 100%;
+  }
+}

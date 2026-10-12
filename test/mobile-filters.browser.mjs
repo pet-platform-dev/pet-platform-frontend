@@ -1,3 +1,4 @@
+import { selectFormOption } from "./helpers/select-form-option.mjs";
 import { chooseCatalogSort } from "./helpers/catalog-sort-browser.mjs";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -407,9 +408,7 @@ try {
   await page.waitForTimeout(400);
   assert.equal(previewRequests(), invalidStart);
   pass("Invalid draft price blocks Apply and preview");
-  await dialog()
-    .getByLabel("Тип оголошення", { exact: true })
-    .selectOption("FREE");
+  await selectFormOption(dialog(), "Тип оголошення", "FREE");
   assert.equal(await price.isDisabled(), true);
   assert.equal(await max.isDisabled(), true);
   assert.equal(await price.inputValue(), "");
@@ -517,7 +516,7 @@ try {
     ["24-60", 24, 60],
     ["60+", 60, undefined],
   ]) {
-    await dialog().getByLabel("Вік", { exact: true }).selectOption(value);
+    await selectFormOption(dialog(), "Вік", value);
     await preview({ q: undefined, ageMinMonths: min, ageMaxMonths: max });
   }
   pass(
@@ -526,9 +525,7 @@ try {
   await dialog().getByRole("button", { name: "Очистити", exact: true }).click();
   draftSearch = undefined;
   await dialog().getByLabel("Від", { exact: true }).fill("100");
-  await dialog()
-    .getByLabel("Тип оголошення", { exact: true })
-    .selectOption("ADOPTION");
+  await selectFormOption(dialog(), "Тип оголошення", "ADOPTION");
   assert.equal(
     await dialog().getByLabel("Від", { exact: true }).isDisabled(),
     true,
@@ -581,7 +578,7 @@ try {
   };
   await page.route("**/api/v1/listings?**", previewRoute);
   await open();
-  await dialog().getByLabel("Стать", { exact: true }).selectOption("FEMALE");
+  await selectFormOption(dialog(), "Стать", "FEMALE");
   await until(async () =>
     assert.ok(
       (await dialog().getByRole("status").innerText()).includes(

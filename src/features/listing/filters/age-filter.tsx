@@ -1,3 +1,6 @@
+"use client";
+import { useId } from "react";
+import { SelectDropdown } from "@/shared/ui/select-dropdown";
 import { agePresets } from "./model";
 import { customAgeLabel } from "./filter-age-range";
 export function AgeFilter({
@@ -7,27 +10,27 @@ export function AgeFilter({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const id = useId();
   return (
     <div className="field">
-      <label htmlFor="filter-age">Вік</label>
-      <select
-        id="filter-age"
+      <label htmlFor={id}>Вік</label>
+      <SelectDropdown
+        label="Вік"
+        controlId={id}
+        describedBy={id + "-hint"}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
-        aria-describedby="filter-age-hint"
-      >
-        <option value="">Будь-який вік</option>
-        {value.startsWith("range:") && (
-          <option value={value}>{customAgeLabel(value)}</option>
-        )}
-        {agePresets.map((item) => (
-          <option key={item.value} value={item.value}>
-            {item.label}
-          </option>
-        ))}
-      </select>
-      <p id="filter-age-hint" className="hint">
-        Межі включні. Оголошення без вказаного віку не показуються.
+        options={[
+          { value: "", label: "Будь-який вік" },
+          ...(value.startsWith("range:")
+            ? [{ value, label: customAgeLabel(value) }]
+            : []),
+          ...agePresets,
+        ]}
+        onChange={onChange}
+      />
+      <p id={id + "-hint"} className="hint">
+        Межі включні. За обраного діапазону оголошення без вказаного віку не
+        показуються.
       </p>
     </div>
   );

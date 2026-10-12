@@ -1,3 +1,4 @@
+import { selectFormOption } from "./select-form-option.mjs";
 import assert from "node:assert/strict";
 import { chooseCatalogSort } from "./catalog-sort-browser.mjs";
 const widths = [320, 375, 430, 768, 1024, 1280, 1440];
@@ -84,11 +85,9 @@ export async function verifyFinalCatalogFlows({
   );
   for (const location of data.fixture.locations)
     await pick(/^Місто або село/, "Однакова назва", location.region, dialog());
-  await dialog()
-    .getByLabel("Тип оголошення", { exact: true })
-    .selectOption("SALE");
-  await dialog().getByLabel("Стать", { exact: true }).selectOption("MALE");
-  await dialog().getByLabel("Вік", { exact: true }).selectOption("0-3");
+  await selectFormOption(dialog(), "Тип оголошення", "SALE");
+  await selectFormOption(dialog(), "Стать", "MALE");
+  await selectFormOption(dialog(), "Вік", "0-3");
   await dialog().getByLabel("Від", { exact: true }).fill("100,01");
   await dialog().getByLabel("До", { exact: true }).fill("1000");
   const expected = {
@@ -131,7 +130,7 @@ export async function verifyFinalCatalogFlows({
       .count(),
     2,
   );
-  await dialog().getByLabel("Вік", { exact: true }).selectOption("60+");
+  await selectFormOption(dialog(), "Вік", "60+");
   await close();
   assert.equal(page.url(), complexUrl);
   assert.equal(catalogRequests(), draftCatalogRequests + 1);

@@ -43,13 +43,25 @@ export function SellerContacts({ seller }: { seller: Seller }) {
     </div>
   );
 }
-export function SellerCard({ seller }: { seller: Seller }) {
+export function SellerCard({
+  seller,
+  heading = "Продавець",
+  hideContacts = false,
+  contactHeading,
+  children,
+}: {
+  seller: Seller;
+  heading?: string;
+  hideContacts?: boolean;
+  contactHeading?: string;
+  children?: React.ReactNode;
+}) {
   return (
     <section
       className="listing-detail-panel listing-seller-panel"
-      aria-label="Продавець"
+      aria-label={heading}
     >
-      <h2>Продавець</h2>
+      <h2>{heading}</h2>
       <p className="listing-seller-name">{sellerIdentity(seller)}</p>
       {seller.breeder && <p className="muted">{seller.displayName}</p>}
       {seller.location && (
@@ -57,7 +69,18 @@ export function SellerCard({ seller }: { seller: Seller }) {
           {seller.location.city}, {seller.location.region}
         </p>
       )}
-      <SellerContacts key={seller.id + (seller.phone ?? "")} seller={seller} />
+      {!hideContacts && (seller.phone || messengerLinks(seller).length > 0) && (
+        <>
+          {contactHeading && (
+            <h3 className="seller-contact-heading">{contactHeading}</h3>
+          )}
+          <SellerContacts
+            key={seller.id + (seller.phone ?? "")}
+            seller={seller}
+          />
+        </>
+      )}
+      {children}
       <Link className="button secondary" href={`/sellers/${seller.id}`}>
         Переглянути профіль
       </Link>

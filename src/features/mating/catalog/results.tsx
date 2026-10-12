@@ -67,7 +67,7 @@ export function MatingCatalogResults({
       ) : (
         <div className="listings-grid">
           {result.data.data.map((row) => (
-            <PublicMatingCard key={row.id} row={row} />
+            <PublicMatingCard key={row.id} row={row} query={query} />
           ))}
         </div>
       )}

@@ -9,7 +9,15 @@ import { ListingImage } from "@/entities/listing/ui/listing-image";
 import { ListingPlaceholder } from "@/entities/listing/ui/listing-placeholder";
 import { genderLabel } from "@/entities/pet/model";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
-export function PublicMatingCard({ row }: { row: PublicMating }) {
+import { matingDetailHref } from "../detail/navigation";
+import type { MatingCatalogQuery } from "./query";
+export function PublicMatingCard({
+  row,
+  query = { page: 1, limit: 24, sort: "newest" },
+}: {
+  row: PublicMating;
+  query?: MatingCatalogQuery;
+}) {
   const { pet } = row,
     heading = listingHeading(pet),
     age = formatPetAge(pet.birthDate),
@@ -31,7 +39,11 @@ export function PublicMatingCard({ row }: { row: PublicMating }) {
         <ListingPlaceholder species={pet.species.slug} />
       )}
       <div className="listing-card-body">
-        <h2>{heading}</h2>
+        <h2>
+          <Link href={matingDetailHref(row.id, query)} prefetch={false}>
+            {heading}
+          </Link>
+        </h2>
         <p className="listing-metadata">
           {[genderLabel[pet.gender], age].filter(Boolean).join(" · ")}
         </p>

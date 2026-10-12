@@ -17,7 +17,7 @@ export function ListingFilterControls({
   onChange: (change: FilterUpdate) => void;
 }) {
   return (
-    <>
+    <div className="catalog-filter-fields">
       <SpeciesFilter
         value={filters.species}
         onChange={(value) => onChange({ field: "species", value })}
@@ -52,6 +52,6 @@ export function ListingFilterControls({
         errors={errors}
         onChange={(field, value) => onChange({ field, value })}
       />
-    </>
+    </div>
   );
 }

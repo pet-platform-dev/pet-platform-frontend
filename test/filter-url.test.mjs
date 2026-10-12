@@ -187,7 +187,7 @@ test("custom inclusive age ranges survive UI with selected display option", () =
     React.createElement(AgeFilter, { value: state.filters.age, onChange() {} }),
   );
   assert.ok(html.includes("3–12 місяців"));
-  assert.ok(html.includes('selected=""'));
+  assert.ok(html.includes('data-value="range:3:12"'));
   assert.deepEqual(filtersToQuery(state), query);
 });
 test("seven active groups derive from URL; q/sort/page do not count and geography counts once", () => {

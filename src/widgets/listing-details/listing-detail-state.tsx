@@ -1,12 +1,18 @@
 import Link from "next/link";
-export function ListingUnavailable() {
+export function ListingUnavailable({
+  catalogHref = "/listings",
+  catalogLabel = "Повернутися до оголошень",
+}: {
+  catalogHref?: string;
+  catalogLabel?: string;
+}) {
   return (
     <section className="catalog-state listing-detail-state">
       <p className="eyebrow">Оголошення недоступне</p>
       <h1>Оголошення не знайдено</h1>
       <p>Можливо, його було видалено, завершено або воно більше недоступне.</p>
-      <Link href="/listings" className="button primary">
-        Повернутися до оголошень
+      <Link href={catalogHref} className="button primary">
+        {catalogLabel}
       </Link>
     </section>
   );

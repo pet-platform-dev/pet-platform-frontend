@@ -3,6 +3,7 @@ import { sessionKey } from "@/features/auth/session-provider";
 import type { User } from "@/entities/user/model";
 import type { OwnMating } from "@/entities/mating-listing/model";
 export const matingKeys = {
+  publicDetail: (id: string) => ["mating-public", "detail", id] as const,
   mine: (userId: string) => ["mating-mine", userId] as const,
   detail: (userId: string, id: string) => ["mating-owned", userId, id] as const,
   active: (userId: string) => ["mating-active", userId] as const,

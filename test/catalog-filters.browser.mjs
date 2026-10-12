@@ -1,3 +1,4 @@
+import { selectFormOption } from "./helpers/select-form-option.mjs";
 import { chooseCatalogSort } from "./helpers/catalog-sort-browser.mjs";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -252,28 +253,27 @@ try {
   for (const type of ["SALE", "FREE", "ADOPTION"]) {
     const row = await step(
       `${type} type uses server filter`,
-      () =>
-        page.getByLabel("Тип оголошення", { exact: true }).selectOption(type),
+      () => selectFormOption(page, "Тип оголошення", type),
       { type },
     );
     assert.ok(row.body.data.every((item) => item.type === type));
   }
   await step(
     "Clear type selection",
-    () => page.getByLabel("Тип оголошення", { exact: true }).selectOption(""),
+    () => selectFormOption(page, "Тип оголошення", ""),
     { type: undefined },
   );
   for (const gender of ["MALE", "FEMALE", "UNKNOWN"]) {
     const row = await step(
       `${gender} gender uses server filter`,
-      () => page.getByLabel("Стать", { exact: true }).selectOption(gender),
+      () => selectFormOption(page, "Стать", gender),
       { gender },
     );
     assert.ok(row.body.data.every((item) => item.pet.gender === gender));
   }
   await step(
     "Clear gender selection",
-    () => page.getByLabel("Стать", { exact: true }).selectOption(""),
+    () => selectFormOption(page, "Стать", ""),
     { gender: undefined },
   );
   for (const [value, min, max] of [
@@ -286,14 +286,13 @@ try {
   ])
     await step(
       `Age preset ${value} maps to calendar months`,
-      () => page.getByLabel("Вік", { exact: true }).selectOption(value),
+      () => selectFormOption(page, "Вік", value),
       { ageMinMonths: min, ageMaxMonths: max },
     );
-  await step(
-    "Clear age selection",
-    () => page.getByLabel("Вік", { exact: true }).selectOption(""),
-    { ageMinMonths: undefined, ageMaxMonths: undefined },
-  );
+  await step("Clear age selection", () => selectFormOption(page, "Вік", ""), {
+    ageMinMonths: undefined,
+    ageMaxMonths: undefined,
+  });
   await step(
     "Price minimum preserves decimal cents",
     () => page.getByLabel("Від", { exact: true }).fill("100,01"),
@@ -326,8 +325,7 @@ try {
   pass("Invalid price stays local and hides stale cards");
   await step(
     "FREE clears and disables price instead of producing confusing empty results",
-    () =>
-      page.getByLabel("Тип оголошення", { exact: true }).selectOption("FREE"),
+    () => selectFormOption(page, "Тип оголошення", "FREE"),
     { type: "FREE", priceMin: undefined, priceMax: undefined },
   );
   assert.ok(await page.getByLabel("Від", { exact: true }).isDisabled());
@@ -362,9 +360,7 @@ try {
     "Combined q + dog + SALE filters",
     async () => {
       await page.getByRole("radio", { name: "Собаки", exact: true }).check();
-      await page
-        .getByLabel("Тип оголошення", { exact: true })
-        .selectOption("SALE");
+      await selectFormOption(page, "Тип оголошення", "SALE");
     },
     { q: data.marker, species: "dog", type: "SALE" },
   );
@@ -375,7 +371,7 @@ try {
   );
   await step(
     "Filter change from page 2 resets page 1",
-    () => page.getByLabel("Стать", { exact: true }).selectOption("MALE"),
+    () => selectFormOption(page, "Стать", "MALE"),
     { q: data.marker, species: "dog", type: "SALE", gender: "MALE", page: 1 },
   );
   assert.equal(new URL(page.url()).searchParams.get("page"), null);

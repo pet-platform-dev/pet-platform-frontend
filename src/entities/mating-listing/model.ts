@@ -108,6 +108,11 @@ export const publicMatingSchema = z.object({
   owner: z.object({ id: z.uuid(), displayName: z.string() }),
 });
 export type PublicMating = z.infer<typeof publicMatingSchema>;
+export const publicMatingDetailSchema = publicMatingSchema.extend({
+  title: z.string(),
+  description: z.string(),
+});
+export type PublicMatingDetail = z.infer<typeof publicMatingDetailSchema>;
 export const publicMatingResponseSchema = z
   .object({
     data: z.array(publicMatingSchema),

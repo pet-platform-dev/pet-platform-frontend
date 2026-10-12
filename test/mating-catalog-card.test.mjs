@@ -60,7 +60,8 @@ test("public card prioritizes breed then gender and age, location and fee with e
     assert.ok(markup.includes(text));
   assert.ok(markup.indexOf("Німецька вівчарка") < markup.indexOf("Самець"));
   assert.match(markup, new RegExp('href="/sellers/' + ownerId + '"'));
-  assert.doesNotMatch(markup, /\/mating\/|Без імені|German shepherd/);
+  assert.doesNotMatch(markup, /Без імені|German shepherd/);
+  assert.match(markup, /href="\/mating\/[^"?]+\?returnTo=/);
 });
 test("optional pet name and female free or fixed fee render without owner identity duplication", () => {
   for (const [fee, label] of [

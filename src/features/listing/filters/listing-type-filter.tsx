@@ -1,3 +1,6 @@
+"use client";
+import { useId } from "react";
+import { SelectDropdown } from "@/shared/ui/select-dropdown";
 import type { Filters } from "./model";
 const options = [
   ["SALE", "Продаж"],
@@ -11,23 +14,22 @@ export function ListingTypeFilter({
   value: Filters["type"];
   onChange: (value: Filters["type"]) => void;
 }) {
+  const id = useId();
   return (
     <div className="field">
-      <label htmlFor="filter-type">Тип оголошення</label>
-      <select
-        id="filter-type"
+      <label htmlFor={id}>Тип оголошення</label>
+      <SelectDropdown
+        label="Тип оголошення"
+        controlId={id}
         value={value ?? ""}
-        onChange={(event) =>
-          onChange(options.find(([id]) => id === event.target.value)?.[0])
+        options={[
+          { value: "", label: "Усі" },
+          ...options.map(([value, label]) => ({ value, label })),
+        ]}
+        onChange={(value) =>
+          onChange(options.find(([id]) => id === value)?.[0])
         }
-      >
-        <option value="">Усі</option>
-        {options.map(([id, label]) => (
-          <option key={id} value={id}>
-            {label}
-          </option>
-        ))}
-      </select>
+      />
     </div>
   );
 }

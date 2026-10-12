@@ -1,3 +1,6 @@
+"use client";
+import { useId } from "react";
+import { SelectDropdown } from "@/shared/ui/select-dropdown";
 import type { Filters } from "./model";
 const options = [
   ["MALE", "Хлопчик"],
@@ -11,23 +14,22 @@ export function GenderFilter({
   value: Filters["gender"];
   onChange: (value: Filters["gender"]) => void;
 }) {
+  const id = useId();
   return (
     <div className="field">
-      <label htmlFor="filter-gender">Стать</label>
-      <select
-        id="filter-gender"
+      <label htmlFor={id}>Стать</label>
+      <SelectDropdown
+        label="Стать"
+        controlId={id}
         value={value ?? ""}
-        onChange={(event) =>
-          onChange(options.find(([id]) => id === event.target.value)?.[0])
+        options={[
+          { value: "", label: "Усі" },
+          ...options.map(([value, label]) => ({ value, label })),
+        ]}
+        onChange={(value) =>
+          onChange(options.find(([id]) => id === value)?.[0])
         }
-      >
-        <option value="">Усі</option>
-        {options.map(([id, label]) => (
-          <option key={id} value={id}>
-            {label}
-          </option>
-        ))}
-      </select>
+      />
     </div>
   );
 }

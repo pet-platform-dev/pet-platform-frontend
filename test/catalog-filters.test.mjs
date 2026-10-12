@@ -299,7 +299,8 @@ test("shared selectors retain combobox contract; breed starts disabled and locat
     ),
   );
   client.clear();
-  assert.equal((html.match(/role="combobox"/g) || []).length, 3);
+  assert.equal((html.match(/role="combobox"/g) || []).length, 6);
+  assert.doesNotMatch(html, /<select\b/);
   assert.ok(html.includes("Місто або село"));
   assert.ok(html.includes("Введіть назву міста або села"));
   assert.ok(html.includes("Спочатку оберіть вид тварини"));

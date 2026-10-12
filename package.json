@@ -33,7 +33,8 @@
     "test:browser:mating": "node test/mating-management.browser.mjs && node test/mating-recovery.browser.mjs",
     "test:browser:dashboard": "node test/account-dashboard.browser.mjs",
     "test:browser:mating-catalog": "node test/mating-catalog.browser.mjs && node test/mating-catalog-layout.browser.mjs",
-    "test:browser:mating-polish": "node test/mating-polish.browser.mjs"
+    "test:browser:mating-polish": "node test/mating-polish.browser.mjs",
+    "test:browser:mating-detail": "node test/mating-detail.browser.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
