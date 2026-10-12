@@ -217,7 +217,7 @@ try {
   await page.waitForURL((u) => u.searchParams.get("sort") === "price_asc");
   await select("Сортування", "Ціна: від вищої");
   await page.waitForURL((u) => u.searchParams.get("sort") === "price_desc");
-  await page.getByLabel("Вік", { exact: true }).selectOption("12-24");
+  await select("Вік", "1–2 роки");
   await page.waitForURL((u) => u.searchParams.get("ageMinMonths") === "12");
   await page
     .getByRole("heading", { name: "Оголошень не знайдено", exact: true })

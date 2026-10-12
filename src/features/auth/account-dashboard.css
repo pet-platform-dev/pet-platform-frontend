@@ -50,10 +50,6 @@
   margin-top: auto;
   align-self: flex-start;
 }
-.dashboard-mating {
-  background: #f0f4ee;
-  border-color: #d5e1d1;
-}
 .dashboard-grid .button {
   min-height: 44px;
   white-space: normal;

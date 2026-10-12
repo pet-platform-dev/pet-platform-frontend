@@ -52,18 +52,13 @@
   padding: 0;
   min-width: 0;
 }
-.mating-gender-filter legend {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
 .mating-gender-filter label {
   display: flex;
   align-items: center;
   gap: 10px;
   min-height: 44px;
   padding: 8px 10px;
-  border: 1px solid #deded3;
+  border: 1px solid #dcd8cc;
   border-radius: 10px;
   cursor: pointer;
 }
@@ -118,4 +113,57 @@
 .mating-filters-drawer .reference-chips button {
   min-height: 44px;
   min-width: 44px;
+}
+
+/* One field rhythm, shared by the desktop panel and mobile draft drawer. */
+.mating-filter-fields {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.mating-filter-fields .filter-field,
+.mating-filter-fields .field {
+  min-width: 0;
+  margin: 0;
+}
+.mating-filter-fields :is(.field > label, fieldset > legend) {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  margin: 0 0 8px;
+  color: var(--foreground);
+}
+.mating-filter-fields .field > label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+}
+.mating-filter-fields .optional {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--muted);
+  margin: 0 0 0 auto;
+}
+.mating-filter-fields .filter-field :is(.hint, .form-hint) {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted);
+}
+.mating-filter-fields
+  :is(
+    input:not([type="radio"]):not([type="checkbox"]),
+    .select-dropdown-trigger
+  ) {
+  min-height: 48px;
+  border-radius: 10px;
+}
+.mating-filter-fields .filter-price {
+  margin-top: 16px;
+}
+.mating-public-catalog .listing-filters-panel {
+  gap: 24px;
 }

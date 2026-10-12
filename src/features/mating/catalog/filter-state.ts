@@ -8,6 +8,7 @@ import {
   type FilterUpdate,
 } from "@/features/listing/filters/model";
 import type { MatingCatalogQuery } from "./query";
+import { matingAgeValue } from "./age-options";
 export type MatingValues = Filters & {
   genders: NonNullable<MatingCatalogQuery["genders"]>;
   feeMode: MatingCatalogQuery["feeMode"];
@@ -26,6 +27,7 @@ export function matingValues(
   ).filters;
   return {
     ...filters,
+    age: matingAgeValue(query),
     breeds: filters.breeds.map((b) =>
       labels?.breeds[b.id] ? b : { ...b, name: "Обрана порода" },
     ),

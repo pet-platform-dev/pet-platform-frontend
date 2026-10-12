@@ -156,6 +156,10 @@ export function MatingForm({
         </section>
       </fieldset>
       <section className="mating-panel mating-submit">
+        <p className="form-hint">
+          Переконайтеся, що вік і стан здоров’я тварини підходять для в’язки. За
+          потреби проконсультуйтеся з ветеринаром.
+        </p>
         {error && (
           <p role="alert" className="field-error">
             {error}
