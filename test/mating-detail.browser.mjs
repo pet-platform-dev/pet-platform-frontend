@@ -59,7 +59,7 @@ try {
   const catalog =
     "/mating?locationIds=" + f.longLocation.id + "&sort=price_desc&page=2";
   await go(catalog);
-  const link = page.locator(".mating-public-card h2 a").first();
+  const link = page.locator(".mating-public-card .listing-card-link").first();
   const detailHref = await link.getAttribute("href");
   assert.ok(detailHref.startsWith("/mating/"));
   await link.click();

@@ -257,6 +257,31 @@ test("detail has accessible stable loading and retryable error states", async ()
   assert.match(error, /Спробувати ще раз/);
   assert.doesNotMatch(error, /Перший рядок/);
 });
+
+test("fresh public mating detail renders server content with production query defaults", async () => {
+  const { MatingDetail } = await load("src/features/mating/detail/detail.tsx");
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  client.setQueryData(["current-user"], null);
+  try {
+    const markup = renderRaw(
+      React.createElement(
+        QueryClientProvider,
+        { client },
+        React.createElement(MatingDetail, {
+          id,
+          initialData: { row, seller, petProfileHref: null },
+        }),
+      ),
+    );
+    assert.match(markup, /Про тварину та умови в’язки/);
+    assert.match(markup, /Перший рядок/);
+    assert.doesNotMatch(markup, /listing-detail-skeleton/);
+  } finally {
+    client.clear();
+  }
+});
 test("failed server load overrides pre-existing public cache and presents Retry", async () => {
   const { MatingDetail } = await load("src/features/mating/detail/detail.tsx");
   const client = new QueryClient({

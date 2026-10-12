@@ -13,7 +13,7 @@ import { MatingPetSummary } from "./pet-selection";
 export function MatingCard({ row }: { row: OwnMating }) {
   return (
     <article className="mating-panel mating-card">
-      <span className={`mating-status ${row.status.toLowerCase()}`}>
+      <span className={`listing-status status-${row.status.toLowerCase()}`}>
         {statusLabels[row.status]}
       </span>
       <MatingPetSummary pet={row.pet} />

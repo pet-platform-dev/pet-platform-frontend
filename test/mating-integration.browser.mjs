@@ -277,7 +277,7 @@ try {
     ).length,
     1,
   );
-  await section.locator("h2 a").first().click();
+  await section.locator(".listing-card-link").first().click();
   await page.waitForLoadState("networkidle");
   assert.equal(
     await page.locator(".listing-back-link").getAttribute("href"),

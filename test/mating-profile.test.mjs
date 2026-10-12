@@ -56,6 +56,7 @@ test("profile reuses mating card in separate heading without invented Pet name",
   assert.match(s, /class="listings-grid"/);
   assert.match(s, /returnTo=%2Fsellers%2F/);
   assert.doesNotMatch(s, /Без імені/);
+  assert.doesNotMatch(s, /Олександр Єпік|Переглянути профіль<\/a>/);
 });
 test("page shrinking recovers an available page and restores safe profile context", () => {
   assert.equal(recoverMatingPage(2, 1), 1);

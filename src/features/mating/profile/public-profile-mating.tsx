@@ -69,6 +69,7 @@ export function PublicProfileMating({ ownerId }: { ownerId: string }) {
                 <PublicMatingCard
                   key={row.id}
                   row={row}
+                  showOwner={false}
                   returnTo={profileMatingHref(ownerId, page)}
                 />
               ))}

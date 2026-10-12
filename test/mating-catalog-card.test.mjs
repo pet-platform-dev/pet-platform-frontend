@@ -134,3 +134,15 @@ test("public schema rejects hidden status and untrusted media and strips private
   assert.equal(parsed.closedAt, undefined);
   assert.equal(parsed.pet.previewImage, undefined);
 });
+
+test("image and card information share one detail link with a separate owner action", () => {
+  const markup = html(row);
+  assert.match(
+    markup,
+    /<a[^>]*class="listing-card-link"[^>]*>[\s\S]*listing-visual[\s\S]*Німецька вівчарка[\s\S]*За домовленістю[\s\S]*<\/a>/,
+  );
+  assert.equal((markup.match(/href="\/mating\//g) ?? []).length, 1);
+  assert.equal((markup.match(/href="\/sellers\//g) ?? []).length, 1);
+  for (const match of markup.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g))
+    assert.doesNotMatch(match[1], /<a\b/);
+});

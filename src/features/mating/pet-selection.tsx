@@ -77,9 +77,7 @@ export function MatingPetSelection({
   return (
     <section className="mating-panel" aria-label="Тварина для оголошення">
       <h2>Ваша тварина</h2>
-      <p className="muted">
-        Оголошення про в’язку належатиме вибраній тварині.
-      </p>
+      <p className="muted">Оберіть свою тварину, для якої шукаєте пару.</p>
       {pets.length ? (
         <>
           <SelectDropdown

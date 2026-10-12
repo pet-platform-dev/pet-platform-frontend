@@ -13,7 +13,7 @@ const row = {
   createdAt: "2026-10-01T00:00:00Z",
   pet: {
     id,
-    name: null,
+    name: "Лада",
     gender: "FEMALE",
     birthDate: "2024-01-01",
     profileImage: null,
@@ -74,9 +74,27 @@ try {
       ".mating-public-seller",
       ".mating-public-card a",
     ]) {
-      const bounds = await page.locator(selector).boundingBox();
-      assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width);
+      for (const node of await page.locator(selector).all()) {
+        const bounds = await node.boundingBox();
+        assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width);
+      }
     }
+    const location = page.locator(".mating-public-card .listing-location");
+    assert.equal(
+      await location.evaluate((el) => getComputedStyle(el).webkitLineClamp),
+      "3",
+    );
+    assert.ok(await location.getAttribute("title"));
+    const titleSize = await page
+      .locator(".mating-public-card h2")
+      .evaluate((el) => ({
+        height: el.getBoundingClientRect().height,
+        line: parseFloat(getComputedStyle(el).lineHeight),
+      }));
+    assert.ok(
+      titleSize.height >= titleSize.line * 2 - 1,
+      "long title retains two complete readable lines",
+    );
     await page.screenshot({
       path: `test-results/phase9c-long-breed-${width}.png`,
     });
