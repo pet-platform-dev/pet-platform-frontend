@@ -23,6 +23,7 @@ export function MobileNavigation({
   const items = authenticated
     ? [
         { href: "/listings", label: "Оголошення" },
+        { href: "/mating", label: "В’язка" },
         { href: "/favorites", label: "Обране" },
         { href: "/my-listings", label: "Мої оголошення" },
         { href: "/pets", label: "Мої тварини" },
@@ -30,6 +31,7 @@ export function MobileNavigation({
       ]
     : [
         { href: "/listings", label: "Оголошення" },
+        { href: "/mating", label: "В’язка" },
         ...(!pending
           ? [
               { href: "/login", label: "Увійти" },
@@ -88,6 +90,7 @@ export function MobileNavigation({
               key={item.href}
               href={item.href}
               aria-current={
+                (item.href === "/mating" && pathname.startsWith("/mating/")) ||
                 pathname === item.href ||
                 pathname.startsWith(item.href + "/") ||
                 (item.href === "/account" &&

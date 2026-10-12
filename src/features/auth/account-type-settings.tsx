@@ -44,7 +44,7 @@ export function AccountTypeSettings({ user }: { user: User }) {
       className="account-type-settings"
       aria-labelledby="account-type-heading"
     >
-      <h2 id="account-type-heading">Тип акаунта</h2>
+      <h3 id="account-type-heading">Тип акаунта</h3>
       <p>
         <strong>{accountTypePresentation[user.accountType].label}</strong>
       </p>

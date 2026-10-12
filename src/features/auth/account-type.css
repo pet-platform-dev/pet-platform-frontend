@@ -52,7 +52,7 @@
   border-top: 1px solid var(--border, #d9ded6);
   overflow-wrap: anywhere;
 }
-.account-type-settings h2 {
+.account-type-settings h3 {
   font-size: 1.125rem;
 }
 .account-type-settings button {

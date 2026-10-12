@@ -18,6 +18,9 @@ const sessionSource = crypto.randomUUID();
 export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
   return [
     "current-user",
+    "mating-mine",
+    "mating-owned",
+    "mating-active",
     "my-pets",
     "pet",
     "pet-media",

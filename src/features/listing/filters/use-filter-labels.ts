@@ -54,7 +54,15 @@ export function useFilterLabels(regionIds?: string[]) {
   }
   return { labels, remember };
 }
-export function useCatalogLabels(listings?: Listing[]) {
+export function useCatalogLabels(
+  listings?: {
+    pet: Listing["pet"];
+    location: Pick<
+      Listing["location"],
+      "id" | "countryCode" | "region" | "city"
+    >;
+  }[],
+) {
   const client = useQueryClient();
   useEffect(() => {
     if (!listings?.length) return;

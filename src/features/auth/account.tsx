@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { DashboardCards } from "./account-dashboard";
+import { accountTypePresentation } from "@/entities/user/account-type";
 import { useRouter } from "next/navigation";
 import { AccountBreederLink } from "@/features/breeder/editor/account-breeder-link";
 import { AccountTypeSettings } from "./account-type-settings";
@@ -63,74 +64,64 @@ export function Account() {
     }
   }
   return (
-    <section className="account-card">
-      <div className="account-heading">
-        <div>
-          <p className="eyebrow">Особистий простір</p>
-          <h1>Мій профіль</h1>
-        </div>
+    <section className="account-dashboard" key={user.id}>
+      <header className="dashboard-heading">
         <span className="avatar" aria-hidden="true">
           {user.firstName.slice(0, 1).toLocaleUpperCase("uk-UA")}
         </span>
-      </div>
-      <p className="muted">
-        Вітаємо, {user.firstName}! Тут зібрано інформацію про ваш акаунт.
-      </p>
-      <dl className="profile-details">
-        {[
-          ["Електронна адреса", user.email],
-          ["Роль", roles[user.role]],
-          ["Статус верифікації", statuses[user.verificationStatus]],
-        ].map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
-      <PersonalProfile key={user.id} user={user} />
-      <AccountTypeSettings key={user.id} user={user} />
-      <section
-        className="account-section"
-        aria-labelledby="account-public-title"
-      >
-        <h2 id="account-public-title">Публічний профіль</h2>
-        <div className="account-actions">
-          <Link className="button primary" href="/profile">
-            Редагувати публічний профіль
-          </Link>
-          <Link className="button secondary" href={"/sellers/" + user.id}>
-            Переглянути публічний профіль
-          </Link>
+        <div>
+          <p className="eyebrow">Особистий простір</p>
+          <h1>{[user.firstName, user.lastName].filter(Boolean).join(" ")}</h1>
+          <p className="muted">
+            {accountTypePresentation[user.accountType].label} ·{" "}
+            {statuses[user.verificationStatus]}
+          </p>
         </div>
-      </section>
-      {user.accountType === "BREEDER" && (
-        <section
-          className="account-section"
-          aria-labelledby="account-breeder-title"
-        >
-          <h2 id="account-breeder-title">Розплідник</h2>
-          <AccountBreederLink key={user.id} userId={user.id} />
-        </section>
-      )}
-      {message && (
-        <p className="error-banner" role="alert">
-          {message}
-        </p>
-      )}
+      </header>
+      <div className="dashboard-grid">
+        <PersonalProfile key={user.id} user={user} />
+        <DashboardCards
+          userId={user.id}
+          accountType={user.accountType}
+          breederContent={<AccountBreederLink key={user.id} userId={user.id} />}
+        />
+      </div>
       <section
-        className="account-section"
-        aria-labelledby="account-session-title"
+        className="dashboard-security"
+        aria-labelledby="dashboard-security-title"
       >
-        <h2 id="account-session-title">Сесія</h2>
-        <div className="account-actions">
-          <button
-            className="button secondary"
-            disabled={pending}
-            onClick={exit}
-          >
-            {pending ? "Виходимо…" : "Вийти з акаунта"}
-          </button>
+        <h2 id="dashboard-security-title">Акаунт і безпека</h2>
+        <div className="dashboard-security-grid">
+          <dl className="dashboard-account-details">
+            {[
+              ["Електронна адреса", user.email],
+              ["Роль", roles[user.role]],
+              ["Статус верифікації", statuses[user.verificationStatus]],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div>
+            <AccountTypeSettings key={user.id} user={user} />
+            <div className="dashboard-session">
+              <h3>Сесія</h3>
+              {message && (
+                <p className="error-banner" role="alert">
+                  {message}
+                </p>
+              )}
+              <button
+                className="button secondary"
+                disabled={pending}
+                onClick={exit}
+              >
+                {pending ? "Виходимо…" : "Вийти з акаунта"}
+              </button>
+            </div>
+          </div>
         </div>
       </section>
     </section>

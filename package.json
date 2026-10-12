@@ -29,7 +29,10 @@
     "test:browser:phase7": "node test/phase7-journeys.browser.mjs",
     "test:browser:favorites": "node test/favorites.browser.mjs",
     "test:browser:reviews": "node test/reviews.browser.mjs",
-    "test:browser:review-management": "node test/review-management.browser.mjs"
+    "test:browser:review-management": "node test/review-management.browser.mjs",
+    "test:browser:mating": "node test/mating-management.browser.mjs && node test/mating-recovery.browser.mjs",
+    "test:browser:dashboard": "node test/account-dashboard.browser.mjs",
+    "test:browser:mating-catalog": "node test/mating-catalog.browser.mjs && node test/mating-catalog-layout.browser.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

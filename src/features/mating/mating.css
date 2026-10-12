@@ -1,0 +1,225 @@
+.mating-editor {
+  max-width: 760px;
+  margin: 0 auto;
+  min-width: 0;
+}
+.mating-editor > .back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 20px;
+}
+.mating-editor .catalog-intro {
+  margin-bottom: 24px;
+}
+.mating-form,
+.mating-form-body,
+.mating-management {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.mating-form-body {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.mating-panel {
+  display: grid;
+  gap: 20px;
+  padding: 28px;
+  border: 1px solid #e8e3d8;
+  border-radius: 24px;
+  background: #fffdf9;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.mating-panel h2 {
+  font-size: 21px;
+  line-height: 1.4;
+}
+.mating-panel p,
+.mating-panel h2 {
+  margin: 0;
+}
+.mating-panel .field {
+  min-width: 0;
+}
+.mating-panel textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 150px;
+}
+.mating-description-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 8px;
+}
+.mating-description-meta > span {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.mating-pet-summary {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+.mating-pet-summary .pet-preview {
+  margin: 0;
+  width: 100%;
+}
+.mating-pet-summary > div:last-child {
+  display: grid;
+  gap: 6px;
+}
+.mating-pet-summary h2 {
+  font-size: 18px;
+}
+.mating-notice {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f3efe4;
+}
+.mating-notice .button {
+  justify-self: start;
+}
+.mating-fee {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.mating-fee legend {
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.mating-fee-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.mating-fee-options label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid #d9ded5;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.mating-fee-options label:has(input:checked) {
+  border-color: #326958;
+  background: #edf3ee;
+}
+.mating-fee-options label:focus-within {
+  outline: 2px solid #326958;
+  outline-offset: 3px;
+}
+.mating-fee-options input {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: #326958;
+}
+.mating-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.mating-card {
+  gap: 16px;
+  padding: 24px;
+  align-content: start;
+}
+.mating-card .mating-pet-summary {
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 12px;
+}
+.mating-card .listing-status {
+  justify-self: start;
+}
+.mating-card .button {
+  justify-self: start;
+  margin-top: auto;
+}
+.mating-filter {
+  max-width: 300px;
+}
+.mating-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+.mating-status-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.mating-status-heading p {
+  margin: 0;
+}
+.mating-lifecycle {
+  margin-top: 24px;
+}
+.button.mating-danger {
+  color: #973e36;
+  background: #fffdf9;
+  border: 1px solid #d7b6b1;
+}
+.button.mating-danger:hover {
+  background: #faf0ed;
+}
+.mating-description {
+  white-space: pre-wrap;
+}
+.mating-dialog p {
+  margin: 18px 0;
+}
+@media (max-width: 1000px) {
+  .mating-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .mating-panel {
+    padding: 20px;
+    border-radius: 20px;
+    gap: 18px;
+  }
+  .mating-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .mating-fee-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mating-pet-summary {
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .mating-description-meta {
+    flex-wrap: wrap;
+  }
+  .mating-form .form-actions .button,
+  .mating-lifecycle .button {
+    flex: 1 1 180px;
+  }
+  .mating-dialog .form-actions .button {
+    flex: 1 1 160px;
+  }
+  .mating-status-heading {
+    align-items: flex-start;
+  }
+}

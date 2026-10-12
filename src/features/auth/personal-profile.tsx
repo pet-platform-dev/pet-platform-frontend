@@ -39,7 +39,7 @@ export function PersonalProfile({ user }: { user: User }) {
             {user.firstName} {user.lastName}
           </p>
           <button
-            className="button primary"
+            className="button secondary"
             onClick={() => {
               setFirstName(user.firstName);
               setLastName(user.lastName ?? "");

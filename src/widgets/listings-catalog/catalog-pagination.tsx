@@ -10,6 +10,7 @@ export function CatalogPagination({
   pages,
   sort,
   onPage,
+  hrefForPage,
   query = { page, sort, limit: 24 },
 }: {
   page: number;
@@ -17,17 +18,17 @@ export function CatalogPagination({
   sort: CatalogSort;
   onPage?: (page: number) => void;
   query?: CatalogQuery;
+  hrefForPage?: (page: number) => string;
 }) {
   if (pages <= 1 && page <= pages) return null;
   const numbers = catalogPageNumbers(page, pages);
+  const pageHref =
+    hrefForPage ?? ((next: number) => filterHref({ ...query, page: next }));
   return (
     <nav className="catalog-pagination" aria-label="Сторінки оголошень">
       {page > 1 ? (
         <Link
-          href={filterHref({
-            ...query,
-            page: Math.max(1, Math.min(page - 1, pages)),
-          })}
+          href={pageHref(Math.max(1, Math.min(page - 1, pages)))}
           onNavigate={(event) => {
             if (onPage) {
               event.preventDefault();
@@ -52,7 +53,7 @@ export function CatalogPagination({
         {numbers.map((number) => (
           <Link
             key={number}
-            href={filterHref({ ...query, page: number })}
+            href={pageHref(number)}
             onNavigate={(event) => {
               if (onPage) {
                 event.preventDefault();
@@ -69,7 +70,7 @@ export function CatalogPagination({
       </div>
       {page < pages ? (
         <Link
-          href={filterHref({ ...query, page: page + 1 })}
+          href={pageHref(page + 1)}
           onNavigate={(event) => {
             if (onPage) {
               event.preventDefault();

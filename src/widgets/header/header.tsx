@@ -18,6 +18,17 @@ export function Header() {
         <Link className="nav-link" href="/listings">
           Оголошення
         </Link>
+        <Link
+          className="nav-link"
+          href="/mating"
+          aria-current={
+            pathname === "/mating" || pathname.startsWith("/mating/")
+              ? "page"
+              : undefined
+          }
+        >
+          В’язка
+        </Link>
         {isPending ? (
           <span className="muted">Зачекайте…</span>
         ) : data ? (

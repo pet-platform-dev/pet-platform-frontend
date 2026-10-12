@@ -19,7 +19,7 @@ export function AccountBreederLink({ userId }: { userId: string }) {
     );
   return (
     <div className="breeder-account-links">
-      <Link className="button primary" href="/profile/breeder">
+      <Link className="button secondary" href="/profile/breeder">
         {query.data
           ? "Редагувати профіль розплідника"
           : "Налаштувати профіль розплідника"}
