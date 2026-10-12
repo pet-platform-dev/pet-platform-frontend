@@ -14,9 +14,11 @@ import type { MatingCatalogQuery } from "./query";
 export function PublicMatingCard({
   row,
   query = { page: 1, limit: 24, sort: "newest" },
+  returnTo,
 }: {
   row: PublicMating;
   query?: MatingCatalogQuery;
+  returnTo?: string;
 }) {
   const { pet } = row,
     heading = listingHeading(pet),
@@ -40,7 +42,10 @@ export function PublicMatingCard({
       )}
       <div className="listing-card-body">
         <h2>
-          <Link href={matingDetailHref(row.id, query)} prefetch={false}>
+          <Link
+            href={matingDetailHref(row.id, query, returnTo)}
+            prefetch={false}
+          >
             {heading}
           </Link>
         </h2>

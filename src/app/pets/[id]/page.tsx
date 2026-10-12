@@ -3,10 +3,8 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/shared/api/client";
 import { getPublicPet } from "@/entities/pet/public-profile";
-import {
-  PublicPetContent,
-  petProfileTitle,
-} from "@/features/pet/public/public-pet-content";
+import { petProfileTitle } from "@/features/pet/public/public-pet-content";
+import { PublicPetProfile } from "@/features/pet/public/public-pet-profile";
 const loadPet = cache(getPublicPet);
 export async function generateMetadata({
   params,
@@ -36,5 +34,5 @@ export default async function PublicPetPage({
     if (error instanceof ApiError && error.status === 404) notFound();
     throw error;
   }
-  return <PublicPetContent pet={pet} />;
+  return <PublicPetProfile key={pet.id} id={pet.id} initialData={pet} />;
 }

@@ -8,6 +8,7 @@ import {
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 import { PetGallery } from "./pet-gallery";
 import { PublicVideoPlayer } from "@/shared/ui/public-video-player";
+import { matingDetailHref } from "@/features/mating/detail/navigation";
 export function petProfileTitle(pet: PublicPet) {
   return pet.name?.trim()
     ? pet.name + " — " + listingHeading(pet)
@@ -79,6 +80,24 @@ export function PublicPetContent({ pet }: { pet: PublicPet }) {
           <h2>Тварина має активне оголошення</h2>
           <p>{listingPrice(offer)}</p>
           <Link href={offer.href} className="button primary">
+            Переглянути оголошення
+          </Link>
+        </section>
+      )}
+      {pet.activeMatingListing && (
+        <section className="listing-detail-panel" aria-label="В’язка">
+          <h2>В’язка</h2>
+          <p>Для цієї тварини є активне оголошення про в’язку.</p>
+          <Link
+            className="button secondary"
+            aria-label="Переглянути оголошення про в’язку"
+            href={matingDetailHref(
+              pet.activeMatingListing.id,
+              { page: 1, limit: 24, sort: "newest" },
+              `/pets/${pet.id}`,
+            )}
+            prefetch={false}
+          >
             Переглянути оголошення
           </Link>
         </section>

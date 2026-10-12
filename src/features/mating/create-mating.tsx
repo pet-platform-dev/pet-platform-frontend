@@ -9,7 +9,12 @@ import { useMatingSource } from "./use-mating-source";
 import { MatingForm } from "./mating-form";
 import { matingFields, matingError, type MatingFormInput } from "./model";
 import { currentMatingUser, refreshMating } from "./cache";
-export function CreateMating() {
+import { resolveOwnedMatingPetId } from "./preselection";
+import { matingEditHref } from "./detail/navigation";
+export function CreateMating({
+  petId,
+  returnTo,
+}: { petId?: string | string[]; returnTo?: string } = {}) {
   const userId = useSession().data!.id,
     client = useQueryClient(),
     router = useRouter();
@@ -30,7 +35,7 @@ export function CreateMating() {
       if (!currentMatingUser(client, userId)) return;
       await refreshMating(client, userId, row.id, row);
       if (currentMatingUser(client, userId))
-        router.replace(`/mating/${row.id}/edit`);
+        router.replace(matingEditHref(row.id, returnTo));
     } catch (e) {
       if (currentMatingUser(client, userId)) {
         setError(matingError(e));
@@ -79,6 +84,8 @@ export function CreateMating() {
         </section>
       )}
       <MatingForm
+        key={userId}
+        initialPetId={resolveOwnedMatingPetId(petId, pets.data)}
         pets={pets.data}
         active={active.data}
         onSubmit={save}

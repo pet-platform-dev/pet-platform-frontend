@@ -1,5 +1,6 @@
 import type { Species } from "@/entities/species/model";
 export type Pet = {
+  activeMatingListing?: { id: string; status: "ACTIVE" } | null;
   profileImage?: { url: string; thumbnailUrl: string } | null;
   showOnBreederProfile?: boolean;
   id: string;

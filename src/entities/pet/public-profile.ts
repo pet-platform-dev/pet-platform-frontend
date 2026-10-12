@@ -19,13 +19,17 @@ export const publicPetSchema = breederAnimalSchema
       .object({ id: z.uuid(), kennelName: z.string() })
       .transform((value) => ({ ...value, href: "/sellers/" + value.id })),
     activeListingSummary: breederAnimalSchema.shape.activeListing,
+    activeMatingListing: z.object({ id: z.uuid() }).nullable().default(null),
   });
 export type PublicPet = z.infer<typeof publicPetSchema>;
-export async function getPublicPet(id: string) {
+export { publicPetKey } from "./query-keys";
+export async function getPublicPet(id: string, signal?: AbortSignal) {
   if (!z.uuid().safeParse(id).success)
     throw new ApiError(404, "Профіль тварини не знайдено");
   const pet = publicPetSchema.parse(
-    await publicRequest("/pets/" + encodeURIComponent(id) + "/public"),
+    await publicRequest("/pets/" + encodeURIComponent(id) + "/public", false, {
+      signal,
+    }),
   );
   if (pet.id.toLowerCase() !== id.toLowerCase())
     throw Error("Профіль тварини не знайдено");

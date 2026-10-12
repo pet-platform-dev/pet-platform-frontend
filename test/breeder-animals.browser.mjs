@@ -291,7 +291,7 @@ try {
         await actorPage
           .getByRole("link", { name: "Додати тварину", exact: true })
           .getAttribute("href"),
-        "/pets/new",
+        "/pets/new?returnTo=%2Fprofile%2Fbreeder%2Fanimals",
       );
     await actorContext.close();
     pass(label + " management gate/empty state");

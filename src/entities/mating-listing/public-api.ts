@@ -8,6 +8,31 @@ import {
 } from "@/features/mating/catalog/query";
 export { publicMatingSchema, publicMatingResponseSchema } from "./model";
 export type { PublicMating, PublicMatingResponse } from "./model";
+export async function getSellerMating(
+  id: string,
+  page: number,
+  signal?: AbortSignal,
+) {
+  if (
+    !z.uuid().safeParse(id).success ||
+    !Number.isInteger(page) ||
+    page < 1 ||
+    page > 100000
+  )
+    throw new ApiError(404, "Оголошення недоступні.");
+  const result = publicMatingResponseSchema.parse(
+    await publicRequest(
+      `/sellers/${id}/mating-listings?page=${page}&limit=24`,
+      true,
+      { signal },
+    ),
+  );
+  if (
+    result.data.some((row) => row.owner.id.toLowerCase() !== id.toLowerCase())
+  )
+    throw new ApiError(404, "Оголошення недоступні.");
+  return result;
+}
 export async function getPublicMatingDetail(id: string, signal?: AbortSignal) {
   if (!z.uuid().safeParse(id).success)
     throw new ApiError(404, "Оголошення недоступне.");

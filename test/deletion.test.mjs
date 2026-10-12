@@ -26,9 +26,12 @@ const pet = {
 };
 test("My Pets uses listing preview and accessible fallback with explicit cascade confirmation", () => {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    defaultOptions: {
+      queries: { retry: false, staleTime: Infinity, enabled: false },
+    },
   });
-  client.setQueryData(["my-pets", { page: 1 }], {
+  client.setQueryData(["current-user"], { id: "owner" });
+  client.setQueryData(["my-pets", "owner", { page: 1 }], {
     data: [
       {
         ...pet,

@@ -13,10 +13,10 @@ export const getBreeds = (
     `/breeds?${new URLSearchParams({ ...(species ? { species } : {}), search, page: String(page), limit: "50", sort: "name_asc" })}`,
     true,
   );
-export const getPets = (page: number) =>
+export const getPets = (page: number, signal?: AbortSignal) =>
   authenticatedRequest<Paginated<Pet>>(
     `/pets/me?page=${page}&limit=24`,
-    {},
+    { signal },
     true,
   );
 export const getPet = (id: string) =>

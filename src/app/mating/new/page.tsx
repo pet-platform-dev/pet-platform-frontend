@@ -1,3 +1,8 @@
+import {
+  safeOwnerMatingReturn,
+  ownerMatingReturnLabel,
+  matingCreateHref,
+} from "@/features/mating/detail/navigation";
 import Link from "next/link";
 import { RequireSession } from "@/features/auth/require-session";
 import { CreateMating } from "@/features/mating/create-mating";
@@ -5,13 +10,20 @@ export const metadata = {
   robots: { index: false, follow: false },
   title: "Створити оголошення про в’язку — Лапа",
 };
-export default function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const query = await searchParams;
+  const returnTo = safeOwnerMatingReturn(query.returnTo);
+  const petId = query.petId;
   return (
-    <RequireSession returnTo="/mating/new">
+    <RequireSession returnTo={matingCreateHref(petId, query.returnTo)}>
       <main className="catalog-shell">
         <div className="mating-editor">
-          <Link className="back-link" href="/mating/my">
-            До моїх оголошень про в’язку
+          <Link className="back-link" href={returnTo}>
+            {ownerMatingReturnLabel(returnTo)}
           </Link>
           <header className="catalog-intro">
             <p className="eyebrow">Оголошення про в’язку</p>
@@ -27,7 +39,7 @@ export default function Page() {
             <li>Оплата</li>
             <li>Збереження</li>
           </ol>
-          <CreateMating />
+          <CreateMating petId={petId} returnTo={returnTo} />
         </div>
       </main>
     </RequireSession>

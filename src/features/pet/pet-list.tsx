@@ -10,20 +10,29 @@ import { deletePet, getPets } from "./api";
 import { PetPreview } from "@/entities/pet/ui/pet-preview";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 import { invalidateDeletedMarketplace } from "@/features/listing/manage-listing/api";
+import { useSession } from "@/features/auth/session-provider";
+import { PetMatingActions } from "@/features/mating/pet-mating-actions";
+import { publicPetKey } from "@/entities/pet/public-profile";
 export function PetList() {
+  const userId = useSession().data!.id;
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Pet | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const submitted = useRef(false);
   const client = useQueryClient();
   const query = useQuery({
-    queryKey: ["my-pets", { page }],
-    queryFn: () => getPets(page),
+    queryKey: ["my-pets", userId, { page }],
+    queryFn: ({ signal }) => getPets(page, signal),
+    staleTime: 0,
   });
   const mutation = useMutation({
     retry: false,
     mutationFn: deletePet,
     onSuccess: async (_, id) => {
+      if (client.getQueryData<{ id: string }>(["current-user"])?.id !== userId)
+        return;
+      client.removeQueries({ queryKey: publicPetKey(id) });
+      await client.invalidateQueries({ queryKey: ["mating-public"] });
       dialog.current?.close();
       setSelected(null);
       client.removeQueries({ queryKey: ["pet", id] });
@@ -151,6 +160,17 @@ export function PetList() {
                     Видалити
                   </button>
                 </div>
+                <PetMatingActions
+                  petId={pet.id}
+                  petLabel={
+                    pet.name?.trim() ||
+                    (pet.breed
+                      ? breedLabel(pet.breed)
+                      : speciesLabel(pet.species.slug))
+                  }
+                  activeMatingListing={pet.activeMatingListing}
+                  returnTo="/pets"
+                />
               </article>
             ))}
           </div>

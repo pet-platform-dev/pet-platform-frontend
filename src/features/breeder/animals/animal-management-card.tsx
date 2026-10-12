@@ -4,6 +4,8 @@ import type { OwnBreederAnimal } from "@/entities/breeder/animals";
 import { AnimalCard } from "./animal-card";
 import { VisibilityControl } from "./visibility-control";
 import { listingPrice } from "@/entities/listing/model/presentation";
+import { PetMatingActions } from "@/features/mating/pet-mating-actions";
+import { listingHeading } from "@/entities/listing/model/presentation";
 export function AnimalManagementCard({
   animal,
   userId,
@@ -55,6 +57,12 @@ export function AnimalManagementCard({
           </Link>
         )}
       </div>
+      <PetMatingActions
+        petId={animal.id}
+        petLabel={animal.name?.trim() || listingHeading(animal)}
+        activeMatingListing={animal.activeMatingListing}
+        returnTo="/profile/breeder/animals"
+      />
     </AnimalCard>
   );
 }

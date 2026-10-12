@@ -26,6 +26,7 @@ export function MatingForm({
   error = "",
   pending = false,
   publishBlocked = false,
+  initialPetId,
 }: {
   listing?: OwnMating;
   pets?: Pet[];
@@ -34,6 +35,7 @@ export function MatingForm({
   error?: string;
   pending?: boolean;
   publishBlocked?: boolean;
+  initialPetId?: string;
 }) {
   const [location, setLocation] = useState<Location | null>(
       listing?.location ?? null,
@@ -42,7 +44,10 @@ export function MatingForm({
   const form = useForm<MatingFormInput>({
     resolver: zodResolver(matingFormSchema),
     defaultValues: {
-      petId: listing?.pet.id ?? "",
+      petId:
+        listing?.pet.id ??
+        (pets.some((pet) => pet.id === initialPetId) ? initialPetId : "") ??
+        "",
       description: listing?.description ?? "",
       locationId: listing?.location.id ?? "",
       feeMode: feeMode(listing?.fee ?? null),

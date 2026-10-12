@@ -13,6 +13,7 @@ import { BreederProfileSkeleton } from "@/features/breeder/public-profile/breede
 import { SellerProfileHeader } from "./seller-profile-header";
 import { SellerProfileListings } from "./seller-profile-listings";
 import { ProfileError } from "./profile-error";
+import { PublicProfileMating } from "@/features/mating/profile/public-profile-mating";
 export function SellerProfile({
   id,
   initialSeller,
@@ -71,6 +72,7 @@ export function SellerProfile({
         <SellerProfileHeader profile={seller.data} />
       )}
       <SellerProfileListings id={id} breeder={Boolean(profile)} />
+      <PublicProfileMating key={`mating-${id}`} ownerId={id} />
       <SellerReviews
         key={id}
         targetId={id}

@@ -45,7 +45,7 @@ export function MatingActions({
       const result = await actOnMating(row.id, action);
       if (!currentMatingUser(client, userId)) return;
       dialog.current?.close();
-      await refreshMating(client, userId, row.id, result);
+      await refreshMating(client, userId, row.id, result, row.pet.id);
       if (action === "delete" && currentMatingUser(client, userId))
         router.replace("/mating/my");
     } catch (e) {

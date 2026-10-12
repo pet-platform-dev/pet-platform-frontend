@@ -5,7 +5,7 @@ import { getPublicMatingDetail } from "@/entities/mating-listing/public-api";
 import { getMatingDetailContext } from "@/features/mating/detail/data";
 import { matingMetadata } from "@/features/mating/detail/presentation";
 import { MatingDetail } from "@/features/mating/detail/detail";
-import { safeMatingReturn } from "@/features/mating/detail/navigation";
+import { parsePublicMatingReturn } from "@/features/mating/detail/navigation";
 import { ApiError } from "@/shared/api/client";
 const loadRow = cache(getPublicMatingDetail);
 const loadDetail = cache(async (id: string) =>
@@ -28,7 +28,9 @@ export default async function MatingPage({
   searchParams,
 }: PageProps<"/mating/[id]">) {
   const { id } = await params;
-  const returnHref = safeMatingReturn((await searchParams).returnTo);
+  const { href: returnHref, label: returnLabel } = parsePublicMatingReturn(
+    (await searchParams).returnTo,
+  );
   let initialData;
   try {
     initialData = await loadDetail(id);
@@ -41,10 +43,16 @@ export default async function MatingPage({
         id={id}
         initialFailed
         returnHref={returnHref}
+        returnLabel={returnLabel}
       />
     );
   }
   return (
-    <MatingDetail id={id} initialData={initialData} returnHref={returnHref} />
+    <MatingDetail
+      id={id}
+      initialData={initialData}
+      returnHref={returnHref}
+      returnLabel={returnLabel}
+    />
   );
 }

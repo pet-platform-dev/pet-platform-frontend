@@ -223,3 +223,35 @@
     align-items: flex-start;
   }
 }
+.pet-mating-actions {
+  display: grid;
+  gap: 10px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border, #e8e3d8);
+}
+.pet-mating-actions .form-hint {
+  margin: 0;
+}
+.pet-mating-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.pet-mating-actions .button {
+  min-height: 44px;
+  white-space: normal;
+}
+.profile-mating-section {
+  display: grid;
+  gap: 24px;
+}
+.profile-mating-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+}
+.profile-mating-heading h2 {
+  margin: 0;
+}

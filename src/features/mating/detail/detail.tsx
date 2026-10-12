@@ -16,11 +16,13 @@ export function MatingDetail({
   initialData,
   initialFailed = false,
   returnHref = "/mating",
+  returnLabel = "До оголошень про в’язку",
 }: {
   id: string;
   initialData?: MatingDetailData;
   initialFailed?: boolean;
   returnHref?: string;
+  returnLabel?: string;
 }) {
   const { data: user, isPending: sessionPending } = useSession();
   const query = useQuery({
@@ -37,7 +39,7 @@ export function MatingDetail({
   return (
     <main className="listing-detail-shell mating-detail">
       <Link href={returnHref} className="text-link listing-back-link">
-        ← До оголошень про в’язку
+        ← {returnLabel}
       </Link>
       {failed ? (
         query.error instanceof ApiError && query.error.status === 404 ? (

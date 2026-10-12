@@ -39,6 +39,10 @@ export const breederAnimalSchema = z.object({
   activeListing: publicOffer.nullable(),
 });
 export const ownBreederAnimalSchema = breederAnimalSchema.extend({
+  activeMatingListing: z
+    .object({ id: z.uuid(), status: z.literal("ACTIVE") })
+    .nullable()
+    .default(null),
   showOnBreederProfile: z.boolean(),
   currentListing: offer
     .extend({
