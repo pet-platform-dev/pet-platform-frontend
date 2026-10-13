@@ -20,6 +20,8 @@ export const ownListingSchema = z
   .object({
     ...listingSchema.shape,
     moderationStatus: moderationSchema,
+    moderationReason: z.string().nullable().optional(),
+    moderatedAt: z.string().nullable().optional(),
     status: z.enum(Object.keys(statusLabels) as [Status, ...Status[]]),
   })
   .refine((listing) =>

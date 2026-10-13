@@ -28,6 +28,8 @@ export const ownMatingSchema = z.object({
   fee: z.string().nullable(),
   currency: z.literal("UAH"),
   moderationStatus: moderationSchema,
+  moderationReason: z.string().nullable().optional(),
+  moderatedAt: z.string().nullable().optional(),
   status: z.enum([
     "DRAFT",
     "ACTIVE",

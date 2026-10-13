@@ -62,7 +62,14 @@ async function decision(kind, id, action) {
     kind === "listings"
       ? new ListingsService(f.db, null, null)
       : new MatingListingsService(f.db);
-  return service.moderate(id, row.updatedAt, action);
+  return service.moderate(
+    id,
+    row.updatedAt,
+    action,
+    action === "approve"
+      ? undefined
+      : "Виправте опис оголошення. " + "Деталі".repeat(150),
+  );
 }
 async function status(text) {
   await page
@@ -131,7 +138,7 @@ async function geometry(path, label) {
       await page.evaluate(() => window.scrollTo(0, 0));
     if ([320, 1440].includes(width))
       await page.screenshot({
-        path: `test-results/phase10a-${label}-${width}.png`,
+        path: `test-results/phase10b-${label}-${width}.png`,
         fullPage: false,
       });
   }
@@ -186,6 +193,9 @@ try {
   await decision("listings", listingId, "reject");
   await go(`/listings/${listingId}/edit`);
   await status("Відхилено");
+  await page.getByText("Причина модерації", { exact: true }).waitFor();
+  await geometry(`/listings/${listingId}/edit`, "listing-rejected-reason");
+  pass("owner listing rejection reason renders with safe responsive wrapping");
   await page
     .getByLabel("Опис", { exact: true })
     .fill("Виправлений зміст оголошення.");
@@ -270,6 +280,8 @@ try {
   await decision("mating-listings", matingId, "reject");
   await geometry(`/mating/${matingId}/edit`, "mating-rejected");
   await status("Відхилено");
+  await page.getByText("Причина модерації", { exact: true }).waitFor();
+  pass("owner mating rejection reason renders without moderator identity");
   await page
     .getByLabel("Опис", { exact: true })
     .fill("Виправлені умови пошуку пари.");
@@ -317,7 +329,7 @@ try {
   assert.deepEqual(errors, []);
   pass("No runtime/hydration errors");
   await writeFile(
-    "test-results/phase10a-browser.json",
+    "test-results/phase10b-browser.json",
     JSON.stringify({ checks, errors, network }, null, 2),
   );
 } catch (error) {

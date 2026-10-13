@@ -2019,3 +2019,14 @@ form {
 .favorites-heading {
   margin-bottom: 24px;
 }
+.publication-reason {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.publication-reason p {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+}
