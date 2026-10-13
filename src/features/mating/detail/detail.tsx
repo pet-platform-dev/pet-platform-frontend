@@ -12,6 +12,7 @@ import {
 } from "@/widgets/listing-details/listing-detail-state";
 import { getMatingDetailData, type MatingDetailData } from "./data";
 import { MatingDetailContent } from "./content";
+import { ReportButton } from "@/features/reports/report-button";
 const subscribeHydration = () => () => {};
 const clientSnapshot = () => true;
 const serverSnapshot = () => false;
@@ -72,6 +73,13 @@ export function MatingDetail({
         <ListingDetailSkeleton />
       ) : (
         <MatingDetailContent
+          reportAction={
+            <ReportButton
+              targetType="MATING_LISTING"
+              targetId={detail.row.id}
+              ownerId={detail.row.owner.id}
+            />
+          }
           detail={detail}
           isOwner={user?.id === detail.row.owner.id}
           contactsReady={hydrated && !sessionPending}

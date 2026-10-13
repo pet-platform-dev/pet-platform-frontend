@@ -4,6 +4,7 @@ import {
   type ContentType,
   type QueueStatus,
 } from "./model";
+import { safeReportDetailReturn } from "@/features/reports/navigation";
 export type QueueState = {
   type?: ContentType;
   status: QueueStatus;
@@ -51,6 +52,8 @@ export function queueHref(state: QueueState) {
   return "/admin/moderation" + (params.size ? "?" + params : "");
 }
 export function safeQueueReturn(value: unknown) {
+  const reportReturn = safeReportDetailReturn(value);
+  if (reportReturn) return reportReturn;
   if (
     typeof value !== "string" ||
     value.length > 4096 ||
@@ -89,6 +92,10 @@ export function detailHref(type: ContentType, id: string, returnTo: string) {
   );
 }
 export const safeAdminPath = (path: string) =>
+  path === "/admin/moderation/reports" ||
+  /^\/admin\/moderation\/reports\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    path,
+  ) ||
   path === "/admin/moderation" ||
   /^\/admin\/moderation\/(?:listings|mating-listings|reviews)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
     path,

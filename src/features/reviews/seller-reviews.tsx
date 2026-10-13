@@ -7,6 +7,7 @@ import { reviewListKey, reviewSummaryKey } from "./cache";
 import { ReviewSummaryView } from "./review-summary";
 import { ReviewEligibility } from "./review-eligibility";
 import { ReviewCard } from "./review-card";
+import { ReportButton } from "@/features/reports/report-button";
 export function SellerReviews({
   targetId,
   initialSummary,
@@ -83,7 +84,17 @@ export function SellerReviews({
             </div>
           ) : reviews.data.data.length ? (
             reviews.data.data.map((review) => (
-              <ReviewCard key={review.id} review={review} />
+              <ReviewCard
+                key={review.id}
+                review={review}
+                actions={
+                  <ReportButton
+                    targetType="REVIEW"
+                    targetId={review.id}
+                    ownerId={review.author.id}
+                  />
+                }
+              />
             ))
           ) : page > 1 ? (
             <p>На цій сторінці немає відгуків.</p>

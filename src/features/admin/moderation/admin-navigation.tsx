@@ -13,6 +13,13 @@ export function AdminNavigation({ user }: { user: Pick<User, "role"> }) {
       >
         Модерація
       </Link>
+      <Link
+        className="button secondary"
+        href="/admin/moderation/reports"
+        prefetch={false}
+      >
+        Скарги
+      </Link>
     </section>
   );
 }

@@ -1,0 +1,54 @@
+.report-action {
+  min-width: 0;
+  margin-top: 16px;
+}
+.report-action .button,
+.report-dialog button {
+  min-height: 44px;
+  min-width: 44px;
+}
+.report-dialog :focus-visible {
+  outline: 3px solid #8f6a3f;
+  outline-offset: 3px;
+}
+.report-dialog .filter-label {
+  margin: 20px 0 8px;
+  font-weight: 600;
+}
+.report-dialog .select-dropdown-options {
+  max-height: 220px;
+}
+.report-status {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: #eee8df;
+  font-size: 0.875rem;
+}
+.report-status-resolved {
+  background: #e9f1e7;
+  color: #35523c;
+}
+.report-status-dismissed {
+  background: #f3ece6;
+  color: #73584b;
+}
+.report-dialog .admin-actions .button {
+  white-space: normal;
+}
+.report-resolution {
+  width: 100%;
+  min-width: 0;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #baad9c;
+  border-radius: 12px;
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+@media (max-width: 600px) {
+  .report-dialog .admin-actions .button {
+    flex: 1 1 100%;
+  }
+}

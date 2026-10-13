@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session-provider";
 import { SelectDropdown } from "@/shared/ui/select-dropdown";
@@ -39,6 +40,15 @@ export function ModerationQueuePage({ state }: { state: QueueState }) {
   return (
     <section className="admin-moderation">
       <header className="admin-page-header">
+        <nav className="admin-actions" aria-label="Розділи модерації">
+          <Link
+            className="button secondary"
+            href="/admin/moderation/reports"
+            prefetch={false}
+          >
+            Скарги користувачів
+          </Link>
+        </nav>
         <h1>Модерація</h1>
         <p>Перевіряйте оголошення, в’язку та відгуки перед публікацією.</p>
         {query.data && !query.isFetching && !query.isError && (

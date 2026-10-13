@@ -21,6 +21,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "current-user",
     "admin-moderation",
     "admin-access",
+    "report-sent",
     "mating-mine",
     "mating-owned",
     "mating-active",
@@ -41,6 +42,10 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
 }
 export function clearPrivateQueries(client: QueryClient) {
   removeAdminMutations(client);
+  const mutations = client.getMutationCache();
+  for (const mutation of mutations.getAll())
+    if (mutation.options.mutationKey?.[0] === "user-reports")
+      mutations.remove(mutation);
   // Cancel before removal so an in-flight private response cannot repopulate the cache.
   void client.cancelQueries({ predicate: isSessionQuery });
   client.removeQueries({

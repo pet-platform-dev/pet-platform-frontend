@@ -15,6 +15,7 @@
 @import "../features/auth/account-actions.css";
 @import "../features/reviews/reviews.css";
 @import "../features/admin/moderation/moderation.css";
+@import "../features/reports/reports.css";
 
 .seller-contacts {
   display: flex;

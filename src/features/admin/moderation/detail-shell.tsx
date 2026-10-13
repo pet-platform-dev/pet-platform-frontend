@@ -64,7 +64,9 @@ export function ModerationDetailShell({
   return (
     <section className="admin-moderation">
       <Link className="admin-back-link" prefetch={false} href={returnTo}>
-        Повернутися до черги
+        {returnTo.startsWith("/admin/moderation/reports/")
+          ? "Повернутися до скарги"
+          : "Повернутися до черги"}
       </Link>
       {query.isPending || (!row && query.isFetching) ? (
         <ModerationSkeleton detail />

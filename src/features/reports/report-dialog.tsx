@@ -1,0 +1,137 @@
+"use client";
+import { useEffect, useId, useRef } from "react";
+import { SelectDropdown } from "@/shared/ui/select-dropdown";
+import { reasonLabels, reportReasons, type ReportReason } from "./model";
+export function ReportDialog({
+  reason,
+  details,
+  onReason,
+  onDetails,
+  onSubmit,
+  onClose,
+  pending,
+  error,
+  returnFocus,
+}: {
+  reason: ReportReason;
+  details: string;
+  onReason: (x: ReportReason) => void;
+  onDetails: (x: string) => void;
+  onSubmit: () => void;
+  onClose: () => void;
+  pending: boolean;
+  error: string;
+  returnFocus: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null),
+    first = useRef<HTMLButtonElement | null>(null),
+    id = useId();
+  useEffect(() => {
+    const el = dialog.current,
+      overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    el?.showModal();
+    first.current?.focus();
+    return () => {
+      el?.close();
+      document.body.style.overflow = overflow;
+    };
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className="admin-reason-dialog report-dialog"
+      aria-labelledby={id + "-title"}
+      aria-busy={pending}
+      onClose={() => {
+        onClose();
+        returnFocus();
+      }}
+      onCancel={(e) => {
+        if (pending) e.preventDefault();
+      }}
+      onKeyDown={(e) => {
+        if (e.key !== "Tab") return;
+        const els = Array.from(
+          e.currentTarget.querySelectorAll<HTMLElement>(
+            "button:not(:disabled),textarea:not(:disabled)",
+          ),
+        ).filter((el) => el.getClientRects().length);
+        const first = els[0],
+          last = els.at(-1);
+        if (!first || !last) {
+          e.preventDefault();
+          return;
+        }
+        if (
+          (e.shiftKey && document.activeElement === first) ||
+          (!e.shiftKey && document.activeElement === last)
+        ) {
+          e.preventDefault();
+          (e.shiftKey ? last : first).focus();
+        }
+      }}
+    >
+      <h2 id={id + "-title"}>Поскаржитися</h2>
+      <p>Опишіть проблему. Скаргу перевірить адміністратор.</p>
+      <form
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit();
+        }}
+      >
+        <p className="filter-label">Причина скарги</p>
+        <SelectDropdown
+          label="Причина скарги"
+          value={reason}
+          options={reportReasons.map((value) => ({
+            value,
+            label: reasonLabels[value],
+          }))}
+          onChange={onReason}
+          disabled={pending}
+          onFocusRef={(node) => {
+            first.current = node;
+          }}
+        />
+        <label htmlFor={id + "-details"}>
+          Деталі {reason === "OTHER" ? "" : "(необов’язково)"}
+        </label>
+        <textarea
+          id={id + "-details"}
+          rows={5}
+          maxLength={1000}
+          value={details}
+          onChange={(e) => onDetails(e.target.value)}
+          required={reason === "OTHER"}
+          disabled={pending}
+          aria-invalid={!!error}
+          aria-describedby={id + "-count" + (error ? " " + id + "-error" : "")}
+        />
+        <p id={id + "-count"} className="form-hint">
+          {reason === "OTHER" ? "Від 10 до 1000 символів" : "До 1000 символів"}{" "}
+          · {details.trim().length}/1000
+        </p>
+        {error && (
+          <p role="alert" id={id + "-error"}>
+            {error}
+          </p>
+        )}
+        <div className="admin-actions">
+          <button
+            type="button"
+            className="button secondary"
+            disabled={pending}
+            onClick={() => dialog.current?.close()}
+          >
+            Скасувати
+          </button>
+          <button className="button primary" disabled={pending}>
+            {pending ? "Надсилаємо…" : "Надіслати скаргу"}
+          </button>
+        </div>
+      </form>
+    </dialog>
+  );
+}

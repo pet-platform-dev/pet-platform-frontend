@@ -15,10 +15,12 @@ export function MatingDetailContent({
   detail,
   isOwner,
   contactsReady = true,
+  reportAction,
 }: {
   detail: MatingDetailData;
   isOwner: boolean;
   contactsReady?: boolean;
+  reportAction?: React.ReactNode;
 }) {
   const { row, seller, petProfileHref } = detail,
     { pet } = row;
@@ -84,6 +86,7 @@ export function MatingDetailContent({
         </p>
       </section>
       <div className="listing-detail-sidebar">
+        {reportAction}
         <section
           className="listing-detail-panel"
           aria-labelledby="mating-animal"
