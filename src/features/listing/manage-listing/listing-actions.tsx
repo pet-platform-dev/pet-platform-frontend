@@ -11,6 +11,7 @@ import {
   managementError,
 } from "./api";
 import { completion, type OwnListing, type Status } from "./model";
+import { ApiError } from "@/shared/api/client";
 export function ListingActions({
   listing,
   showArchive = true,
@@ -41,6 +42,10 @@ export function ListingActions({
         if (redirectAfterDelete) router.replace("/my-listings");
         await invalidateDeletedMarketplace(client, listing.id);
       } else await invalidateListings(client, listing.id);
+    },
+    onError: async (error) => {
+      if (error instanceof ApiError && error.status === 409)
+        await invalidateListings(client, listing.id);
     },
   });
   function confirm(

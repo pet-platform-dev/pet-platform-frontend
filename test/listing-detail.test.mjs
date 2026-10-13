@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import React from "react";
+import { renderToStaticMarkup as renderRaw } from "react-dom/server";
 import { renderToStaticMarkup } from "./helpers/render-with-session.mjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { load } from "./helpers/load-frontend.mjs";
@@ -352,4 +353,75 @@ test("detail back link renders preserved catalog target in success, loading and 
 });
 test("direct detail component keeps plain catalog fallback", () => {
   assert.ok(state("success").includes('href="/listings"'));
+});
+test("failed Listing server load conceals a pre-existing public cache", () => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, staleTime: 30000 } },
+  });
+  client.setQueryData(["current-user"], null);
+  client.setQueryData(["listing", fixture.id], {
+    ...fixture,
+    description: "STALE PRIVATE CONTENT",
+  });
+  try {
+    const html = renderRaw(
+      React.createElement(
+        QueryClientProvider,
+        { client },
+        React.createElement(ListingDetails, {
+          id: fixture.id,
+          initialFailed: true,
+        }),
+      ),
+    );
+    assert.match(html, /role="alert"/);
+    assert.doesNotMatch(html, /STALE PRIVATE CONTENT/);
+  } finally {
+    client.clear();
+  }
+});
+test("fresh Listing SSR data wins over older cached public content", () => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, staleTime: 30000 } },
+  });
+  client.setQueryData(["current-user"], null);
+  client.setQueryData(["listing", fixture.id], {
+    ...fixture,
+    description: "STALE PUBLIC CONTENT",
+  });
+  try {
+    const html = renderRaw(
+      React.createElement(
+        QueryClientProvider,
+        { client },
+        React.createElement(ListingDetails, {
+          id: fixture.id,
+          initialListing: { ...fixture, description: "FRESH SERVER CONTENT" },
+        }),
+      ),
+    );
+    assert.match(html, /FRESH SERVER CONTENT/);
+    assert.doesNotMatch(html, /STALE PUBLIC CONTENT/);
+  } finally {
+    client.clear();
+  }
+});
+test("each failed Listing server refresh resets the failure gate instead of reusing a recovered observer", async () => {
+  const { default: Page } = await load("src/app/listings/[id]/page.tsx");
+  const saved = globalThis.fetch;
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify({ message: "unavailable" }), { status: 500 });
+  try {
+    const props = {
+      params: Promise.resolve({ id: fixture.id }),
+      searchParams: Promise.resolve({}),
+    };
+    const first = await Page(props),
+      second = await Page(props);
+    assert.equal(first.props.initialFailed, true);
+    assert.ok(first.key);
+    assert.notEqual(first.key, second.key);
+  } finally {
+    globalThis.fetch = saved;
+  }
 });

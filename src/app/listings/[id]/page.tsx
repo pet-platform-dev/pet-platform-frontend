@@ -37,7 +37,14 @@ export default async function ListingPage({
     listing = await loadListing(id);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
-    return <ListingDetails id={id} initialFailed returnHref={returnHref} />;
+    return (
+      <ListingDetails
+        key={crypto.randomUUID()}
+        id={id}
+        initialFailed
+        returnHref={returnHref}
+      />
+    );
   }
   return (
     <ListingDetails id={id} initialListing={listing} returnHref={returnHref} />

@@ -10,6 +10,7 @@ import {
 } from "@/entities/mating-listing/model";
 import { currentMatingUser, refreshMating } from "./cache";
 import { matingError } from "./model";
+import { ApiError } from "@/shared/api/client";
 const labels = {
   close: "Завершити пошук",
   archive: "Перемістити в архів",
@@ -49,7 +50,11 @@ export function MatingActions({
       if (action === "delete" && currentMatingUser(client, userId))
         router.replace("/mating/my");
     } catch (e) {
-      if (currentMatingUser(client, userId)) setError(matingError(e));
+      if (currentMatingUser(client, userId)) {
+        setError(matingError(e));
+        if (e instanceof ApiError && e.status === 409)
+          await refreshMating(client, userId, row.id, undefined, row.pet.id);
+      }
     } finally {
       lock.current = false;
       setPending(false);

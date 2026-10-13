@@ -17,6 +17,7 @@ import { MatingPetSummary } from "./pet-selection";
 import { MatingActions } from "./mating-actions";
 import { matingFields, matingError, type MatingFormInput } from "./model";
 import { matingKeys, currentMatingUser, refreshMating } from "./cache";
+import { ApiError } from "@/shared/api/client";
 export function EditMating({ id }: { id: string }) {
   const userId = useSession().data!.id,
     client = useQueryClient();
@@ -59,7 +60,14 @@ export function EditMating({ id }: { id: string }) {
         setError(
           (publish && saved ? "Чернетку збережено. " : "") + matingError(e),
         );
-        if (saved) await refreshMating(client, userId);
+        if (saved || (e instanceof ApiError && e.status === 409))
+          await refreshMating(
+            client,
+            userId,
+            id,
+            undefined,
+            query.data?.pet.id,
+          );
         else void active.refetch();
       }
     } finally {
