@@ -6,6 +6,9 @@
   min-height: 44px;
   min-width: 44px;
 }
+.admin-moderation .gallery-open {
+  min-height: 180px;
+}
 .admin-page-header {
   margin: 16px 0 28px;
   max-width: 900px;

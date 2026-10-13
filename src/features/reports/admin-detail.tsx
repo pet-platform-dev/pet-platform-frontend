@@ -21,7 +21,7 @@ import { getReport, decideReport } from "./api";
 import { reportKeys } from "./admin-cache";
 import {
   reasonLabels,
-  statusLabels,
+  reportStatusLabels,
   typeLabels,
   businessLabels,
   reportDecisionSchema,
@@ -146,7 +146,7 @@ export function AdminReportDetail({
                     "report-status report-status-" + row.status.toLowerCase()
                   }
                 >
-                  {statusLabels[row.status]}
+                  {reportStatusLabels[row.status]}
                 </span>
                 <time dateTime={row.createdAt}>
                   {moderationDate(row.createdAt)}

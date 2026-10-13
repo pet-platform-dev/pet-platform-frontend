@@ -16,6 +16,7 @@ import { reportKeys } from "./admin-cache";
 import {
   reasonLabels,
   statusLabels,
+  reportStatusLabels,
   typeLabels,
   reportStatuses,
   type ReportStatus,
@@ -128,7 +129,7 @@ export function AdminReportQueue({ state }: { state: ReportsState }) {
                         row.status.toLowerCase()
                       }
                     >
-                      {statusLabels[row.status]}
+                      {reportStatusLabels[row.status]}
                     </span>
                   </header>
                   <h2>{reasonLabels[row.reason]}</h2>

@@ -22,6 +22,11 @@ export const statusLabels = {
   RESOLVED: "Опрацьовані",
   DISMISSED: "Відхилені",
 };
+export const reportStatusLabels = {
+  OPEN: "Відкрита",
+  RESOLVED: "Опрацьована",
+  DISMISSED: "Відхилена",
+};
 export const typeLabels = {
   LISTING: "Оголошення",
   MATING_LISTING: "В’язка",
@@ -34,8 +39,8 @@ export const businessLabels = {
   SOLD: "Продано",
   TRANSFERRED: "Передано",
   ADOPTED: "Прилаштовано",
-  ARCHIVED: "В архіві",
-  CLOSED: "Закрито",
+  ARCHIVED: "Архів",
+  CLOSED: "Завершено",
   REJECTED: "Відхилено",
   HIDDEN: "Приховано",
 };

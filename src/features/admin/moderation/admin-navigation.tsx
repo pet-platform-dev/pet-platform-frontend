@@ -6,20 +6,22 @@ export function AdminNavigation({ user }: { user: Pick<User, "role"> }) {
     <section className="dashboard-card">
       <h2>Модерація</h2>
       <p>Перевіряйте матеріали перед публікацією.</p>
-      <Link
-        className="button secondary"
-        href="/admin/moderation"
-        prefetch={false}
-      >
-        Модерація
-      </Link>
-      <Link
-        className="button secondary"
-        href="/admin/moderation/reports"
-        prefetch={false}
-      >
-        Скарги
-      </Link>
+      <div className="account-actions">
+        <Link
+          className="button secondary"
+          href="/admin/moderation"
+          prefetch={false}
+        >
+          Модерація
+        </Link>
+        <Link
+          className="button secondary"
+          href="/admin/moderation/reports"
+          prefetch={false}
+        >
+          Скарги
+        </Link>
+      </div>
     </section>
   );
 }
