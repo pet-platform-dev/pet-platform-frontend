@@ -11,6 +11,7 @@ export function CatalogPagination({
   sort,
   onPage,
   hrefForPage,
+  label = "Сторінки оголошень",
   query = { page, sort, limit: 24 },
 }: {
   page: number;
@@ -19,13 +20,14 @@ export function CatalogPagination({
   onPage?: (page: number) => void;
   query?: CatalogQuery;
   hrefForPage?: (page: number) => string;
+  label?: string;
 }) {
   if (pages <= 1 && page <= pages) return null;
   const numbers = catalogPageNumbers(page, pages);
   const pageHref =
     hrefForPage ?? ((next: number) => filterHref({ ...query, page: next }));
   return (
-    <nav className="catalog-pagination" aria-label="Сторінки оголошень">
+    <nav className="catalog-pagination" aria-label={label}>
       {page > 1 ? (
         <Link
           href={pageHref(Math.max(1, Math.min(page - 1, pages)))}

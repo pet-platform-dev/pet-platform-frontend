@@ -12,12 +12,15 @@ import { clearSession, currentUser, signOut } from "@/shared/api/client";
 import { clearFormRecovery } from "@/features/listing/form-recovery";
 import { refreshPersonalIdentity } from "./personal-profile-cache";
 import { refreshReviewPublicCache } from "@/features/reviews/cache";
+import { removeAdminMutations } from "@/shared/lib/admin-cache-privacy";
 
 export const sessionKey = ["current-user"] as const;
 const sessionSource = crypto.randomUUID();
 export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
   return [
     "current-user",
+    "admin-moderation",
+    "admin-access",
     "mating-mine",
     "mating-owned",
     "mating-active",
@@ -37,6 +40,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
   ].includes(String(queryKey[0]));
 }
 export function clearPrivateQueries(client: QueryClient) {
+  removeAdminMutations(client);
   // Cancel before removal so an in-flight private response cannot repopulate the cache.
   void client.cancelQueries({ predicate: isSessionQuery });
   client.removeQueries({

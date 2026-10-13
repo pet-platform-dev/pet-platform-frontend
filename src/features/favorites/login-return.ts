@@ -1,4 +1,5 @@
-/** Only existing discovery destinations are accepted after authentication. */
+import { safeAdminPath } from "@/features/admin/moderation/navigation";
+/** Only existing discovery/management destinations are accepted after authentication. */
 export function favoriteLoginReturn(value: unknown): string {
   if (
     typeof value !== "string" ||
@@ -21,6 +22,7 @@ export function favoriteLoginReturn(value: unknown): string {
     return "/account";
   if (
     url.pathname !== "/listings" &&
+    !safeAdminPath(url.pathname) &&
     url.pathname !== "/favorites" &&
     url.pathname !== "/mating/new" &&
     url.pathname !== "/mating/my" &&

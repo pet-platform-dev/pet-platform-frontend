@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DashboardCards } from "./account-dashboard";
+import { AdminNavigation } from "@/features/admin/moderation/admin-navigation";
 import { accountTypePresentation } from "@/entities/user/account-type";
 import { useRouter } from "next/navigation";
 import { AccountBreederLink } from "@/features/breeder/editor/account-breeder-link";
@@ -79,6 +80,7 @@ export function Account() {
         </div>
       </header>
       <div className="dashboard-grid">
+        <AdminNavigation user={user} />
         <PersonalProfile key={user.id} user={user} />
         <DashboardCards
           userId={user.id}
