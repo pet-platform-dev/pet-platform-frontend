@@ -26,6 +26,7 @@ import { ConversationContext } from "./conversation-context";
 import { MessageComposer } from "./message-composer";
 import { ScrollHistory } from "./scroll-history";
 import { mergeHistory } from "./history-scroll";
+import { MessagesLoading } from "./messages-loading";
 export function ConversationDetail({ id }: { id: string }) {
   return (
     <RequireSession returnTo={"/messages/" + id}>
@@ -67,7 +68,8 @@ function ConversationContent({ id }: { id: string }) {
   const readId = history.data?.pages[0].data.at(-1)?.id;
   const incoming =
     history.isSuccess &&
-    history.data.pages[0].data.some((m) => !m.isOwn && !m.readAt);
+    ((detail.data?.unreadCount ?? 0) > 0 ||
+      history.data.pages[0].data.some((m) => !m.isOwn && !m.readAt));
   const markRead = read.mutate;
   useEffect(() => {
     if (readId && incoming && readBoundary.current !== readId) {
@@ -93,21 +95,32 @@ function ConversationContent({ id }: { id: string }) {
     },
   });
   return (
-    <main className="catalog-shell messages-page">
+    <main className="catalog-shell messages-page conversation-page">
       <Link className="conversation-back" href="/messages">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m12 19-7-7 7-7M5 12h14" />
+        </svg>
         До повідомлень
       </Link>
       <h1>Розмова</h1>
       {detail.isPending ? (
-        <div className="messages-loading" role="status">
-          Завантаження розмови…
-        </div>
+        <MessagesLoading kind="conversation" />
       ) : detail.isError ? (
         <section className="messages-panel" role="alert">
           <p>
             {detail.error instanceof ApiError && detail.error.status === 404
               ? "Розмова недоступна."
-              : "Не вдалося завантажити повідомлення."}
+              : "Не вдалося завантажити розмову."}
           </p>
           <button
             className="button secondary"
@@ -120,9 +133,7 @@ function ConversationContent({ id }: { id: string }) {
         <>
           <ConversationContext conversation={detail.data} />
           {history.isPending ? (
-            <div className="messages-loading" role="status">
-              Завантаження повідомлень…
-            </div>
+            <MessagesLoading kind="history" />
           ) : history.isError && !history.data ? (
             <div className="messages-panel" role="alert">
               <p>Не вдалося завантажити повідомлення.</p>
@@ -139,16 +150,26 @@ function ConversationContent({ id }: { id: string }) {
               hasOlder={history.hasNextPage}
               loadingOlder={history.isFetchingNextPage}
               loadOlder={() => {
-                if (!history.isFetching) void history.fetchNextPage();
+                if (!history.isFetching)
+                  void history.fetchNextPage({ cancelRefetch: false });
               }}
               sentId={sentId}
             />
           )}
           {history.isFetchNextPageError && (
-            <p role="alert">
-              Не вдалося завантажити попередні повідомлення. Прокрутіть історію,
-              щоб спробувати ще раз.
-            </p>
+            <div className="message-history-error" role="alert">
+              <p>Не вдалося завантажити попередні повідомлення.</p>
+              <button
+                type="button"
+                className="button secondary"
+                disabled={history.isFetching}
+                onClick={() =>
+                  void history.fetchNextPage({ cancelRefetch: false })
+                }
+              >
+                Спробувати ще раз
+              </button>
+            </div>
           )}
           {read.isError && (
             <div className="messages-panel" role="alert">

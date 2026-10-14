@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { SafeImage } from "@/shared/ui/safe-image";
-import { messageDate, conversationHref, type Conversation } from "./model";
+import {
+  messageDate,
+  inboxDate,
+  messagePreview,
+  conversationHref,
+  type Conversation,
+} from "./model";
 export function ConversationThumbnail({
   url,
   title,
@@ -36,9 +42,20 @@ export function ConversationCard({
     >
       <ConversationThumbnail url={c.listing.imageUrl} title={c.listing.title} />
       <div className="conversation-card-content">
-        <strong>{c.listing.title}</strong>
+        <div className="conversation-card-heading">
+          <strong>{c.listing.title}</strong>
+          <time
+            dateTime={c.lastMessageAt}
+            title={messageDate(c.lastMessageAt)}
+            aria-label={messageDate(c.lastMessageAt)}
+          >
+            {inboxDate(c.lastMessageAt)}
+          </time>
+        </div>
         {c.listing.breed && <p className="muted">{c.listing.breed}</p>}
-        <p>{c.otherParticipant.displayName}</p>
+        <p className="conversation-participant">
+          {c.otherParticipant.displayName}
+        </p>
         {c.unreadCount > 0 && (
           <span className="conversation-unread">
             ● Непрочитаних: {c.unreadCount}
@@ -47,10 +64,9 @@ export function ConversationCard({
         {c.lastMessage && (
           <p className="conversation-preview">
             {c.lastMessage.isOwn ? "Ви: " : ""}
-            {c.lastMessage.text}
+            {messagePreview(c.lastMessage.text)}
           </p>
         )}
-        <time dateTime={c.lastMessageAt}>{messageDate(c.lastMessageAt)}</time>
       </div>
     </Link>
   );
@@ -69,7 +85,9 @@ export function ConversationContext({
       <div>
         <h2>{c.listing.title}</h2>
         {c.listing.breed && <p className="muted">{c.listing.breed}</p>}
-        <p>{c.otherParticipant.displayName}</p>
+        <p className="conversation-participant">
+          {c.otherParticipant.displayName}
+        </p>
         {c.listing.available && c.listing.href ? (
           <Link href={c.listing.href} className="conversation-public-link">
             Переглянути оголошення

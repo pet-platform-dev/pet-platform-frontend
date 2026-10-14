@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { RequireSession } from "@/features/auth/require-session";
@@ -6,6 +7,7 @@ import { useSession } from "@/features/auth/session-provider";
 import { getInbox } from "./api";
 import { conversationKeys } from "./cache";
 import { ConversationCard } from "./conversation-context";
+import { MessagesLoading } from "./messages-loading";
 export function Inbox() {
   return (
     <RequireSession returnTo="/messages">
@@ -26,9 +28,7 @@ function InboxContent() {
     <main className="catalog-shell messages-page">
       <h1>Повідомлення</h1>
       {query.isPending ? (
-        <div className="messages-loading" role="status">
-          Завантаження розмов…
-        </div>
+        <MessagesLoading kind="inbox" />
       ) : query.isError ? (
         <div className="messages-panel" role="alert">
           <p>Не вдалося завантажити повідомлення.</p>
@@ -46,6 +46,9 @@ function InboxContent() {
             Коли ви напишете продавцю або хтось напише вам щодо оголошення,
             розмови з’являться тут.
           </p>
+          <Link className="button secondary" href="/listings">
+            Перейти до оголошень
+          </Link>
         </section>
       ) : (
         <>

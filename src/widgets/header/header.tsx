@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { MobileNavigation } from "./mobile-navigation";
 import { useSession } from "@/features/auth/session-provider";
 import { NotificationBell } from "@/features/notifications/notification-bell";
+import { MessageNavigation } from "@/features/conversations/message-navigation";
 export function Header() {
   const { data, isPending } = useSession();
   const pathname = usePathname();
@@ -59,6 +60,10 @@ export function Header() {
             </>
           )}
         </nav>
+        <MessageNavigation
+          key={`messages:${pathname}`}
+          active={pathname === "/messages" || pathname.startsWith("/messages/")}
+        />
         <NotificationBell key={`notifications:${pathname}`} />
         <MobileNavigation
           key={pathname}

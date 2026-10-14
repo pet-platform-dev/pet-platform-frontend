@@ -80,8 +80,56 @@ export const readResultSchema = z.object({
 });
 export const conversationHref = (id: string) =>
   "/messages/" + z.uuid().parse(id);
+export const messageBadge = (count: number) =>
+  count > 99 ? "99+" : count > 0 ? String(count) : "";
+export const messageNavigationLabel = (count: number) =>
+  count > 0 ? `Повідомлення, непрочитаних: ${count}` : "Повідомлення";
+export const messagePreview = (text: string) =>
+  text.replace(/\s+/gu, " ").trim();
+const zone = "Europe/Kyiv";
+export const messageDay = (stamp: string | Date) =>
+  new Intl.DateTimeFormat("en-CA", {
+    timeZone: zone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(stamp));
+export const messageTime = (stamp: string) =>
+  new Intl.DateTimeFormat("uk-UA", {
+    timeZone: zone,
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(stamp));
+export function historyDay(stamp: string, now = new Date()) {
+  const day = messageDay(stamp),
+    today = messageDay(now);
+  if (day === today) return "Сьогодні";
+  const yesterday = new Date(today + "T12:00:00Z");
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  if (day === messageDay(yesterday)) return "Учора";
+  return new Intl.DateTimeFormat("uk-UA", {
+    timeZone: zone,
+    day: "numeric",
+    month: "long",
+    ...(day.slice(0, 4) !== today.slice(0, 4) ? { year: "numeric" } : {}),
+  }).format(new Date(stamp));
+}
+export function inboxDate(stamp: string, now = new Date()) {
+  if (messageDay(stamp) === messageDay(now)) return messageTime(stamp);
+  const label = historyDay(stamp, now);
+  if (label === "Учора") return label;
+  return new Intl.DateTimeFormat("uk-UA", {
+    timeZone: zone,
+    day: "numeric",
+    month: "short",
+    ...(messageDay(stamp).slice(0, 4) !== messageDay(now).slice(0, 4)
+      ? { year: "numeric" }
+      : {}),
+  }).format(new Date(stamp));
+}
 export const messageDate = (stamp: string) =>
   new Intl.DateTimeFormat("uk-UA", {
+    timeZone: zone,
     day: "numeric",
     month: "short",
     hour: "2-digit",
