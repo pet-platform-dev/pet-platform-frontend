@@ -1,6 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { sessionKey } from "@/features/auth/session-provider";
 import type { User } from "@/entities/user/model";
+import { petCareKeys } from "@/features/pet-care/model";
 // Pet classification/profile-image edits can requeue associated advertisements.
 export async function refreshPetPublications(
   client: QueryClient,
@@ -25,4 +26,7 @@ export async function refreshPetPublications(
     ].map((key) => client.invalidateQueries({ queryKey: [key] })),
   );
   await client.invalidateQueries({ queryKey: ["public-pet", petId] });
+  await client.invalidateQueries({
+    queryKey: petCareKeys.dashboard(userId, petId),
+  });
 }

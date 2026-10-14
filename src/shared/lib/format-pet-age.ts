@@ -8,6 +8,7 @@ const plurals = new Intl.PluralRules("uk-UA");
 export function formatPetAge(
   birthDate: string | null,
   now = new Date(),
+  options: { detailed?: boolean } = {},
 ): string | null {
   if (!birthDate || !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) return null;
   const date = new Date(`${birthDate}T00:00:00.000Z`);
@@ -24,8 +25,14 @@ export function formatPetAge(
   if (value("day") < day) months--;
   if (months < 0) return null;
   if (months < 1) return "Менше місяця";
-  if (months < 12) return `${months} міс.`;
+  const monthText = (count: number) =>
+    `${count} ${plurals.select(count) === "one" ? "місяць" : plurals.select(count) === "few" ? "місяці" : "місяців"}`;
+  if (months < 12)
+    return options.detailed ? monthText(months) : `${months} міс.`;
   const years = Math.floor(months / 12);
   const ending = plurals.select(years);
-  return `${years} ${ending === "one" ? "рік" : ending === "few" ? "роки" : "років"}`;
+  const yearText = `${years} ${ending === "one" ? "рік" : ending === "few" ? "роки" : "років"}`;
+  return options.detailed && months % 12
+    ? yearText + " " + monthText(months % 12)
+    : yearText;
 }

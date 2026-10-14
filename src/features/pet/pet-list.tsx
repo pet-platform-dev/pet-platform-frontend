@@ -13,6 +13,7 @@ import { invalidateDeletedMarketplace } from "@/features/listing/manage-listing/
 import { useSession } from "@/features/auth/session-provider";
 import { PetMatingActions } from "@/features/mating/pet-mating-actions";
 import { publicPetKey } from "@/entities/pet/public-profile";
+import { petCareHref, petCareKeys } from "@/features/pet-care/model";
 export function PetList() {
   const userId = useSession().data!.id;
   const [page, setPage] = useState(1);
@@ -36,6 +37,7 @@ export function PetList() {
       dialog.current?.close();
       setSelected(null);
       client.removeQueries({ queryKey: ["pet", id] });
+      client.removeQueries({ queryKey: petCareKeys.dashboard(userId, id) });
       if (query.data?.data.length === 1 && page > 1) setPage(page - 1);
       await invalidateDeletedMarketplace(client);
     },
@@ -141,6 +143,12 @@ export function PetList() {
                   )}
                 </dl>
                 <div className="pet-card-actions">
+                  <Link
+                    href={petCareHref(pet.id)}
+                    className="button secondary compact"
+                  >
+                    Догляд
+                  </Link>
                   <Link
                     href={`/pets/${pet.id}/edit`}
                     className="button secondary compact"

@@ -29,6 +29,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "mating-active",
     "my-pets",
     "pet",
+    "pet-care",
     "pet-media",
     "my-listings",
     "owned-listing",

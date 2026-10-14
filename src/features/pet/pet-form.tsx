@@ -24,6 +24,7 @@ import { ApiError } from "@/shared/api/client";
 import { getPet, getSpecies, savePet } from "./api";
 import { BreedSelector, type BreedChoice } from "./breed-selector";
 import { petFormSchema, todayKyiv } from "./validation";
+import { petCareHref } from "@/features/pet-care/model";
 
 type FormInput = z.input<typeof petFormSchema>;
 function PetForm({
@@ -126,6 +127,11 @@ function PetForm({
       </Link>
       <p className="eyebrow">Профіль улюбленця</p>
       <h1>{pet ? "Редагувати тварину" : "Додати тварину"}</h1>
+      {pet && (
+        <Link className="button secondary compact" href={petCareHref(pet.id)}>
+          Догляд
+        </Link>
+      )}
       <p className="muted">
         Публічну видимість тварини в профілі розплідника ви обираєте окремо.
         Необов’язкові поля можна залишити порожніми.

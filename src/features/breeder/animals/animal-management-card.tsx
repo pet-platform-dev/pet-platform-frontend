@@ -8,6 +8,7 @@ import { VisibilityControl } from "./visibility-control";
 import { listingPrice } from "@/entities/listing/model/presentation";
 import { PetMatingActions } from "@/features/mating/pet-mating-actions";
 import { listingHeading } from "@/entities/listing/model/presentation";
+import { petCareHref } from "@/features/pet-care/model";
 export function AnimalManagementCard({
   animal,
   userId,
@@ -28,6 +29,9 @@ export function AnimalManagementCard({
         <p className="breeder-listing-status">Немає активного оголошення</p>
       )}
       <div className="breeder-animal-actions">
+        <Link className="button secondary" href={petCareHref(animal.id)}>
+          Догляд
+        </Link>
         {animal.showOnBreederProfile && (
           <Link className="text-link" href={"/pets/" + animal.id}>
             Переглянути профіль тварини
