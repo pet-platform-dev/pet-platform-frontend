@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   notificationDate,
+  notificationBody,
   safeNotificationHref,
   type Notification,
 } from "./model";
@@ -15,7 +16,9 @@ export function NotificationItem({
 }) {
   const href = safeNotificationHref(item.href);
   return (
-    <li className={`notification-item${item.readAt ? "" : " is-unread"}`}>
+    <li
+      className={`notification-item${(item.readAt ? "" : " is-unread") + (item.type === "PET_REMINDER_DUE" ? " is-pet-reminder" : "")}`}
+    >
       <div className="notification-item-heading">
         <strong>
           {href ? (
@@ -35,7 +38,7 @@ export function NotificationItem({
           <span className="notification-unread">Непрочитане</span>
         )}
       </div>
-      <p>{item.body}</p>
+      <p>{notificationBody(item)}</p>
       <div className="notification-item-footer">
         <time dateTime={item.createdAt}>
           {notificationDate(item.createdAt)}

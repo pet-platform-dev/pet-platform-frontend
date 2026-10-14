@@ -262,3 +262,74 @@ test("pending event overlay is bounded and API URL maps to one fixed namespace",
   );
   c.clear();
 });
+
+test("notification-only signal debounces owner bell refresh without changing Messages or marking read", async () => {
+  const c = client(),
+    socket = new FakeSocket();
+  for (const key of [
+    ["notifications", "A", "unread-count"],
+    ["notifications", "A", "list", 1],
+    keys.unreadCount("A"),
+    ["notifications", "B", "unread-count"],
+  ])
+    c.setQueryData(key, { count: 2 });
+  const stop = startMessagingRealtime(c, "A", {
+    socket,
+    token: async () => "token",
+  });
+  socket.emitLocal("notifications:changed", { private: "bad payload" });
+  await pause();
+  assert.equal(
+    c.getQueryState(["notifications", "A", "list", 1]).isInvalidated,
+    false,
+  );
+  socket.emitLocal("notifications:changed", {});
+  socket.emitLocal("notifications:changed", {});
+  await pause();
+  assert.equal(
+    c.getQueryState(["notifications", "A", "unread-count"]).isInvalidated,
+    true,
+  );
+  assert.equal(
+    c.getQueryState(["notifications", "A", "list", 1]).isInvalidated,
+    true,
+  );
+  assert.equal(c.getQueryState(keys.unreadCount("A")).isInvalidated, false);
+  assert.equal(
+    c.getQueryState(["notifications", "B", "unread-count"]).isInvalidated,
+    false,
+  );
+  assert.deepEqual(c.getQueryData(["notifications", "A", "unread-count"]), {
+    count: 2,
+  });
+  stop();
+  c.clear();
+});
+test("queued notification signals cannot cross logout/account generation or restore old unread state", async () => {
+  const c = client(),
+    socket = new FakeSocket();
+  let version = 1;
+  const stop = startMessagingRealtime(c, "A", {
+    socket,
+    token: async () => "A",
+    generation: () => version,
+  });
+  const queued = [...socket.handlers.get("notifications:changed")][0];
+  c.setQueryData(["notifications", "B", "unread-count"], { count: 0 });
+  socket.emitLocal("notifications:changed", {});
+  version++;
+  c.setQueryData(["current-user"], { id: "B" });
+  stop();
+  queued({});
+  await pause();
+  assert.equal(
+    c.getQueryState(["notifications", "B", "unread-count"]).isInvalidated,
+    false,
+  );
+  assert.deepEqual(c.getQueryData(["notifications", "B", "unread-count"]), {
+    count: 0,
+  });
+  assert.equal(socket.disconnects, 1);
+  assert.ok([...socket.handlers.values()].every((s) => s.size === 0));
+  c.clear();
+});

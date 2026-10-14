@@ -213,3 +213,60 @@ test("panel renders compact empty/loading/retry and bounded pagination states", 
   assert.match(html, /Наступні/);
   assert.doesNotMatch(html, /<select/);
 });
+
+test("Pet reminder notification renders owner snapshot, local HH:mm, safe link and no note metadata", async () => {
+  const { NotificationItem } = await load(
+    "src/features/notifications/notification-item.tsx",
+  );
+  const item = model.notificationSchema.parse({
+    ...row,
+    type: "PET_REMINDER_DUE",
+    title: "Нагадування про Локі",
+    body: "Дати препарат",
+    dueAt: "2026-10-15T13:00:00.000Z",
+    href: "/pets/" + row.id + "/care/reminders",
+  });
+  const html = renderToStaticMarkup(
+    React.createElement(NotificationItem, {
+      item,
+      pending: false,
+      onRead() {},
+    }),
+  );
+  assert.match(html, /Нагадування про Локі/);
+  assert.match(html, /Дати препарат/);
+  assert.match(html, /is-pet-reminder/);
+  assert.ok(html.includes(item.href));
+  assert.match(model.notificationBody(item), /\d{2}:\d{2}/);
+  assert.doesNotMatch(html, /\bAM\b|\bPM\b|PRIVATE_NOTE|reminderId|userId/);
+  assert.equal(
+    model.notificationSchema.parse({ ...item, href: "//evil.invalid" }).href,
+    null,
+  );
+});
+test("Pet notification body renders Kyiv16:00 and00:00 without AM/PM; moderation/message copy unchanged", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const r = spawnSync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      `
+ import assert from 'node:assert/strict';import {load} from './test/helpers/load-frontend.mjs';const {notificationBody}=await load('src/features/notifications/model.ts');
+ for(const [dueAt,expected] of [['2026-10-15T13:00Z','16:00'],['2026-10-14T21:00Z','00:00']]){const text=notificationBody({type:'PET_REMINDER_DUE',body:'Дати препарат',dueAt});assert.ok(text.includes(expected));assert.doesNotMatch(text,/\\bAM\\b|\\bPM\\b/);}
+ `,
+    ],
+    { env: { ...process.env, TZ: "Europe/Kyiv" }, encoding: "utf8" },
+  );
+  assert.equal(r.status, 0, r.stderr);
+  for (const type of [
+    "MODERATION_APPROVED",
+    "MODERATION_REJECTED",
+    "NEW_MESSAGE",
+    "SYSTEM",
+  ])
+    assert.equal(
+      model.notificationBody({ ...row, type }),
+      "Текст повідомлення",
+    );
+});

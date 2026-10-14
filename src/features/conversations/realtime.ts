@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { refreshNotifications } from "@/features/notifications/cache";
 import { io, type Socket } from "socket.io-client";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -39,6 +41,7 @@ export function startMessagingRealtime(
     retries = 0;
   let refresh: ReturnType<typeof setTimeout> | undefined,
     reconnect: ReturnType<typeof setTimeout> | undefined;
+  let notificationRefresh: ReturnType<typeof setTimeout> | undefined;
   const seen = new Set<string>();
   const current = () =>
     alive &&
@@ -83,6 +86,18 @@ export function startMessagingRealtime(
     if (current() && readEvent.safeParse(input).success)
       void reconcileRealtime(client, userId);
   };
+  const notificationsChanged = (input: unknown) => {
+    if (
+      !current() ||
+      !z.strictObject({}).safeParse(input).success ||
+      notificationRefresh
+    )
+      return;
+    notificationRefresh = setTimeout(() => {
+      notificationRefresh = undefined;
+      if (current()) void refreshNotifications(client, userId);
+    }, 60);
+  };
   const connected = () => {
     retries = 0;
     if (current()) void reconcileRealtime(client, userId);
@@ -111,6 +126,7 @@ export function startMessagingRealtime(
       socket.connect();
     }
   };
+  socket.on("notifications:changed", notificationsChanged);
   socket.on("message:new", message);
   socket.on("messages:read", read);
   socket.on("connect", connected);
@@ -122,8 +138,10 @@ export function startMessagingRealtime(
     if (!alive) return;
     alive = false;
     clearTimeout(refresh);
+    clearTimeout(notificationRefresh);
     clearTimeout(reconnect);
     seen.clear();
+    socket.off("notifications:changed", notificationsChanged);
     socket.off("message:new", message);
     socket.off("messages:read", read);
     socket.off("connect", connected);

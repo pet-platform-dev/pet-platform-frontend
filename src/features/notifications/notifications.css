@@ -189,3 +189,18 @@
     gap: 12px;
   }
 }
+/* Bound long Pet identities without changing other notification types. */
+.notification-item.is-pet-reminder strong {
+  min-width: 0;
+  max-width: 100%;
+}
+.notification-item.is-pet-reminder strong a {
+  padding: 0;
+  line-height: 22px;
+  min-height: 44px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}

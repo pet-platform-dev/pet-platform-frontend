@@ -31,12 +31,14 @@ export const notificationSchema = z.object({
     "NEW_MESSAGE",
     "REPORT_RESOLVED",
     "SYSTEM",
+    "PET_REMINDER_DUE",
   ]),
   title: z.string().max(160),
   body: z.string().max(2000),
   href: z.string().nullable().transform(safeNotificationHref),
   readAt: z.iso.datetime().nullable(),
   createdAt: z.iso.datetime(),
+  dueAt: z.iso.datetime().optional(),
 });
 export type Notification = z.infer<typeof notificationSchema>;
 export const notificationListSchema = z.object({
@@ -63,4 +65,20 @@ export const notificationDate = (stamp: string) =>
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    hourCycle: "h23",
   }).format(new Date(stamp));
+
+// Due date is an immutable snapshot, rendered in the current browser timezone.
+export const notificationBody = (item: Notification) =>
+  item.type === "PET_REMINDER_DUE" && item.dueAt
+    ? item.body +
+      " — " +
+      new Intl.DateTimeFormat("uk-UA", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).format(new Date(item.dueAt))
+    : item.body;
