@@ -1,4 +1,5 @@
 "use client";
+import { RecordPreview } from "./health-records/record-preview";
 import { HistoryPreview } from "./history/history-preview";
 import { RemindersPreview } from "./reminders/reminders-preview";
 import Link from "next/link";
@@ -94,6 +95,8 @@ export function PetCareDashboard({ id }: { id: string }) {
             upcoming={<RemindersPreview id={id} compact />}
             reminders={<RemindersPreview id={id} />}
             history={<HistoryPreview id={id} />}
+            vaccinations={<RecordPreview id={id} kind="vaccinations" />}
+            medications={<RecordPreview id={id} kind="medications" />}
           />
         </>
       )}

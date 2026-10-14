@@ -179,8 +179,8 @@ test("create/edit form uses labelled shared custom recurrence with no native sel
     assert.ok(html.includes(text));
   assert.match(html, /role="combobox"/);
   assert.doesNotMatch(html, /<select\b/);
-  assert.match(html, /type="date"/);
-  assert.match(html, /type="time"/);
+  assert.match(html, /aria-haspopup="dialog"/);
+  assert.match(html, /Час: години/);
   assert.match(html, /value="Подія &lt;script&gt;/);
   assert.match(html, /role="alert"/);
   assert.match(html, /UTC/);

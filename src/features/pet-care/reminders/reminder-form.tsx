@@ -1,4 +1,5 @@
 "use client";
+import { DateTimeField } from "@/shared/ui/date-time/date-time-field";
 import { useId, useState } from "react";
 import { SelectDropdown } from "@/shared/ui/select-dropdown";
 import {
@@ -57,28 +58,13 @@ export function ReminderForm({
           required
           autoFocus
         />
-        <div className="reminder-date-fields">
-          <div>
-            <label htmlFor={id + "date"}>Дата</label>
-            <input
-              id={id + "date"}
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor={id + "time"}>Час</label>
-            <input
-              id={id + "time"}
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-            />
-          </div>
-        </div>
+        <DateTimeField
+          date={date}
+          time={time}
+          onDate={setDate}
+          onTime={setTime}
+          disabled={pending}
+        />
         <p className="muted reminder-help">
           Дата й час у вашому місцевому часовому поясі.
         </p>

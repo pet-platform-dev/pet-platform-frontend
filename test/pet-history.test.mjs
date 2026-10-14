@@ -124,7 +124,7 @@ test("form reuses labelled custom dropdown/date/time, current default and preser
     assert.ok(html.includes(label));
   assert.match(html, /role="combobox"/);
   assert.doesNotMatch(html, /<select\b|Діагноз|Дозування/);
-  assert.match(html, /type="date"/);
+  assert.match(html, /aria-haspopup="dialog"/);
   assert.match(html, /value="Купання &lt;script&gt;/);
   assert.match(html, /role="alert"/);
   const empty = render(client(), HistoryForm, {
@@ -135,7 +135,11 @@ test("form reuses labelled custom dropdown/date/time, current default and preser
   });
   assert.ok(
     empty.includes(
-      'value="' + time.localFields(new Date().toISOString()).date + '"',
+      time
+        .localFields(new Date().toISOString())
+        .date.split("-")
+        .reverse()
+        .join("."),
     ),
   );
 });

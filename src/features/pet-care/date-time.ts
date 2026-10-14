@@ -21,4 +21,5 @@ export const careDate = (date: string) =>
   new Intl.DateTimeFormat("uk-UA", {
     dateStyle: "medium",
     timeStyle: "short",
+    hourCycle: "h23",
   }).format(new Date(date));

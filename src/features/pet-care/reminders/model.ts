@@ -63,11 +63,7 @@ export const overdue = (
   r: Pick<Reminder, "status" | "dueAt">,
   now = Date.now(),
 ) => r.status === "PENDING" && Date.parse(r.dueAt) < now;
-export const reminderDate = (date: string) =>
-  new Intl.DateTimeFormat("uk-UA", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(date));
+export { careDate as reminderDate } from "../date-time";
 export function formInput(
   title: string,
   notes: string,

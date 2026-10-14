@@ -25,7 +25,7 @@ export function favoriteLoginReturn(value: unknown): string {
     !safeAdminPath(url.pathname) &&
     url.pathname !== "/favorites" &&
     url.pathname !== "/messages" &&
-    !/^\/pets\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/care(?:\/(?:reminders|history))?$/i.test(
+    !/^\/pets\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/care(?:\/(?:reminders|history|vaccinations|medications))?$/i.test(
       url.pathname,
     ) &&
     !/^\/messages\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
