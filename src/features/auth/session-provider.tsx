@@ -48,7 +48,7 @@ export function clearPrivateQueries(client: QueryClient) {
   const mutations = client.getMutationCache();
   for (const mutation of mutations.getAll())
     if (
-      ["user-reports", "notifications", "conversations"].includes(
+      ["user-reports", "notifications", "conversations", "pet-care"].includes(
         String(mutation.options.mutationKey?.[0]),
       )
     )

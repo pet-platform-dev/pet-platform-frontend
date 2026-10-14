@@ -1,4 +1,5 @@
 "use client";
+import { RemindersPreview } from "./reminders/reminders-preview";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { RequireSession } from "@/features/auth/require-session";
@@ -88,7 +89,10 @@ export function PetCareDashboard({ id }: { id: string }) {
           <p className="pet-care-private-note">
             Особистий простір догляду. Ці розділи доступні лише вам.
           </p>
-          <PetCareOverview />
+          <PetCareOverview
+            upcoming={<RemindersPreview id={id} compact />}
+            reminders={<RemindersPreview id={id} />}
+          />
         </>
       )}
     </main>

@@ -15,20 +15,32 @@ export function PetCareSectionCard({
     </section>
   );
 }
-export function PetCareOverview() {
+export function PetCareOverview({
+  upcoming,
+  reminders,
+}: { upcoming?: ReactNode; reminders?: ReactNode } = {}) {
   return (
     <div className="pet-care-grid">
       <PetCareSectionCard title="Найближчі події" className="pet-care-upcoming">
-        <p>Найближчих подій ще немає</p>
-        <p className="muted">
-          Тут з’являтимуться події догляду, які ви додасте для своєї тварини.
-        </p>
+        {upcoming ?? (
+          <>
+            <p>Найближчих подій ще немає</p>
+            <p className="muted">
+              Тут з’являтимуться події догляду, які ви додасте для своєї
+              тварини.
+            </p>
+          </>
+        )}
       </PetCareSectionCard>
       <PetCareSectionCard title="Нагадування">
-        <p>Нагадувань ще немає</p>
-        <p className="muted">
-          Можливість додавати нагадування з’явиться згодом.
-        </p>
+        {reminders ?? (
+          <>
+            <p>Нагадувань ще немає</p>
+            <p className="muted">
+              Можливість додавати нагадування з’явиться згодом.
+            </p>
+          </>
+        )}
       </PetCareSectionCard>
       <PetCareSectionCard title="Історія догляду">
         <p>Історія догляду порожня</p>

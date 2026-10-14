@@ -126,7 +126,7 @@ test("loading skeleton and dashboard use private owner key; no care content rend
   assert.match(loaded, /Догляд за твариною/);
   assert.match(loaded, /До моїх тварин/);
   assert.match(loaded, /<svg/);
-  assert.match(loaded, /Нагадувань ще немає/);
+  assert.match(loaded, /Завантажуємо нагадування/);
   assert.doesNotMatch(loaded, /<select/);
   c.clear();
 });
