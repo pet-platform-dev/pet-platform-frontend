@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MobileNavigation } from "./mobile-navigation";
 import { useSession } from "@/features/auth/session-provider";
+import { NotificationBell } from "@/features/notifications/notification-bell";
 export function Header() {
   const { data, isPending } = useSession();
   const pathname = usePathname();
@@ -14,55 +15,58 @@ export function Header() {
         </span>{" "}
         лапа<span className="brand-dot">.</span>
       </Link>
-      <nav className="desktop-navigation" aria-label="Основна навігація">
-        <Link className="nav-link" href="/listings">
-          Оголошення
-        </Link>
-        <Link
-          className="nav-link"
-          href="/mating"
-          aria-current={
-            pathname === "/mating" || pathname.startsWith("/mating/")
-              ? "page"
-              : undefined
-          }
-        >
-          В’язка
-        </Link>
-        {isPending ? (
-          <span className="muted">Зачекайте…</span>
-        ) : data ? (
-          <>
-            <Link className="nav-link" href="/favorites">
-              Обране
-            </Link>
-            <Link className="nav-link" href="/my-listings">
-              Мої оголошення
-            </Link>
-            <Link className="nav-link" href="/pets">
-              Мої тварини
-            </Link>
-            <Link className="button secondary compact" href="/account">
-              Мій профіль
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link className="nav-link" href="/login">
-              Увійти
-            </Link>
-            <Link className="button primary compact" href="/register">
-              Створити акаунт
-            </Link>
-          </>
-        )}
-      </nav>
-      <MobileNavigation
-        key={pathname}
-        pathname={pathname}
-        authenticated={Boolean(data)}
-        pending={isPending}
-      />
+      <div className="header-actions">
+        <nav className="desktop-navigation" aria-label="Основна навігація">
+          <Link className="nav-link" href="/listings">
+            Оголошення
+          </Link>
+          <Link
+            className="nav-link"
+            href="/mating"
+            aria-current={
+              pathname === "/mating" || pathname.startsWith("/mating/")
+                ? "page"
+                : undefined
+            }
+          >
+            В’язка
+          </Link>
+          {isPending ? (
+            <span className="muted">Зачекайте…</span>
+          ) : data ? (
+            <>
+              <Link className="nav-link" href="/favorites">
+                Обране
+              </Link>
+              <Link className="nav-link" href="/my-listings">
+                Мої оголошення
+              </Link>
+              <Link className="nav-link" href="/pets">
+                Мої тварини
+              </Link>
+              <Link className="button secondary compact" href="/account">
+                Мій профіль
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link className="nav-link" href="/login">
+                Увійти
+              </Link>
+              <Link className="button primary compact" href="/register">
+                Створити акаунт
+              </Link>
+            </>
+          )}
+        </nav>
+        <NotificationBell key={`notifications:${pathname}`} />
+        <MobileNavigation
+          key={pathname}
+          pathname={pathname}
+          authenticated={Boolean(data)}
+          pending={isPending}
+        />
+      </div>
     </header>
   );
 }

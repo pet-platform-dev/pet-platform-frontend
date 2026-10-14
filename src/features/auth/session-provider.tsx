@@ -19,6 +19,7 @@ const sessionSource = crypto.randomUUID();
 export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
   return [
     "current-user",
+    "notifications",
     "admin-moderation",
     "admin-access",
     "report-sent",
@@ -44,7 +45,11 @@ export function clearPrivateQueries(client: QueryClient) {
   removeAdminMutations(client);
   const mutations = client.getMutationCache();
   for (const mutation of mutations.getAll())
-    if (mutation.options.mutationKey?.[0] === "user-reports")
+    if (
+      ["user-reports", "notifications"].includes(
+        String(mutation.options.mutationKey?.[0]),
+      )
+    )
       mutations.remove(mutation);
   // Cancel before removal so an in-flight private response cannot repopulate the cache.
   void client.cancelQueries({ predicate: isSessionQuery });

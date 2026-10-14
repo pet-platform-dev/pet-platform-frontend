@@ -11,6 +11,7 @@
 @import "../features/listing/filters/filters.css";
 @import "../features/listing/filters/mobile-filters.css";
 @import "../widgets/header/mobile-navigation.css";
+@import "../features/notifications/notifications.css";
 @import "../shared/ui/select-dropdown.css";
 @import "../features/auth/account-actions.css";
 @import "../features/reviews/reviews.css";
