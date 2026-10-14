@@ -20,6 +20,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
   return [
     "current-user",
     "notifications",
+    "conversations",
     "admin-moderation",
     "admin-access",
     "report-sent",
@@ -46,7 +47,7 @@ export function clearPrivateQueries(client: QueryClient) {
   const mutations = client.getMutationCache();
   for (const mutation of mutations.getAll())
     if (
-      ["user-reports", "notifications"].includes(
+      ["user-reports", "notifications", "conversations"].includes(
         String(mutation.options.mutationKey?.[0]),
       )
     )

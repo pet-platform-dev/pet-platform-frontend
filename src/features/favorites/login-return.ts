@@ -24,6 +24,10 @@ export function favoriteLoginReturn(value: unknown): string {
     url.pathname !== "/listings" &&
     !safeAdminPath(url.pathname) &&
     url.pathname !== "/favorites" &&
+    url.pathname !== "/messages" &&
+    !/^\/messages\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      url.pathname,
+    ) &&
     url.pathname !== "/mating/new" &&
     url.pathname !== "/mating/my" &&
     !/^\/mating\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:\/edit)?$/i.test(

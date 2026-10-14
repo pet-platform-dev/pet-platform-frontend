@@ -14,6 +14,7 @@ import { formatPetAge } from "@/shared/lib/format-pet-age";
 import { SellerCard } from "@/entities/seller/seller-card";
 import { FavoriteButton } from "@/features/favorites/favorite-button";
 import { ReportButton } from "@/features/reports/report-button";
+import { ListingMessageButton } from "@/features/conversations/listing-message-button";
 
 export function ListingDetailContent({ listing }: { listing: Listing }) {
   const { pet } = listing;
@@ -100,7 +101,9 @@ export function ListingDetailContent({ listing }: { listing: Listing }) {
               )}
             </dl>
           </section>
-          <SellerCard seller={listing.seller} />
+          <SellerCard seller={listing.seller}>
+            <ListingMessageButton listing={listing} />
+          </SellerCard>
           {listing.status === "ACTIVE" && (
             <ReportButton
               targetType="LISTING"

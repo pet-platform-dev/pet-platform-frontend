@@ -12,6 +12,7 @@
 @import "../features/listing/filters/mobile-filters.css";
 @import "../widgets/header/mobile-navigation.css";
 @import "../features/notifications/notifications.css";
+@import "../features/conversations/messages.css";
 @import "../shared/ui/select-dropdown.css";
 @import "../features/auth/account-actions.css";
 @import "../features/reviews/reviews.css";

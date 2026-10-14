@@ -67,6 +67,28 @@ export function DashboardCards({
           Переглянути обране
         </Link>
       </section>
+      <section className="dashboard-card">
+        <h2>
+          <svg
+            className="message-nav-icon"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 3h16v13H9l-5 5V3Z" />
+          </svg>
+          Повідомлення
+        </h2>
+        <p>Розмови з покупцями та продавцями щодо оголошень.</p>
+        <Link className="button secondary" href="/messages">
+          До повідомлень
+        </Link>
+      </section>
       {accountType === "BREEDER" && (
         <section className="dashboard-card">
           <h2>Розплідник</h2>

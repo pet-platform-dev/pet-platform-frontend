@@ -158,7 +158,7 @@ test("description stays plain escaped text with paragraph breaks and no HTML exe
   assert.ok(!html.includes("<script>"));
   assert.ok(html.includes("listing-description-text"));
 });
-test("seller uses full chosen public name and profile link without private registration fields", () => {
+test("seller keeps full identity and private registration fields hidden alongside messaging entry", () => {
   const html = render();
   assert.ok(html.includes("Олена Коваль"));
   assert.ok(html.includes("/sellers/seller"));
@@ -167,11 +167,11 @@ test("seller uses full chosen public name and profile link without private regis
     "phone",
     "passwordHash",
     "refreshToken",
-    "Написати продавцю",
     "Підтверджено",
     "UNVERIFIED",
   ])
     assert.ok(!html.includes(text));
+  // Session-specific contact action hydrates on the client; public SSR carries no private state.
 });
 test("curated breed fallback and missing breed preserve a meaningful primary identity", () => {
   for (const nameUk of [null, "", "  "])
