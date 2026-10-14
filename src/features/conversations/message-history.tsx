@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { MessageReportAction } from "@/features/reports/message-report-action";
 import {
   messageDate,
   messageDay,
@@ -6,7 +7,13 @@ import {
   historyDay,
   type Message,
 } from "./model";
-export function MessageHistory({ messages }: { messages: Message[] }) {
+export function MessageHistory({
+  messages,
+  reportActions = false,
+}: {
+  messages: Message[];
+  reportActions?: boolean;
+}) {
   return (
     <ol className="message-history" aria-label="Історія повідомлень">
       {messages.map((m, index) => {
@@ -34,6 +41,9 @@ export function MessageHistory({ messages }: { messages: Message[] }) {
               }
             >
               <p>{m.text}</p>
+              {reportActions && !m.isOwn && (
+                <MessageReportAction id={m.id} text={m.text} />
+              )}
               <time
                 dateTime={m.createdAt}
                 title={messageDate(m.createdAt)}

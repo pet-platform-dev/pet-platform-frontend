@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { detailSchema, contentTypes } from "@/features/admin/moderation/model";
+import { messageReportContextSchema } from "./message-context-model";
+export const reportTypes = [...contentTypes, "MESSAGE"] as const;
 export const reportReasons = [
   "SPAM",
   "SCAM",
@@ -28,6 +30,7 @@ export const reportStatusLabels = {
   DISMISSED: "Відхилена",
 };
 export const typeLabels = {
+  MESSAGE: "Повідомлення",
   LISTING: "Оголошення",
   MATING_LISTING: "В’язка",
   REVIEW: "Відгуки",
@@ -46,10 +49,10 @@ export const businessLabels = {
 };
 export type ReportReason = (typeof reportReasons)[number];
 export type ReportStatus = (typeof reportStatuses)[number];
-export type ReportType = (typeof contentTypes)[number];
+export type ReportType = (typeof reportTypes)[number];
 export const reportInputSchema = z
   .object({
-    targetType: z.enum(contentTypes),
+    targetType: z.enum(reportTypes),
     targetId: z.uuid(),
     reason: z.enum(reportReasons),
     details: z.string().trim().max(1000).optional(),
@@ -66,7 +69,7 @@ export const reportCreatedSchema = z.object({
 });
 const common = {
   id: z.uuid(),
-  targetType: z.enum(contentTypes),
+  targetType: z.enum(reportTypes),
   targetId: z.uuid(),
   targetPreview: z.string().max(200),
   reason: z.enum(reportReasons),
@@ -86,9 +89,16 @@ export const reportRecordSchema = z.object({
 });
 export const reportDetailSchema = reportRecordSchema.extend({
   target: detailSchema.nullable(),
+  messageContext: messageReportContextSchema.optional(),
 });
 export const reportsQueueSchema = z.object({
-  data: z.array(z.object({ ...common, detailsExcerpt: z.string().nullable() })),
+  data: z.array(
+    z.object({
+      ...common,
+      detailsExcerpt: z.string().nullable(),
+      contextSummary: z.string().optional(),
+    }),
+  ),
   meta: z.object({
     page: z.number().int().positive(),
     limit: z.number().int().positive().max(100),

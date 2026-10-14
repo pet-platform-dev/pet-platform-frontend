@@ -1,5 +1,5 @@
 import { reportStatuses, type ReportStatus, type ReportType } from "./model";
-import { contentTypes } from "@/features/admin/moderation/model";
+import { reportTypes } from "./model";
 export const reportsPath = "/admin/moderation/reports";
 export type ReportsState = {
   status: ReportStatus;
@@ -17,7 +17,7 @@ export function parseReportsState(
         : "OPEN",
     type:
       typeof input.type === "string" &&
-      contentTypes.includes(input.type as ReportType)
+      reportTypes.includes(input.type as ReportType)
         ? (input.type as ReportType)
         : undefined,
     page:

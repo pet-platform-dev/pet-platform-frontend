@@ -12,6 +12,7 @@ export function ReportDialog({
   pending,
   error,
   returnFocus,
+  messagePreview,
 }: {
   reason: ReportReason;
   details: string;
@@ -22,10 +23,15 @@ export function ReportDialog({
   pending: boolean;
   error: string;
   returnFocus: () => void;
+  messagePreview?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
     first = useRef<HTMLButtonElement | null>(null),
+    focusReturn = useRef(returnFocus),
     id = useId();
+  useEffect(() => {
+    focusReturn.current = returnFocus;
+  }, [returnFocus]);
   useEffect(() => {
     const el = dialog.current,
       overflow = document.body.style.overflow;
@@ -35,6 +41,8 @@ export function ReportDialog({
     return () => {
       el?.close();
       document.body.style.overflow = overflow;
+      // The page outside a modal is inert until close/unmount completes.
+      queueMicrotask(() => focusReturn.current());
     };
   }, []);
   return (
@@ -72,8 +80,23 @@ export function ReportDialog({
         }
       }}
     >
-      <h2 id={id + "-title"}>Поскаржитися</h2>
+      <h2 id={id + "-title"}>
+        {messagePreview !== undefined
+          ? "Поскаржитися на повідомлення"
+          : "Поскаржитися"}
+      </h2>
       <p>Опишіть проблему. Скаргу перевірить адміністратор.</p>
+      {messagePreview !== undefined && (
+        <>
+          <blockquote className="report-message-preview">
+            {Array.from(messagePreview).slice(0, 200).join("")}
+            {Array.from(messagePreview).length > 200 ? "…" : ""}
+          </blockquote>
+          <p className="form-hint">
+            Скарга не закриває розмову й не блокує співрозмовника.
+          </p>
+        </>
+      )}
       <form
         noValidate
         onSubmit={(e) => {

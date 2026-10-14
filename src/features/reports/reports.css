@@ -2,6 +2,90 @@
   min-width: 0;
   margin-top: 16px;
 }
+.report-message-preview {
+  margin: 16px 0;
+  padding: 12px;
+  border-left: 3px solid #baad9c;
+  background: #f6f2eb;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.message-report-action {
+  margin-top: 4px;
+  min-width: 0;
+}
+.message-report-action summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  border-radius: 10px;
+  color: #665b4e;
+  list-style: none;
+}
+.message-report-action summary::-webkit-details-marker {
+  display: none;
+}
+.message-report-action summary:hover {
+  background: #e9e1d5;
+}
+.message-report-action .report-action {
+  margin: 4px 0;
+}
+.message-report-action .button {
+  white-space: normal;
+}
+.message-report-action :focus-visible,
+.report-context-viewport:focus-visible {
+  outline: 3px solid #8f6a3f;
+  outline-offset: 3px;
+}
+.report-context-summary {
+  padding-block: 12px;
+  overflow-wrap: anywhere;
+}
+.report-context-messages {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.report-context-messages li {
+  padding: 16px;
+  border: 1px solid #ddd2c2;
+  border-radius: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.report-context-messages li.is-reported {
+  border: 2px solid #8f6a3f;
+  background: #f6f0e5;
+}
+.reported-message-label {
+  display: block;
+  margin-bottom: 12px;
+}
+.report-message-sender {
+  font-weight: 600;
+}
+.report-context-messages time {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: #665b4e;
+}
+.report-context-viewport {
+  max-height: 65vh;
+  min-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  overflow-anchor: none;
+  padding: 4px;
+}
 .report-action .button,
 .report-dialog button {
   min-height: 44px;

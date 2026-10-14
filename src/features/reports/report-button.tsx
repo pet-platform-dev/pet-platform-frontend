@@ -20,10 +20,14 @@ export function ReportButton({
   targetType,
   targetId,
   ownerId,
+  messagePreview,
+  returnFocus,
 }: {
   targetType: ReportType;
   targetId: string;
   ownerId: string;
+  messagePreview?: string;
+  returnFocus?: () => void;
 }) {
   const session = useSession();
   if (!canReport(session.data?.id, ownerId)) return null;
@@ -34,6 +38,8 @@ export function ReportButton({
       targetId={targetId}
       userId={session.data?.id}
       ready={session.isSuccess}
+      messagePreview={messagePreview}
+      returnFocus={returnFocus}
     />
   );
 }
@@ -42,11 +48,15 @@ function ReportAction({
   targetId,
   userId,
   ready,
+  messagePreview,
+  returnFocus,
 }: {
   targetType: ReportType;
   targetId: string;
   userId?: string;
   ready: boolean;
+  messagePreview?: string;
+  returnFocus?: () => void;
 }) {
   const client = useQueryClient(),
     router = useRouter(),
@@ -64,6 +74,8 @@ function ReportAction({
   });
   const current = () =>
     !!userId && client.getQueryData<User | null>(sessionKey)?.id === userId;
+  const restoreFocus = () =>
+    returnFocus ? returnFocus() : trigger.current?.focus();
   const mutation = useMutation({
     mutationKey: ["user-reports", userId, targetType, targetId],
     retry: false,
@@ -77,13 +89,14 @@ function ReportAction({
       if (!current()) return;
       client.setQueryData(reportSentKey(userId!, targetType, targetId), true);
       setOpen(false);
-      trigger.current?.focus();
+      restoreFocus();
     },
     onError: (e) => {
       if (!current()) return;
       if (e instanceof ApiError && e.status === 409) {
         client.setQueryData(reportSentKey(userId!, targetType, targetId), true);
         setOpen(false);
+        restoreFocus();
       } else
         setError(
           e instanceof ApiError && e.status === 404
@@ -142,6 +155,7 @@ function ReportAction({
       )}
       {open && (
         <ReportDialog
+          messagePreview={messagePreview}
           reason={reason}
           details={details}
           onReason={setReason}
@@ -150,7 +164,7 @@ function ReportAction({
           onClose={() => setOpen(false)}
           pending={mutation.isPending}
           error={error}
-          returnFocus={() => trigger.current?.focus()}
+          returnFocus={restoreFocus}
         />
       )}
     </div>

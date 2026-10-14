@@ -134,6 +134,9 @@ export function AdminReportQueue({ state }: { state: ReportsState }) {
                   </header>
                   <h2>{reasonLabels[row.reason]}</h2>
                   <p>{row.targetPreview}</p>
+                  {row.contextSummary && (
+                    <p className="muted">Оголошення: {row.contextSummary}</p>
+                  )}
                   {row.detailsExcerpt && (
                     <p className="admin-excerpt">{row.detailsExcerpt}</p>
                   )}

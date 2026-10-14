@@ -80,7 +80,7 @@ export function ScrollHistory({
           Завантаження попередніх повідомлень…
         </p>
       )}
-      <MessageHistory messages={messages} />
+      <MessageHistory messages={messages} reportActions />
     </div>
   );
 }

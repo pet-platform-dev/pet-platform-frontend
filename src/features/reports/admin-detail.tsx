@@ -27,6 +27,7 @@ import {
   reportDecisionSchema,
 } from "./model";
 import { reportDetailHref } from "./navigation";
+import { MessageReportContext } from "./message-report-context";
 export function AdminReportDetail({
   id,
   returnTo,
@@ -174,33 +175,44 @@ export function AdminReportDetail({
                     </>
                   )}
                 </section>
-                <section className="admin-panel">
-                  <h2>Матеріал</h2>
-                  <p>{row.targetPreview}</p>
-                  {row.target ? (
-                    <>
-                      <ModerationBadge status={row.target.moderationStatus} />
-                      {row.target.type !== "REVIEW" && (
-                        <p>
-                          Стан оголошення: {businessLabels[row.target.status]}
-                        </p>
-                      )}
-                      <Link
-                        className="button secondary"
-                        prefetch={false}
-                        href={detailHref(
-                          row.targetType,
-                          row.targetId,
-                          reportDetailHref(id, returnTo),
+                {row.targetType === "MESSAGE" ? (
+                  row.messageContext && (
+                    <MessageReportContext
+                      id={id}
+                      context={row.messageContext}
+                    />
+                  )
+                ) : (
+                  <section className="admin-panel">
+                    <h2>Матеріал</h2>
+                    <p>{row.targetPreview}</p>
+                    {row.target ? (
+                      <>
+                        <ModerationBadge status={row.target.moderationStatus} />
+                        {row.target.type !== "REVIEW" && (
+                          <p>
+                            Стан оголошення: {businessLabels[row.target.status]}
+                          </p>
                         )}
-                      >
-                        Відкрити модерацію матеріалу
-                      </Link>
-                    </>
-                  ) : (
-                    <p>Матеріал видалено або недоступний. Скаргу збережено.</p>
-                  )}
-                </section>
+                        <Link
+                          className="button secondary"
+                          prefetch={false}
+                          href={detailHref(
+                            row.target.type,
+                            row.targetId,
+                            reportDetailHref(id, returnTo),
+                          )}
+                        >
+                          Відкрити модерацію матеріалу
+                        </Link>
+                      </>
+                    ) : (
+                      <p>
+                        Матеріал видалено або недоступний. Скаргу збережено.
+                      </p>
+                    )}
+                  </section>
+                )}
                 {row.target?.type === "LISTING" ? (
                   <ListingModerationDetail row={row.target} />
                 ) : row.target?.type === "MATING_LISTING" ? (

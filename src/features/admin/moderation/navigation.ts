@@ -93,7 +93,7 @@ export function detailHref(type: ContentType, id: string, returnTo: string) {
 }
 export const safeAdminPath = (path: string) =>
   path === "/admin/moderation/reports" ||
-  /^\/admin\/moderation\/reports\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+  /^\/admin\/moderation\/reports\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:\/conversation)?$/i.test(
     path,
   ) ||
   path === "/admin/moderation" ||

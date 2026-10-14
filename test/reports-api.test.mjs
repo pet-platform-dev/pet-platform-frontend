@@ -69,6 +69,40 @@ test("report POST sends only target/reason/trimmed details with CSRF and bounded
       ),
   );
 });
+
+test("MESSAGE submission reuses report API and duplicate conflict is authoritative without retry", async () => {
+  await transport(
+    async (calls) => {
+      const result = await api.createReport("MESSAGE", id, "SPAM", "  Текст  ");
+      assert.equal(result.status, "OPEN");
+      assert.deepEqual(JSON.parse(calls[0].init.body), {
+        targetType: "MESSAGE",
+        targetId: id,
+        reason: "SPAM",
+        details: "Текст",
+      });
+      assert.equal(calls[0].init.headers["X-CSRF-Token"], "csrf");
+    },
+    () =>
+      new Response(
+        JSON.stringify({ data: { id, status: "OPEN", createdAt: stamp } }),
+      ),
+  );
+  await transport(
+    async (calls) => {
+      await assert.rejects(
+        api.createReport("MESSAGE", id, "SPAM", ""),
+        (e) => e.status === 409,
+      );
+      assert.equal(calls.length, 1);
+    },
+    () =>
+      new Response(
+        JSON.stringify({ message: "Ваша скарга на цей матеріал уже відкрита" }),
+        { status: 409 },
+      ),
+  );
+});
 test("report queue is one request with24/page and URL filters, detail only on open", async () => {
   await transport(
     async (calls) => {

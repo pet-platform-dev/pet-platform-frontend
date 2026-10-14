@@ -10,6 +10,20 @@ import {
   type ReportReason,
 } from "./model";
 import type { ReportsState } from "./navigation";
+import { fullContextSchema } from "./message-context-model";
+export async function getReportConversation(
+  id: string,
+  page: number,
+  signal?: AbortSignal,
+) {
+  return fullContextSchema.parse(
+    await authenticatedRequest(
+      "/admin/reports/" + id + "/conversation?page=" + page,
+      { signal },
+      true,
+    ),
+  );
+}
 export async function createReport(
   targetType: ReportType,
   targetId: string,
