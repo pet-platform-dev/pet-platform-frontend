@@ -18,7 +18,8 @@ export function PetCareSectionCard({
 export function PetCareOverview({
   upcoming,
   reminders,
-}: { upcoming?: ReactNode; reminders?: ReactNode } = {}) {
+  history,
+}: { upcoming?: ReactNode; reminders?: ReactNode; history?: ReactNode } = {}) {
   return (
     <div className="pet-care-grid">
       <PetCareSectionCard title="Найближчі події" className="pet-care-upcoming">
@@ -43,10 +44,14 @@ export function PetCareOverview({
         )}
       </PetCareSectionCard>
       <PetCareSectionCard title="Історія догляду">
-        <p>Історія догляду порожня</p>
-        <p className="muted">
-          Тут зберігатимуться записи, які ви додасте для своєї тварини.
-        </p>
+        {history ?? (
+          <>
+            <p>Історія догляду порожня</p>
+            <p className="muted">
+              Тут зберігатимуться записи, які ви додасте для своєї тварини.
+            </p>
+          </>
+        )}
       </PetCareSectionCard>
       <PetCareSectionCard title="Вакцинації">
         <p>Записів про вакцинацію ще немає</p>

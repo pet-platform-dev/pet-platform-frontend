@@ -1,0 +1,40 @@
+.history-filter {
+  width: min(100%, 300px);
+}
+.history-type {
+  color: #486149;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  background: #edf0e5;
+  border-radius: 12px;
+  padding: 4px 9px;
+}
+.history-notes {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.history-notes summary {
+  cursor: pointer;
+  min-height: 44px;
+}
+.history-notes summary span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.history-notes p {
+  white-space: pre-wrap;
+  margin-top: 12px;
+}
+.history-skeleton {
+  height: 120px;
+  border-radius: 16px;
+  background: #eeece3;
+  margin: 12px 0;
+}
+.history-card {
+  margin-block: 14px;
+}
+.history-page section {
+  min-width: 0;
+}

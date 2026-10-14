@@ -1,4 +1,5 @@
 "use client";
+import { HistoryPreview } from "./history/history-preview";
 import { RemindersPreview } from "./reminders/reminders-preview";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -92,6 +93,7 @@ export function PetCareDashboard({ id }: { id: string }) {
           <PetCareOverview
             upcoming={<RemindersPreview id={id} compact />}
             reminders={<RemindersPreview id={id} />}
+            history={<HistoryPreview id={id} />}
           />
         </>
       )}
