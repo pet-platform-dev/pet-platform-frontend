@@ -3,6 +3,7 @@ import type { User } from "@/entities/user/model";
 const baseUrl =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 let accessToken: string | null = null;
+let accessUserId: string | null = null;
 let expiresAt = 0;
 let csrfToken: string | null = null;
 let csrfPromise: Promise<string> | null = null;
@@ -169,13 +170,34 @@ async function mutate<T>(path: string, body?: unknown): Promise<T> {
 type AuthResult = { user: User; accessToken: string; expiresIn: number };
 function accept(data: AuthResult): User {
   accessToken = data.accessToken;
+  accessUserId = data.user.id;
   expiresAt = Date.now() + data.expiresIn * 1000;
   return data.user;
 }
 export function clearSession(): void {
   sessionGeneration++;
   accessToken = null;
+  accessUserId = null;
   expiresAt = 0;
+  if (typeof window !== "undefined")
+    window.dispatchEvent(new Event("pet-platform-session-changed"));
+}
+export const currentSessionGeneration = () => sessionGeneration;
+export async function messagingAccessToken(userId: string): Promise<string> {
+  const generation = sessionGeneration;
+  try {
+    if (!accessToken || expiresAt <= Date.now() + 5000) await refreshSession();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) expiredSession();
+    throw error;
+  }
+  if (
+    generation !== sessionGeneration ||
+    accessUserId !== userId ||
+    !accessToken
+  )
+    throw new DOMException("Session changed", "AbortError");
+  return accessToken;
 }
 
 export async function signIn(

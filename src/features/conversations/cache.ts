@@ -11,6 +11,8 @@ export const conversationKeys = {
     ["conversations", userId, "messages", id, page] as const,
   history: (userId: string, id: string) =>
     ["conversations", userId, "history", id] as const,
+  live: (userId: string, id: string) =>
+    ["conversations", userId, "live", id] as const,
   unreadCount: (userId: string) =>
     ["conversations", userId, "unread-count"] as const,
 };

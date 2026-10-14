@@ -27,6 +27,8 @@ import { MessageComposer } from "./message-composer";
 import { ScrollHistory } from "./scroll-history";
 import { mergeHistory } from "./history-scroll";
 import { MessagesLoading } from "./messages-loading";
+import { useMessagingVisible } from "./page-visible";
+import type { Message } from "./model";
 export function ConversationDetail({ id }: { id: string }) {
   return (
     <RequireSession returnTo={"/messages/" + id}>
@@ -35,6 +37,7 @@ export function ConversationDetail({ id }: { id: string }) {
   );
 }
 function ConversationContent({ id }: { id: string }) {
+  const visible = useMessagingVisible();
   const userId = useSession().data!.id,
     client = useQueryClient(),
     [sentId, setSentId] = useState<string>(),
@@ -55,6 +58,15 @@ function ConversationContent({ id }: { id: string }) {
     staleTime: 0,
     refetchOnWindowFocus: "always",
   });
+  const live = useQuery<Message[]>({
+    queryKey: conversationKeys.live(userId, id),
+    queryFn: () => [],
+    enabled: false,
+  });
+  const messages = mergeHistory([
+    ...(history.data?.pages ?? []),
+    { data: live.data ?? [] },
+  ]);
   const read = useMutation({
     mutationKey: conversationKeys.root(userId),
     retry: false,
@@ -65,18 +77,28 @@ function ConversationContent({ id }: { id: string }) {
     },
     onSuccess: () => refreshConversationRead(client, userId),
   });
-  const readId = history.data?.pages[0].data.at(-1)?.id;
+  const readId = history.isSuccess ? messages.at(-1)?.id : undefined;
   const incoming =
     history.isSuccess &&
     ((detail.data?.unreadCount ?? 0) > 0 ||
-      history.data.pages[0].data.some((m) => !m.isOwn && !m.readAt));
+      messages.some((m) => !m.isOwn && !m.readAt));
   const markRead = read.mutate;
+  const reading = read.isPending;
   useEffect(() => {
-    if (readId && incoming && readBoundary.current !== readId) {
-      readBoundary.current = readId;
-      markRead(readId);
+    if (
+      visible &&
+      !reading &&
+      readId &&
+      incoming &&
+      readBoundary.current !== readId
+    ) {
+      const timer = setTimeout(() => {
+        readBoundary.current = readId;
+        markRead(readId);
+      }, 80);
+      return () => clearTimeout(timer);
     }
-  }, [readId, incoming, markRead]);
+  }, [readId, incoming, markRead, visible, reading]);
   const send = useMutation({
     mutationKey: conversationKeys.root(userId),
     retry: false,
@@ -146,7 +168,7 @@ function ConversationContent({ id }: { id: string }) {
             </div>
           ) : (
             <ScrollHistory
-              messages={mergeHistory(history.data?.pages ?? [])}
+              messages={messages}
               hasOlder={history.hasNextPage}
               loadingOlder={history.isFetchingNextPage}
               loadOlder={() => {
