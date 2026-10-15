@@ -45,9 +45,7 @@ export function PetCareOverview({
         {reminders ?? (
           <>
             <p>Нагадувань ще немає</p>
-            <p className="muted">
-              Можливість додавати нагадування з’явиться згодом.
-            </p>
+            <p className="muted">Додайте нагадування для своєї тварини.</p>
           </>
         )}
       </PetCareSectionCard>

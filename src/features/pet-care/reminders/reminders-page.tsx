@@ -209,7 +209,7 @@ export function RemindersContent({
 export function RemindersPage({ id, add }: { id: string; add?: boolean }) {
   return (
     <RequireSession returnTo={remindersHref(id) + (add ? "?add=1" : "")}>
-      <RemindersContent id={id} add={add} />
+      <RemindersContent key={id} id={id} add={add} />
     </RequireSession>
   );
 }

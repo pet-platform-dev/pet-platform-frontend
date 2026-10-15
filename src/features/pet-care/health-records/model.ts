@@ -91,3 +91,8 @@ export function healthInput(
     ? { ...base, administeredAt: start, nextDueAt: end }
     : { ...base, startedAt: start, endedAt: end };
 }
+
+export const healthDeleteTitle = (kind: HealthKind) =>
+  kind === "vaccinations"
+    ? "Видалити запис про вакцинацію?"
+    : "Видалити запис про ліки?";

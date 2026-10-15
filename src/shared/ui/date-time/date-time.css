@@ -45,7 +45,7 @@
 }
 .care-calendar-nav {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) minmax(0, 85px) 32px;
+  grid-template-columns: 44px minmax(0, 1fr) minmax(0, 85px) 44px;
   gap: 4px;
   align-items: start;
 }
@@ -98,7 +98,7 @@
 }
 .care-calendar-row button {
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   border-radius: 9px;
   font-size: 0.9rem;
 }
@@ -159,10 +159,10 @@
     padding: 8px;
   }
   .care-calendar-nav {
-    grid-template-columns: 28px minmax(0, 1fr) minmax(0, 80px) 28px;
+    grid-template-columns: 44px minmax(0, 1fr) minmax(0, 80px) 44px;
   }
   .care-calendar-row button {
-    min-height: 42px;
+    min-height: 44px;
   }
   .care-time-fields {
     max-width: 260px;

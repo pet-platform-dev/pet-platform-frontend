@@ -209,7 +209,7 @@ export function HistoryContent({
 export function HistoryPage({ id, add }: { id: string; add?: boolean }) {
   return (
     <RequireSession returnTo={historyHref(id) + (add ? "?add=1" : "")}>
-      <HistoryContent id={id} add={add} />
+      <HistoryContent key={id} id={id} add={add} />
     </RequireSession>
   );
 }

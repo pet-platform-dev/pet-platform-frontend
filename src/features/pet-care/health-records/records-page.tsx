@@ -11,6 +11,7 @@ import { ReminderDialog as CareDialog } from "../reminders/reminder-dialog";
 import {
   healthTitle,
   healthAdd,
+  healthDeleteTitle,
   healthHref,
   type HealthKind,
   type HealthRecord,
@@ -135,7 +136,7 @@ export function RecordsContent({
             <CareDialog
               title={
                 dialog.type === "delete"
-                  ? "Видалити запис?"
+                  ? healthDeleteTitle(kind)
                   : dialog.type === "edit"
                     ? "Редагувати запис"
                     : healthAdd(kind)
@@ -148,6 +149,7 @@ export function RecordsContent({
             >
               {dialog.type === "delete" ? (
                 <>
+                  <p>{dialog.record.name}</p>
                   <p>Цю дію не можна скасувати.</p>
                   <p>
                     Інші записи, історія та нагадування залишаться без змін.
@@ -211,7 +213,7 @@ export function RecordsPage({
 }) {
   return (
     <RequireSession returnTo={healthHref(id, kind) + (add ? "?add=1" : "")}>
-      <RecordsContent key={kind} id={id} kind={kind} add={add} />
+      <RecordsContent key={kind + ":" + id} id={id} kind={kind} add={add} />
     </RequireSession>
   );
 }
