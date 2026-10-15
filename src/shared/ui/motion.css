@@ -226,8 +226,7 @@ body
     background-color: #ecefe4;
   }
 }
-.welcome-card,
-.pet-art {
+.welcome-card {
   animation: motion-enter var(--motion-large) var(--ease-standard);
 }
 .listing-detail-grid:not(.listing-detail-skeleton),

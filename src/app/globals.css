@@ -1,5 +1,6 @@
 @import "../shared/ui/interaction.css";
 @import "../shared/ui/motion.css";
+@import "../widgets/home/home-hero.css";
 @import "../features/pet-care/health-records/health-records.css";
 @import "../shared/ui/date-time/date-time.css";
 @import "../features/pet-care/history/history.css";
@@ -431,150 +432,10 @@ form {
 .status-panel button {
   margin-top: 20px;
 }
-.home-shell {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  align-items: center;
-  width: min(1160px, 100%);
-  padding: 60px 32px 100px;
-  margin: auto;
-  gap: 50px;
-}
-.welcome-card h1 {
-  font-size: clamp(42px, 5vw, 66px);
-  letter-spacing: -2px;
-  line-height: 1.1;
-  margin: 24px 0;
-}
-.welcome-description {
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1.8;
-  max-width: 430px;
-}
-.welcome-actions {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-top: 32px;
-  flex-wrap: wrap;
-}
 .text-link {
   color: var(--accent);
   font-size: 14px;
   font-weight: 600;
-}
-.welcome-note {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 60px;
-}
-.welcome-note span {
-  color: #bd7e5b;
-  font-size: 22px;
-}
-.pet-art {
-  height: 380px;
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-.art-orbit {
-  position: absolute;
-  width: 330px;
-  height: 330px;
-  background: #ece9da;
-  border-radius: 50%;
-  border: 18px solid #f2efe6;
-}
-.cat-face {
-  position: relative;
-  width: 180px;
-  height: 150px;
-  border-radius: 42% 42% 45% 45%;
-  background: #c99672;
-  transform: rotate(-8deg);
-  box-shadow: 0 20px 0 -12px #b98967;
-}
-.cat-face::before,
-.cat-face::after {
-  content: "";
-  position: absolute;
-  top: -37px;
-  width: 65px;
-  height: 85px;
-  border-radius: 12px;
-  background: #c99672;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-}
-.cat-face::before {
-  left: 0;
-  transform: rotate(-18deg);
-}
-.cat-face::after {
-  right: 0;
-  transform: rotate(18deg);
-}
-.eye {
-  position: absolute;
-  top: 61px;
-  height: 14px;
-  width: 9px;
-  border-radius: 50%;
-  background: #453e34;
-}
-.eye-left {
-  left: 49px;
-}
-.eye-right {
-  right: 49px;
-}
-.nose {
-  position: absolute;
-  top: 87px;
-  left: 81px;
-  width: 18px;
-  height: 12px;
-  background: #6c4c3f;
-  border-radius: 3px 3px 50% 50%;
-}
-.whiskers {
-  position: absolute;
-  top: 92px;
-  height: 11px;
-  width: 30px;
-  border-top: 2px solid #8c634f;
-  border-bottom: 2px solid #8c634f;
-}
-.whiskers.left {
-  left: 18px;
-  transform: rotate(10deg);
-}
-.whiskers.right {
-  right: 18px;
-  transform: rotate(-10deg);
-}
-.art-heart {
-  position: absolute;
-  top: 24px;
-  right: 48px;
-  color: #bd7e5b;
-  font-size: 60px;
-  transform: rotate(15deg);
-}
-.art-caption {
-  position: absolute;
-  bottom: 0;
-  font-size: 12px;
-  color: var(--muted);
-  background: #fffdf9;
-  padding: 12px 18px;
-  border: 1px solid #e8e3d8;
-  border-radius: 30px;
 }
 @media (max-width: 700px) {
   .site-header {
@@ -592,21 +453,6 @@ form {
   }
   .nav-link {
     font-size: 13px;
-  }
-  .home-shell {
-    grid-template-columns: 1fr;
-    padding: 40px 24px;
-    gap: 30px;
-  }
-  .welcome-note {
-    margin-top: 30px;
-  }
-  .pet-art {
-    height: 310px;
-  }
-  .art-orbit {
-    width: 270px;
-    height: 270px;
   }
   .auth-card,
   .account-card {
