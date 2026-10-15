@@ -1,4 +1,5 @@
 "use client";
+import { useMotionPresence } from "@/shared/hooks/use-motion-presence";
 import { useId, useRef, useState, useEffect } from "react";
 import { useSelectDismiss } from "./use-select-dismiss";
 export function SelectDropdown<T extends string>({
@@ -29,6 +30,7 @@ export function SelectDropdown<T extends string>({
     id = useId();
   const root = useRef<HTMLDivElement>(null),
     trigger = useRef<HTMLButtonElement>(null);
+  const present = useMotionPresence(open);
   const selected = Math.max(
     0,
     options.findIndex((item) => item.value === value),
@@ -118,10 +120,13 @@ export function SelectDropdown<T extends string>({
           <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
-      {open && (
+      {present && (
         <ul
           id={id}
-          className="select-dropdown-options"
+          className="select-dropdown-options motion-surface"
+          data-motion={open ? "open" : "closed"}
+          aria-hidden={!open}
+          inert={!open}
           role="listbox"
           aria-label={label}
         >

@@ -1,4 +1,5 @@
 "use client";
+import { useMotionPresence } from "@/shared/hooks/use-motion-presence";
 import { useEffect, useId, useRef, useState } from "react";
 import { SelectDropdown } from "../select-dropdown";
 import { useSelectDismiss } from "../use-select-dismiss";
@@ -34,6 +35,7 @@ export function DatePicker({
     id = useId(),
     [open, setOpen] = useState(false),
     [active, setActive] = useState(value || today());
+  const present = useMotionPresence(open);
   const { year, month } = calendarParts(active),
     cells = monthCells(active);
   useSelectDismiss(root, open, () => setOpen(false));
@@ -101,13 +103,16 @@ export function DatePicker({
           <path d="M3 10h18M8 2v6m8-6v6" />
         </svg>
       </button>
-      {open && (
+      {present && (
         <div
           ref={panel}
           id={id}
           role="dialog"
           aria-label={"Календар: " + label}
-          className="care-calendar"
+          className="care-calendar motion-surface"
+          data-motion={open ? "open" : "closed"}
+          aria-hidden={!open}
+          inert={!open}
         >
           <div className="care-calendar-nav">
             <button

@@ -95,7 +95,7 @@ export function NewAnimalFields({
             options={[
               {
                 value: "",
-                label: species.isPending ? "Завантажуємо види…" : "Animal type",
+                label: species.isPending ? "Завантажуємо види…" : "Вид тварини",
               },
               ...(species.data ?? []).map((item) => ({
                 value: item.id,

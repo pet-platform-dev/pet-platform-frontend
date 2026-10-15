@@ -57,7 +57,7 @@
   cursor: not-allowed;
 }
 .select-dropdown-trigger:focus-visible {
-  outline: 3px solid #9bab78;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 .select-dropdown-options [role="option"] {

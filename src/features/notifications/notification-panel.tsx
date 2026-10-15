@@ -2,6 +2,7 @@ import { NotificationItem } from "./notification-item";
 import type { NotificationList } from "./model";
 type Props = {
   id: string;
+  open?: boolean;
   count: number;
   page: number;
   data?: NotificationList;
@@ -16,6 +17,7 @@ type Props = {
 };
 export function NotificationPanel({
   id,
+  open = true,
   count,
   page,
   data,
@@ -31,7 +33,10 @@ export function NotificationPanel({
   return (
     <section
       id={id}
-      className="notification-panel"
+      className="notification-panel motion-surface"
+      data-motion={open ? "open" : "closed"}
+      aria-hidden={!open}
+      inert={!open}
       aria-label="Сповіщення"
       tabIndex={-1}
     >

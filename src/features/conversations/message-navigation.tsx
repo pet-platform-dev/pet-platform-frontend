@@ -53,7 +53,11 @@ function UserMessageNavigation({
       </svg>
       <span className="message-navigation-text">Повідомлення</span>
       {count > 0 && (
-        <span className="message-navigation-count" aria-hidden="true">
+        <span
+          key={count}
+          className="message-navigation-count"
+          aria-hidden="true"
+        >
           {messageBadge(count)}
         </span>
       )}

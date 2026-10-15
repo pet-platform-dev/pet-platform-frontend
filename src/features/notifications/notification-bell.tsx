@@ -1,4 +1,5 @@
 "use client";
+import { useMotionPresence } from "@/shared/hooks/use-motion-presence";
 import { useEffect, useId, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session-provider";
@@ -19,6 +20,7 @@ export function NotificationBell() {
 function UserNotificationBell({ userId }: { userId: string }) {
   const [open, setOpen] = useState(false),
     [page, setPage] = useState(1);
+  const present = useMotionPresence(open);
   const root = useRef<HTMLDivElement>(null),
     trigger = useRef<HTMLButtonElement>(null),
     id = useId();
@@ -112,13 +114,14 @@ function UserNotificationBell({ userId }: { userId: string }) {
           <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
         </svg>
         {unread > 0 && (
-          <span className="notification-count" aria-hidden="true">
+          <span key={unread} className="notification-count" aria-hidden="true">
             {notificationCount(unread)}
           </span>
         )}
       </button>
-      {open && (
+      {present && (
         <NotificationPanel
+          open={open}
           id={id}
           count={unread}
           page={page}

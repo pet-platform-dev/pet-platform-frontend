@@ -1,4 +1,5 @@
 "use client";
+import { useMotionPresence } from "@/shared/hooks/use-motion-presence";
 import {
   useId,
   useLayoutEffect,
@@ -67,6 +68,7 @@ export function LargeReferenceSelect<T extends { id: string }>({
   const rowHeight = desktop ? desktopRowHeight : mobileRowHeight;
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const present = useMotionPresence(open && !disabled);
   const [active, setActive] = useState(-1);
   // Store the position in rows so changing density preserves the visible item.
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -242,8 +244,13 @@ export function LargeReferenceSelect<T extends { id: string }>({
           </button>
         </div>
       )}
-      {open && !disabled && (
-        <div className="reference-results">
+      {present && (
+        <div
+          className="reference-results motion-surface"
+          data-motion={open && !disabled ? "open" : "closed"}
+          aria-hidden={!open || disabled}
+          inert={!open || disabled}
+        >
           <ul
             ref={list}
             id={`${id}-list`}

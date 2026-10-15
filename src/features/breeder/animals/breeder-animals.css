@@ -65,7 +65,7 @@
   accent-color: var(--accent);
 }
 .breeder-visibility input:focus-visible {
-  outline: 3px solid #9bab78;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 .breeder-visibility p {

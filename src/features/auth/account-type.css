@@ -43,7 +43,7 @@
   background: #f2f6ef;
 }
 .account-type-option:has(input:focus-visible) {
-  outline: 3px solid #8baf75;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 .account-type-settings {

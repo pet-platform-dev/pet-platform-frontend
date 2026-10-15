@@ -88,6 +88,8 @@ export function MobileNavigation({
       <dialog
         ref={panel}
         className="mobile-navigation-dialog"
+        inert={!open}
+        aria-hidden={!open}
         onCancel={(event) => {
           event.preventDefault();
           close(true);

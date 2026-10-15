@@ -1,0 +1,252 @@
+/* Shared motion: animate surfaces and feedback, never domain state or layout geometry. */
+:root {
+  --motion-fast: 160ms;
+  --motion-standard: 220ms;
+  --motion-large: 280ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+}
+@keyframes motion-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes motion-fade {
+  from {
+    opacity: 0.8;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes motion-badge {
+  from {
+    opacity: 0.75;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.motion-surface {
+  opacity: 1;
+  transform: none;
+  transform-origin: top center;
+  transition:
+    opacity var(--motion-fast) var(--ease-exit),
+    transform var(--motion-fast) var(--ease-exit);
+}
+.motion-surface[data-motion="open"] {
+  animation: motion-enter var(--motion-standard) var(--ease-standard);
+}
+.motion-surface[data-motion="closed"] {
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  animation: none;
+}
+/* Native focus and close semantics remain immediate; persistent dialogs support native exit transitions. */
+dialog:not(.gallery-lightbox) {
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--motion-fast) var(--ease-exit),
+    transform var(--motion-fast) var(--ease-exit),
+    display var(--motion-fast) allow-discrete,
+    overlay var(--motion-fast) allow-discrete;
+}
+dialog[open]:not(.gallery-lightbox) {
+  opacity: 1;
+  transform: none;
+  transition-timing-function: var(--ease-standard);
+}
+dialog:not([open]) {
+  pointer-events: none;
+}
+dialog::backdrop {
+  opacity: 0;
+  transition:
+    opacity var(--motion-fast) var(--ease-exit),
+    display var(--motion-fast) allow-discrete,
+    overlay var(--motion-fast) allow-discrete;
+}
+dialog[open]::backdrop {
+  opacity: 1;
+}
+.mobile-navigation-dialog[open] {
+  transition-duration: var(--motion-standard);
+}
+.mobile-navigation-dialog[open] .mobile-navigation-panel {
+  animation: motion-enter var(--motion-standard) var(--ease-standard);
+}
+@starting-style {
+  dialog[open]:not(.gallery-lightbox) {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+.site-header .nav-link {
+  position: relative;
+  text-decoration: none;
+}
+.site-header .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 2px;
+  background: currentColor;
+  opacity: 0;
+  transform: scaleX(0.8);
+  transform-origin: left;
+  transition:
+    opacity var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+.site-header .nav-link[aria-current="page"] {
+  text-decoration: none;
+}
+.site-header .nav-link[aria-current="page"]::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.button.button {
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+.button:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(1px);
+}
+.button:is(:disabled, [aria-disabled="true"]) {
+  transform: none;
+  transition-property: background-color, border-color, color;
+}
+:is(
+  .notification-trigger,
+  .message-navigation,
+  .mobile-navigation-trigger,
+  .select-dropdown-trigger,
+  .care-date-trigger,
+  .care-calendar button,
+  .select-dropdown-options li,
+  .reference-results li button,
+  .reference-chips button,
+  .catalog-clear,
+  .owner-status-filters button
+) {
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+}
+:is(
+  .notification-trigger,
+  .message-navigation,
+  .mobile-navigation-trigger
+):active {
+  background: #e8eddf;
+}
+.notification-count,
+.message-navigation-count {
+  animation: motion-badge var(--motion-fast) var(--ease-standard);
+}
+.notification-item {
+  transition: background-color var(--motion-standard) var(--ease-standard);
+}
+.notification-item:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+body
+  input:is([type="checkbox"], [type="radio"]):not(.review-rating-option input) {
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+.field :is(input, textarea),
+.auth-form :is(input, textarea) {
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
+}
+:is(.field-error, [role="alert"]) {
+  animation: motion-fade var(--motion-fast) var(--ease-standard);
+}
+/* Static informational cards stay still. Hover feedback is an enhancement for fine pointers. */
+:is(
+  .listing-card:not(.listing-skeleton),
+  .mating-public-card,
+  .pet-card:has(a),
+  .breeder-animal-card:has(a)
+) {
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+:is(
+  .listing-card,
+  .mating-public-card,
+  .pet-card,
+  .breeder-animal-card
+):focus-within {
+  border-color: var(--accent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .site-header .nav-link:hover::after {
+    opacity: 0.55;
+    transform: scaleX(1);
+  }
+  .site-header .nav-link[aria-current="page"]:hover::after {
+    opacity: 1;
+  }
+  :is(
+    .listing-card:not(.listing-skeleton),
+    .mating-public-card,
+    .pet-card:has(a),
+    .breeder-animal-card:has(a)
+  ):hover {
+    border-color: #aab59e;
+    box-shadow: 0 3px 12px #302e290b;
+  }
+  .notification-item:has(a):hover {
+    background-color: #ecefe4;
+  }
+}
+.welcome-card,
+.pet-art {
+  animation: motion-enter var(--motion-large) var(--ease-standard);
+}
+.listing-detail-grid:not(.listing-detail-skeleton),
+.listings-grid:not([aria-busy="true"]),
+.pets-grid {
+  animation: motion-fade var(--motion-standard) var(--ease-standard);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .motion-surface,
+  dialog:not(.gallery-lightbox),
+  .button,
+  .nav-link::after {
+    transform: none !important;
+  }
+}
