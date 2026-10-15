@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { overdue, recurrenceLabel, reminderDate, type Reminder } from "./model";
 export function ReminderCard({
   reminder: r,
@@ -5,15 +6,17 @@ export function ReminderCard({
   onComplete,
   onDelete,
   pending = false,
+  viewRef,
 }: {
   reminder: Reminder;
   onEdit?: (r: Reminder) => void;
   onComplete?: (r: Reminder) => void;
   onDelete?: (r: Reminder) => void;
   pending?: boolean;
+  viewRef?: Ref<HTMLElement>;
 }) {
   return (
-    <article className="reminder-card" aria-label={r.title}>
+    <article ref={viewRef} className="reminder-card" aria-label={r.title}>
       <div className="reminder-card-heading">
         <h3>{r.title}</h3>
         {r.status === "COMPLETED" ? (

@@ -14,11 +14,11 @@ export default function Home() {
           перший крок до своєї спільноти.
         </p>
         <div className="welcome-actions">
-          <Link className="button primary" href="/register">
-            Приєднатися
+          <Link className="button primary" href="/listings">
+            Переглянути оголошення
           </Link>
-          <Link className="text-link" href="/login">
-            Уже з нами? Увійти →
+          <Link className="button secondary" href="/register">
+            Створити акаунт
           </Link>
         </div>
         <div className="welcome-note">

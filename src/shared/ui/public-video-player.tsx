@@ -6,9 +6,11 @@ export function PublicVideoPlayer({
   video,
   index,
   label,
+  immediate = false,
 }: {
   video: { url: string };
   label: string;
+  immediate?: boolean;
   index: number;
 }) {
   const [open, setOpen] = useState(false),
@@ -17,7 +19,7 @@ export function PublicVideoPlayer({
   return (
     <li>
       <div className="breeder-video-player">
-        {open ? (
+        {immediate || open ? (
           <iframe
             src={embed}
             title={label + " " + (index + 1)}

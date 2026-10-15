@@ -1,4 +1,5 @@
 "use client";
+import { NumericInput } from "@/shared/ui/numeric-input";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import type { Location } from "@/entities/location/model";
 import { listingTypeLabels } from "@/entities/listing/model/presentation";
@@ -104,7 +105,7 @@ export function CreateListingFields({
       {type === "SALE" && (
         <div className="field">
           <label htmlFor="price">Ціна, ₴</label>
-          <input
+          <NumericInput
             id="price"
             {...form.register("price")}
             {...attrs("price")}

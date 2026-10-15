@@ -61,7 +61,7 @@ export function MatingCatalog({
         </p>
       </header>
       <div className="account-actions mating-catalog-actions">
-        <Link href="/mating/new" className="button">
+        <Link href="/mating/new" className="button secondary">
           Подати оголошення
         </Link>
         <Link href="/mating/my" className="button secondary">

@@ -1,3 +1,4 @@
+import { numericInput } from "@/shared/lib/numeric-input";
 import type { BreederValues } from "./validation";
 export function BreederTextFields({
   values,
@@ -29,7 +30,13 @@ export function BreederTextFields({
           "aria-describedby": id + "-hint",
           onChange: (
             event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-          ) => onChange(key, event.target.value),
+          ) =>
+            onChange(
+              key,
+              key === "startedYear"
+                ? numericInput(event.target.value)
+                : event.target.value,
+            ),
         };
         return (
           <div className="field" key={key}>

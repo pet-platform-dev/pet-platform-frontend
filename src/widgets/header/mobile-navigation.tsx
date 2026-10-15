@@ -1,5 +1,6 @@
 "use client";
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { navigationActive } from "./navigation-active";
 import Link from "next/link";
 import { useNavigationDismiss } from "./use-navigation-dismiss";
 export function MobileNavigation({
@@ -13,6 +14,11 @@ export function MobileNavigation({
 }) {
   const [open, setOpen] = useState(false),
     id = useId();
+  const panel = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (open) panel.current?.showModal();
+    else panel.current?.close();
+  }, [open]);
   const root = useRef<HTMLDivElement>(null),
     trigger = useRef<HTMLButtonElement>(null);
   const close = useCallback((returnFocus = false) => {
@@ -79,7 +85,25 @@ export function MobileNavigation({
           )}
         </svg>
       </button>
-      {open && (
+      <dialog
+        ref={panel}
+        className="mobile-navigation-dialog"
+        onCancel={(event) => {
+          event.preventDefault();
+          close(true);
+        }}
+        aria-label="Меню"
+      >
+        <div className="mobile-navigation-heading">
+          <strong>Меню</strong>
+          <button
+            className="button neutral compact"
+            type="button"
+            onClick={() => close(true)}
+          >
+            Закрити меню
+          </button>
+        </div>
         <nav
           id={id}
           className="mobile-navigation-panel"
@@ -90,13 +114,7 @@ export function MobileNavigation({
               key={item.href}
               href={item.href}
               aria-current={
-                (item.href === "/mating" && pathname.startsWith("/mating/")) ||
-                pathname === item.href ||
-                pathname.startsWith(item.href + "/") ||
-                (item.href === "/account" &&
-                  (pathname === "/profile" || pathname.startsWith("/profile/")))
-                  ? "page"
-                  : undefined
+                navigationActive(pathname, item.href) ? "page" : undefined
               }
               onClick={() => close()}
             >
@@ -109,7 +127,7 @@ export function MobileNavigation({
             </span>
           )}
         </nav>
-      )}
+      </dialog>
     </div>
   );
 }

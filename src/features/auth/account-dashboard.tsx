@@ -18,7 +18,7 @@ export function DashboardCards({
           <Link className="button secondary" href="/profile">
             Редагувати профіль
           </Link>
-          <Link className="dashboard-text-link" href={`/sellers/${userId}`}>
+          <Link className="button neutral" href={`/sellers/${userId}`}>
             Переглянути профіль
           </Link>
         </div>
@@ -52,7 +52,7 @@ export function DashboardCards({
         <h2 id="dashboard-mating">В’язка</h2>
         <p>Керуйте оголошеннями та шукайте пару для своєї тварини.</p>
         <div className="account-actions">
-          <Link className="button primary" href="/mating/my">
+          <Link className="button secondary" href="/mating/my">
             Мої оголошення
           </Link>
           <Link className="button secondary" href="/mating/new">

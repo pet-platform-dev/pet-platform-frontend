@@ -93,7 +93,7 @@ export function MatingMobileDrawer({
           </button>
           <button
             type="button"
-            className="button"
+            className="button primary"
             disabled={invalid}
             onClick={onApply}
           >

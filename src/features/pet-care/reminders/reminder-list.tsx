@@ -3,7 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { ApiError } from "@/shared/api/client";
 import { getReminders } from "./api";
 import { reminderKeys, type Reminder, type ReminderStatus } from "./model";
-import { ReminderCard } from "./reminder-card";
+import { ViewedReminderCard } from "./viewed-reminder-card";
 export function ReminderList({
   userId,
   petId,
@@ -65,7 +65,7 @@ export function ReminderList({
             q.data.pages
               .flatMap((p) => p.data)
               .map((r) => (
-                <ReminderCard
+                <ViewedReminderCard
                   key={r.id}
                   reminder={r}
                   onEdit={onEdit}

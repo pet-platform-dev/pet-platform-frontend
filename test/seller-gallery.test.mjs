@@ -7,8 +7,9 @@ import { load } from "./helpers/load-frontend.mjs";
 const { sellerSchema, profileInputSchema, messengerLinks } = await load(
   "src/entities/seller/model.ts",
 );
-const { SellerCard, SellerContacts } = await load(
-  "src/entities/seller/seller-card.tsx",
+const { SellerCard } = await load("src/entities/seller/seller-card.tsx");
+const { SellerContacts } = await load(
+  "src/entities/seller/seller-contacts.tsx",
 );
 const { ListingGallery, lightboxUrl } = await load(
   "src/entities/listing/ui/listing-gallery.tsx",

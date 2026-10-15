@@ -37,3 +37,17 @@ export async function readAllNotifications() {
     }),
   );
 }
+
+export async function readReminderNotifications(
+  petId: string,
+  reminderIds: string[],
+  signal?: AbortSignal,
+) {
+  return readAllSchema.parse(
+    await authenticatedRequest<unknown>("/notifications/read-reminders", {
+      method: "POST",
+      body: JSON.stringify({ petId, reminderIds }),
+      signal,
+    }),
+  );
+}

@@ -1,3 +1,4 @@
+import { NumericInput } from "@/shared/ui/numeric-input";
 import { SpeciesFilter } from "@/features/listing/filters/species-filter";
 import { BreedFilter } from "@/features/listing/filters/breed-filter";
 import { RegionFilter } from "@/features/listing/filters/region-filter";
@@ -103,7 +104,7 @@ export function MatingFilterControls({
                     <label htmlFor={"mating-" + field}>
                       {i === 0 ? "Від" : "До"}
                     </label>
-                    <input
+                    <NumericInput
                       id={"mating-" + field}
                       type="text"
                       inputMode="decimal"

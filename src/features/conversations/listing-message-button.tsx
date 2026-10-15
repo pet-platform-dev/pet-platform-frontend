@@ -35,7 +35,7 @@ export function ListingMessageButton({ listing }: { listing: Listing }) {
   if (!session.data)
     return (
       <Link
-        className="button secondary"
+        className="button primary"
         href={favoriteLoginHref("/listings/" + listing.id)}
       >
         Написати продавцю
@@ -83,7 +83,7 @@ function FirstMessageAction({
       <button
         ref={trigger}
         type="button"
-        className="button secondary"
+        className="button primary"
         onClick={() => setOpen(true)}
       >
         Написати продавцю

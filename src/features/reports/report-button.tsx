@@ -131,7 +131,7 @@ function ReportAction({
       <button
         ref={trigger}
         type="button"
-        className="button secondary compact"
+        className="button warning compact"
         disabled={!ready || sent.data}
         onClick={() => {
           if (!userId) {

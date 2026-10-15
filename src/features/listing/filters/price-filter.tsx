@@ -1,3 +1,4 @@
+import { NumericInput } from "@/shared/ui/numeric-input";
 import type { Filters } from "./model";
 export function PriceFilter({
   filters,
@@ -21,7 +22,7 @@ export function PriceFilter({
               <label htmlFor={`filter-${field}`}>
                 {index === 0 ? "Від" : "До"}
               </label>
-              <input
+              <NumericInput
                 id={`filter-${field}`}
                 type="text"
                 inputMode="decimal"

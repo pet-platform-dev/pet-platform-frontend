@@ -1,4 +1,5 @@
 "use client";
+import { NumericInput } from "@/shared/ui/numeric-input";
 import { DateTimeField } from "@/shared/ui/date-time/date-time-field";
 import { useId, useState } from "react";
 import { SelectDropdown } from "@/shared/ui/select-dropdown";
@@ -78,7 +79,7 @@ export function ReminderForm({
         {recurrence === "CUSTOM_DAYS" && (
           <>
             <label htmlFor={id + "interval"}>Інтервал у днях</label>
-            <input
+            <NumericInput
               id={id + "interval"}
               type="number"
               min={1}

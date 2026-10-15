@@ -10,9 +10,6 @@
   font-size: 14px;
   white-space: nowrap;
 }
-.account-actions .secondary {
-  font-weight: 500;
-}
 @media (max-width: 430px) {
   .account-actions {
     display: grid;

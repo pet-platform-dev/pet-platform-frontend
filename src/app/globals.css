@@ -1,3 +1,4 @@
+@import "../shared/ui/interaction.css";
 @import "../features/pet-care/health-records/health-records.css";
 @import "../shared/ui/date-time/date-time.css";
 @import "../features/pet-care/history/history.css";

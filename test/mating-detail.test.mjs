@@ -364,3 +364,23 @@ test("public detail loader bounds contacts/Pet lookups and handles private Pet v
     globalThis.fetch = original;
   }
 });
+test("report follows the seller panel outside the main image", async () => {
+  const { MatingDetailContent } = await load(
+    "src/features/mating/detail/content.tsx",
+  );
+  const html = renderToStaticMarkup(
+    React.createElement(MatingDetailContent, {
+      detail: { row, seller, petProfileHref: null },
+      isOwner: false,
+      reportAction: React.createElement(
+        "button",
+        { "data-testid": "report-action" },
+        "Поскаржитися",
+      ),
+    }),
+  );
+  const report = html.indexOf('data-testid="report-action"');
+  assert.ok(report > html.indexOf("Переглянути профіль"));
+  assert.equal((html.match(/data-testid="report-action"/g) || []).length, 1);
+  assert.match(html.slice(report), /Поскаржитися<\/button><\/div><\/div>$/);
+});

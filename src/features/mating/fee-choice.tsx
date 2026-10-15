@@ -1,4 +1,5 @@
 "use client";
+import { NumericInput } from "@/shared/ui/numeric-input";
 import { useId } from "react";
 import type { FeeMode } from "./model";
 export function FeeChoice({
@@ -45,7 +46,7 @@ export function FeeChoice({
       {mode === "fixed" && (
         <div className="field">
           <label htmlFor={id + "-amount"}>Сума, грн</label>
-          <input
+          <NumericInput
             id={id + "-amount"}
             type="text"
             inputMode="decimal"

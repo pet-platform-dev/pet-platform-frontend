@@ -1,5 +1,5 @@
 import type { Seller } from "@/entities/seller/model";
-import { SellerContacts } from "@/entities/seller/seller-card";
+import { SellerContacts } from "@/entities/seller/seller-contacts";
 import { listingDate } from "@/entities/listing/model/presentation";
 export function SellerProfileHeader({ profile }: { profile: Seller }) {
   return (

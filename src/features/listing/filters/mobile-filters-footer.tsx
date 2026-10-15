@@ -31,7 +31,7 @@ export function MobileFiltersFooter({
         </button>
         <button
           type="button"
-          className="button"
+          className="button primary"
           disabled={invalid}
           onClick={onApply}
         >

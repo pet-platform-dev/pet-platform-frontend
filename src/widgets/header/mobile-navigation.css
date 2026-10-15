@@ -1,17 +1,60 @@
 .mobile-navigation {
   display: none;
 }
+.mobile-navigation-dialog {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: max(20px, env(safe-area-inset-top))
+    max(20px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+  border: 0;
+  background: var(--background);
+  color: var(--foreground);
+  overflow-y: auto;
+}
+.mobile-navigation-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #ded8cc;
+  font-size: 24px;
+}
+.site-header .mobile-navigation-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding-top: 24px;
+}
+.mobile-navigation-panel a {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+.mobile-navigation-panel a:hover {
+  background: #f0eee5;
+}
+.mobile-navigation-panel a[aria-current="page"] {
+  background: #e8eddf;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
 @media (max-width: 1023px) {
   .site-header .desktop-navigation {
     display: none;
   }
-  .site-header {
-    position: relative;
-    z-index: 20;
-  }
   .site-header .mobile-navigation {
     display: block;
-    position: relative;
   }
   .mobile-navigation-trigger {
     display: grid;
@@ -22,47 +65,8 @@
     border-radius: 12px;
     background: #fffdf9;
     color: var(--accent);
-    cursor: pointer;
   }
   .mobile-navigation-trigger:hover {
     background: #f0eee5;
-  }
-  .mobile-navigation-trigger:active {
-    background: #e8eddf;
-  }
-  .site-header .mobile-navigation-panel {
-    display: grid;
-    justify-content: stretch;
-    align-items: stretch;
-    position: absolute;
-    right: 0;
-    top: calc(100% + 10px);
-    width: min(290px, calc(100vw - 40px));
-    padding: 8px;
-    gap: 4px;
-    border: 1px solid #d9d5c9;
-    border-radius: 12px;
-    background: #fffdf9;
-    box-shadow: 0 6px 16px rgb(30 42 26 / 9%);
-  }
-  .mobile-navigation-panel a {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    color: var(--foreground);
-  }
-  .mobile-navigation-panel a:hover {
-    background: #f0eee5;
-  }
-  .mobile-navigation-panel a[aria-current="page"] {
-    background: #e8eddf;
-    color: var(--accent);
-    font-weight: 600;
-  }
-  .mobile-navigation-panel .muted {
-    padding: 12px;
   }
 }

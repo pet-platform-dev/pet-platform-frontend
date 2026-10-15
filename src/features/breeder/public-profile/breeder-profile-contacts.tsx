@@ -1,4 +1,4 @@
-import { SellerContacts } from "@/entities/seller/seller-card";
+import { SellerContacts } from "@/entities/seller/seller-contacts";
 import type { Breeder } from "@/entities/breeder/model";
 export function BreederProfileContacts({
   contact,

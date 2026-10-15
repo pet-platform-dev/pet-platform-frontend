@@ -7,6 +7,8 @@ export function useNavigationDismiss(
 ) {
   useEffect(() => {
     if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     root.current?.querySelector<HTMLAnchorElement>("nav a")?.focus();
     const outside = (event: PointerEvent) => {
       if (event.target instanceof Node && !root.current?.contains(event.target))
@@ -19,6 +21,7 @@ export function useNavigationDismiss(
     document.addEventListener("pointerdown", outside);
     desktop.addEventListener("change", resize);
     return () => {
+      document.body.style.overflow = previousOverflow;
       document.removeEventListener("pointerdown", outside);
       desktop.removeEventListener("change", resize);
     };

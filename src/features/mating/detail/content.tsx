@@ -86,7 +86,6 @@ export function MatingDetailContent({
         </p>
       </section>
       <div className="listing-detail-sidebar">
-        {reportAction}
         <section
           className="listing-detail-panel"
           aria-labelledby="mating-animal"
@@ -137,6 +136,7 @@ export function MatingDetailContent({
             </Link>
           </section>
         )}
+        {reportAction}
       </div>
     </div>
   );
