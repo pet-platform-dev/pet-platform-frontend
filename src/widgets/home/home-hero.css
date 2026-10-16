@@ -32,7 +32,7 @@ body:has(> .home-shell) > .site-header.site-header {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #faf7f2f2, #faf7f2df 60%, #faf7f2a6);
+  background: linear-gradient(90deg, #faf7f263, #faf7f25a 60%, #faf7f265);
 }
 .home-park-scenery {
   object-fit: cover;
