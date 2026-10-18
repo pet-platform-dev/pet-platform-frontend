@@ -1,3 +1,10 @@
+/* Keep the expanded primary navigation within the shared header grid. */
+.site-header .desktop-navigation {
+  gap: 12px;
+}
+.site-header .desktop-navigation > a {
+  white-space: nowrap;
+}
 .mobile-navigation {
   display: none;
 }

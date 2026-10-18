@@ -39,6 +39,15 @@ export function Header() {
           >
             В’язка
           </Link>
+          <Link
+            className="nav-link"
+            href="/breeders"
+            aria-current={
+              navigationActive(pathname, "/breeders") ? "page" : undefined
+            }
+          >
+            Розплідники
+          </Link>
           {isPending ? (
             <span className="muted">Зачекайте…</span>
           ) : data ? (
