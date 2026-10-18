@@ -10,6 +10,8 @@ import {
 import { useInfiniteQuery, type QueryKey } from "@tanstack/react-query";
 import type { Paginated } from "@/shared/api/pagination";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
+import { useDropdownOverlay } from "./use-dropdown-overlay";
+import { useSelectDismiss } from "./use-select-dismiss";
 
 const desktopQuery = "(min-width: 768px)";
 function subscribeDesktop(listener: () => void) {
@@ -69,6 +71,11 @@ export function LargeReferenceSelect<T extends { id: string }>({
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const present = useMotionPresence(open && !disabled);
+  const root = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const overlay = useDropdownOverlay(present, root, input, menu);
+  useSelectDismiss(root, open, () => setOpen(false));
   const [active, setActive] = useState(-1);
   // Store the position in rows so changing density preserves the visible item.
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -139,6 +146,7 @@ export function LargeReferenceSelect<T extends { id: string }>({
     }
   }
   function choose(item: T) {
+    input.current?.focus({ preventScroll: true });
     onSelect(item);
     onSearching?.(false);
     setSearch("");
@@ -157,7 +165,17 @@ export function LargeReferenceSelect<T extends { id: string }>({
   }
   return (
     <div
+      ref={root}
       className="field reference-field"
+      data-open={present || undefined}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && open) {
+          event.preventDefault();
+          input.current?.focus({ preventScroll: true });
+          setOpen(false);
+          setActive(-1);
+        }
+      }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) {
           setOpen(false);
@@ -170,6 +188,7 @@ export function LargeReferenceSelect<T extends { id: string }>({
         {optional && <span className="optional"> необов’язково</span>}
       </label>
       <input
+        ref={input}
         id={id}
         role="combobox"
         aria-autocomplete="list"
@@ -188,6 +207,7 @@ export function LargeReferenceSelect<T extends { id: string }>({
         placeholder={placeholder}
         value={search}
         onFocus={() => setOpen(true)}
+        onClick={() => setOpen(true)}
         onChange={(event) => {
           generation.current++;
           setSearch(event.target.value);
@@ -246,6 +266,8 @@ export function LargeReferenceSelect<T extends { id: string }>({
       )}
       {present && (
         <div
+          ref={menu}
+          style={overlay}
           className="reference-results motion-surface"
           data-motion={open && !disabled ? "open" : "closed"}
           aria-hidden={!open || disabled}

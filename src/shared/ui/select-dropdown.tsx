@@ -2,6 +2,7 @@
 import { useMotionPresence } from "@/shared/hooks/use-motion-presence";
 import { useId, useRef, useState, useEffect } from "react";
 import { useSelectDismiss } from "./use-select-dismiss";
+import { useDropdownOverlay } from "./use-dropdown-overlay";
 export function SelectDropdown<T extends string>({
   label,
   value,
@@ -31,6 +32,8 @@ export function SelectDropdown<T extends string>({
   const root = useRef<HTMLDivElement>(null),
     trigger = useRef<HTMLButtonElement>(null);
   const present = useMotionPresence(open);
+  const menu = useRef<HTMLUListElement>(null);
+  const overlay = useDropdownOverlay(present, root, trigger, menu, 205, 300);
   const selected = Math.max(
     0,
     options.findIndex((item) => item.value === value),
@@ -55,6 +58,7 @@ export function SelectDropdown<T extends string>({
     <div
       ref={root}
       className="select-dropdown"
+      data-open={present || undefined}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
@@ -122,6 +126,8 @@ export function SelectDropdown<T extends string>({
       </button>
       {present && (
         <ul
+          ref={menu}
+          style={overlay}
           id={id}
           className="select-dropdown-options motion-surface"
           data-motion={open ? "open" : "closed"}

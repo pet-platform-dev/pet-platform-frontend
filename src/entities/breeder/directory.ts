@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { breederMediaSchema } from "./media";
 import { ApiError, publicRequest } from "@/shared/api/client";
+import { directoryParams, type DirectoryQuery } from "./directory-query";
+export { directoryPage } from "./directory-query";
 export const breederDirectoryCardSchema = z.object({
   userId: z.uuid(),
   kennelName: z.string().min(1).max(160),
@@ -26,6 +28,7 @@ export const breederDirectorySchema = z
       limit: z.number().int().min(1).max(24),
       total: z.number().int().nonnegative(),
       pages: z.number().int().nonnegative(),
+      hasPublicBreeders: z.boolean().optional(),
     }),
   })
   .refine(
@@ -35,20 +38,21 @@ export const breederDirectorySchema = z
   );
 export type BreederDirectoryCard = z.infer<typeof breederDirectoryCardSchema>;
 export const breederDirectoryKey = ["breeder-directory"] as const;
-export function directoryKey(page: number) {
-  return [...breederDirectoryKey, page] as const;
+export function directoryKey(query: DirectoryQuery) {
+  return [...breederDirectoryKey, directoryParams(query).toString()] as const;
 }
-export function directoryPage(value: string | string[] | undefined): number {
-  return typeof value === "string" &&
-    /^[1-9]\d*$/.test(value) &&
-    Number(value) <= 100000
-    ? Number(value)
-    : 1;
-}
-export async function getBreederDirectory(page: number, signal?: AbortSignal) {
+export async function getBreederDirectory(
+  query: DirectoryQuery,
+  signal?: AbortSignal,
+) {
+  const { page } = query;
   if (!Number.isInteger(page) || page < 1 || page > 100000)
     throw new ApiError(400, "Некоректна сторінка");
   return breederDirectorySchema.parse(
-    await publicRequest(`/breeders?page=${page}&limit=24`, true, { signal }),
+    await publicRequest(
+      `/breeders?${directoryParams(query)}${directoryParams(query).size ? "&" : ""}limit=24`,
+      true,
+      { signal },
+    ),
   );
 }

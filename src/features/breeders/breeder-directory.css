@@ -1,3 +1,50 @@
+.breeder-directory-filters {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  margin-block: 24px;
+}
+.breeder-directory-filter-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  align-items: start;
+}
+.breeder-directory-filter-fields > .field {
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+}
+.breeder-directory-filter-fields .form-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+.breeder-directory-filter-fields input {
+  min-width: 0;
+  width: 100%;
+}
+.breeder-directory-filter-fields .selected-breed > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.breeder-directory-filter-fields .selected-breed strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@media (max-width: 1023px) {
+  .breeder-directory-filter-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .breeder-directory-filter-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .breeder-directory-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -2,6 +2,27 @@
   position: relative;
   min-width: 0;
 }
+:root {
+  /* Existing dropdown layer (5), below navigation/dialog layers. */
+  --layer-dropdown: 5;
+}
+.select-dropdown[data-open],
+.reference-field[data-open] {
+  z-index: var(--layer-dropdown);
+}
+.reference-results {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  box-shadow: 0 6px 16px rgb(30 42 26 / 9%);
+}
+.reference-results > ul {
+  min-height: 0;
+  flex: 0 1 auto;
+}
+.reference-results > :not(ul) {
+  flex-shrink: 0;
+}
 .select-dropdown-trigger {
   display: flex;
   align-items: center;
@@ -39,7 +60,7 @@
   max-height: 300px;
   overflow-y: auto;
   position: absolute;
-  z-index: 5;
+  z-index: var(--layer-dropdown);
   right: 0;
   top: calc(100% + 8px);
   width: max(100%, 205px);
