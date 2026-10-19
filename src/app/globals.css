@@ -1,5 +1,6 @@
 @import "../features/breeders/breeder-directory.css";
 @import "../shared/ui/interaction.css";
+@import "../shared/ui/brand-logo.css";
 @import "../shared/ui/motion.css";
 @import "../widgets/home/home-hero.css";
 @import "../features/pet-care/health-records/health-records.css";
@@ -227,14 +228,6 @@ button:focus-visible {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-.brand-mark {
-  color: var(--accent);
-  font-size: 28px;
-}
-.brand-dot {
-  color: #c68159;
-  margin-left: -7px;
 }
 .site-header nav {
   display: flex;

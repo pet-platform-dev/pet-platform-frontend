@@ -3,16 +3,22 @@ import { BreederProfileVideos } from "./breeder-profile-videos";
 import type { Breeder } from "@/entities/breeder/model";
 import { BreederProfileHeader } from "./breeder-profile-header";
 import { BreederProfileAbout } from "./breeder-profile-about";
-import { BreederProfileBreeds } from "./breeder-profile-breeds";
+import type { ReactNode } from "react";
 import { BreederProfileContacts } from "./breeder-profile-contacts";
 import { BreederProfileDetails } from "./breeder-profile-details";
-export function BreederProfilePage({ profile }: { profile: Breeder }) {
+export function BreederProfilePage({
+  profile,
+  children,
+}: {
+  profile: Breeder;
+  children?: ReactNode;
+}) {
   return (
     <>
       <BreederProfileHeader profile={profile} />
-      <BreederProfileContacts contact={profile.contactPerson} />
       <BreederProfileAbout description={profile.description} />
-      <BreederProfileBreeds breeds={profile.breeds} />
+      {children}
+      <BreederProfileContacts contact={profile.contactPerson} />
       <BreederProfileDetails profile={profile} />
       <BreederMediaViewer profile={profile} />
       <BreederProfileVideos videos={profile.media?.videos ?? []} />

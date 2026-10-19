@@ -3,6 +3,21 @@
   line-height: 1.15;
   margin: 8px 0 16px;
 }
+.breeder-profile-initial {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 36px;
+  font-weight: 600;
+}
+.breeder-profile-species {
+  color: var(--accent);
+  font-weight: 600;
+  margin-block: 10px;
+}
+.breeder-profile-header .breeder-breed-list {
+  margin-top: 20px;
+}
 .breeder-profile-details {
   display: grid;
   gap: 24px;

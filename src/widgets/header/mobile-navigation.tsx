@@ -3,14 +3,17 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { navigationActive } from "./navigation-active";
 import Link from "next/link";
 import { useNavigationDismiss } from "./use-navigation-dismiss";
+import { BrandLogo } from "@/shared/ui/brand-logo";
 export function MobileNavigation({
   authenticated,
   pending,
   pathname,
+  publicBreeder = false,
 }: {
   authenticated: boolean;
   pending: boolean;
   pathname: string;
+  publicBreeder?: boolean;
 }) {
   const [open, setOpen] = useState(false),
     id = useId();
@@ -99,7 +102,14 @@ export function MobileNavigation({
         aria-label="Меню"
       >
         <div className="mobile-navigation-heading">
-          <strong>Меню</strong>
+          <Link
+            href="/"
+            className="brand"
+            aria-label="Лапа — на головну"
+            onClick={() => close()}
+          >
+            <BrandLogo />
+          </Link>
           <button
             className="button neutral compact"
             type="button"
@@ -118,7 +128,9 @@ export function MobileNavigation({
               key={item.href}
               href={item.href}
               aria-current={
-                navigationActive(pathname, item.href) ? "page" : undefined
+                navigationActive(pathname, item.href, publicBreeder)
+                  ? "page"
+                  : undefined
               }
               onClick={() => close()}
             >

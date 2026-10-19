@@ -1,5 +1,12 @@
-export function navigationActive(pathname: string, href: string): boolean {
+export function navigationActive(
+  pathname: string,
+  href: string,
+  publicBreeder = false,
+): boolean {
   return (
+    (href === "/breeders" &&
+      publicBreeder &&
+      /^\/sellers\/[^/]+$/.test(pathname)) ||
     pathname === href ||
     pathname.startsWith(href + "/") ||
     (href === "/account" &&

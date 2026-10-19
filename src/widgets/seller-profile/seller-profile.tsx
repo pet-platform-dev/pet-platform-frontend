@@ -60,17 +60,9 @@ export function SellerProfile({
     seller.data.breeder && breeder.data
       ? { ...breeder.data, contactPerson: seller.data }
       : null;
-  return (
-    <section className="seller-profile">
-      <BreederCreatedNotice userId={id} />
-      {profile ? (
-        <>
-          <BreederProfilePage profile={profile} />
-          <PublicBreederAnimals key={id} userId={id} />
-        </>
-      ) : (
-        <SellerProfileHeader profile={seller.data} />
-      )}
+  const content = (
+    <>
+      {profile && <PublicBreederAnimals key={id} userId={id} />}
       <SellerProfileListings id={id} breeder={Boolean(profile)} />
       <PublicProfileMating key={`mating-${id}`} ownerId={id} />
       <SellerReviews
@@ -78,6 +70,19 @@ export function SellerProfile({
         targetId={id}
         initialSummary={profile?.reviewSummary ?? seller.data.reviewSummary}
       />
+    </>
+  );
+  return (
+    <section className="seller-profile">
+      <BreederCreatedNotice userId={id} />
+      {profile ? (
+        <BreederProfilePage profile={profile}>{content}</BreederProfilePage>
+      ) : (
+        <>
+          <SellerProfileHeader profile={seller.data} />
+          {content}
+        </>
+      )}
     </section>
   );
 }

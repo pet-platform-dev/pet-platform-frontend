@@ -169,7 +169,8 @@ test("header renders reserved cover and accessible logo", () => {
   });
   assert.match(html, /width="96"/);
   assert.match(html, /height="480"/);
-  assert.match(html, /Логотип Розплідник/);
+  assert.match(html, /class="breeder-logo"[^>]*width="96" height="96" alt=""/);
+  assert.match(html, /<h1>Розплідник<\/h1>/);
 });
 test("empty gallery and videos omit sections", () => {
   assert.equal(render(BreederMediaViewer, { profile }), "");

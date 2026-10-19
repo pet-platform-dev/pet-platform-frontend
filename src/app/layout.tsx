@@ -3,6 +3,8 @@ import { SessionProvider } from "@/features/auth/session-provider";
 import { Header } from "@/widgets/header/header";
 import { FavoriteProvider } from "@/features/favorites/favorite-provider";
 import { MessagingRealtime } from "@/features/conversations/messaging-realtime";
+import Link from "next/link";
+import { BrandLogo } from "@/shared/ui/brand-logo";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "Лапа — з турботою про улюбленців",
@@ -18,7 +20,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Header />
             {children}
             <footer className="site-footer">
-              Лапа · З турботою про улюбленців
+              <Link className="brand" href="/" aria-label="Лапа — на головну">
+                <BrandLogo />
+              </Link>
+              <p>З турботою про улюбленців</p>
             </footer>
           </FavoriteProvider>
         </SessionProvider>

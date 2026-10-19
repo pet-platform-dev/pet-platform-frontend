@@ -3,19 +3,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navigationActive } from "./navigation-active";
 import { MobileNavigation } from "./mobile-navigation";
+import { usePublicBreederNavigation } from "./use-public-breeder-navigation";
+import { BrandLogo } from "@/shared/ui/brand-logo";
 import { useSession } from "@/features/auth/session-provider";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 import { MessageNavigation } from "@/features/conversations/message-navigation";
 export function Header() {
   const { data, isPending } = useSession();
   const pathname = usePathname();
+  const publicBreeder = usePublicBreederNavigation(pathname);
   return (
     <header className="site-header">
       <Link className="brand" href="/" aria-label="Лапа — на головну">
-        <span className="brand-mark" aria-hidden="true">
-          ✦
-        </span>{" "}
-        лапа<span className="brand-dot">.</span>
+        <BrandLogo />
       </Link>
       <div className="header-actions">
         <nav className="desktop-navigation" aria-label="Основна навігація">
@@ -43,7 +43,9 @@ export function Header() {
             className="nav-link"
             href="/breeders"
             aria-current={
-              navigationActive(pathname, "/breeders") ? "page" : undefined
+              navigationActive(pathname, "/breeders", publicBreeder)
+                ? "page"
+                : undefined
             }
           >
             Розплідники
@@ -118,6 +120,7 @@ export function Header() {
           pathname={pathname}
           authenticated={Boolean(data)}
           pending={isPending}
+          publicBreeder={publicBreeder}
         />
       </div>
     </header>
