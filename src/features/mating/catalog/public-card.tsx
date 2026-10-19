@@ -16,17 +16,20 @@ export function PublicMatingCard({
   query = { page: 1, limit: 24, sort: "newest" },
   returnTo,
   showOwner = true,
+  headingLevel = 2,
 }: {
   row: PublicMating;
   query?: MatingCatalogQuery;
   returnTo?: string;
   showOwner?: boolean;
+  headingLevel?: 2 | 3;
 }) {
   const { pet } = row,
     heading = listingHeading(pet),
     age = formatPetAge(pet.birthDate),
     name = pet.name?.trim();
   const href = `/sellers/${encodeURIComponent(row.owner.id)}`;
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   return (
     <article className="listing-card mating-public-card">
       <Link
@@ -48,7 +51,7 @@ export function PublicMatingCard({
           <ListingPlaceholder species={pet.species.slug} />
         )}
         <div className="listing-card-body">
-          <h2 title={heading}>{heading}</h2>
+          <Heading title={heading}>{heading}</Heading>
           <p className="listing-metadata">
             {[genderLabel[pet.gender], age].filter(Boolean).join(" · ")}
           </p>

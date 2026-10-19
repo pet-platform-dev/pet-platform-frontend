@@ -4,8 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getSpecies } from "@/features/pet/api";
 import { publicRequest } from "@/shared/api/client";
-import type { Breed } from "@/entities/breed/model";
-import type { Location } from "@/entities/location/model";
+import {
+  resolveDirectoryReferences,
+  type DirectoryReferences,
+} from "./directory-references";
 import {
   changeDirectorySpecies,
   directoryHref,
@@ -13,18 +15,10 @@ import {
   type DirectoryQuery,
 } from "@/entities/breeder/directory-query";
 
-type References = {
-  breed: Pick<Breed, "id" | "name" | "nameUk" | "speciesId"> | null;
-  location: Location | null;
-};
 export function useDirectoryFilters(initial: DirectoryQuery) {
   const params = useSearchParams();
-  const query = params ? parseDirectoryQuery(params) : initial;
-  const href = directoryHref(query);
+  const parsed = params ? parseDirectoryQuery(params) : initial;
   const raw = params?.toString();
-  const [edit, setEdit] = useState({ base: href, value: query.q ?? "" });
-  if (edit.base !== href) setEdit({ base: href, value: query.q ?? "" });
-  const search = edit.base === href ? edit.value : (query.q ?? "");
   const species = useQuery({
     queryKey: ["species"],
     queryFn: getSpecies,
@@ -33,18 +27,32 @@ export function useDirectoryFilters(initial: DirectoryQuery) {
   const references = useQuery({
     queryKey: [
       "breeder-filter-references",
-      query.breedId ?? "",
-      query.locationId ?? "",
+      parsed.breedId ?? "",
+      parsed.locationId ?? "",
     ],
     queryFn: ({ signal }) =>
-      publicRequest<References>(
-        `/breeders/filters?${new URLSearchParams({ ...(query.breedId ? { breedId: query.breedId } : {}), ...(query.locationId ? { locationId: query.locationId } : {}) })}`,
+      publicRequest<DirectoryReferences>(
+        `/breeders/filters?${new URLSearchParams({ ...(parsed.breedId ? { breedId: parsed.breedId } : {}), ...(parsed.locationId ? { locationId: parsed.locationId } : {}) })}`,
         false,
         { signal },
       ),
-    enabled: Boolean(query.breedId || query.locationId),
+    enabled: Boolean(parsed.breedId || parsed.locationId),
     staleTime: 60_000,
   });
+  const ready =
+    !(parsed.breedId || parsed.locationId) ||
+    references.isError ||
+    (references.isSuccess &&
+      (!parsed.breedId || !parsed.species || !species.isPending));
+  const query = resolveDirectoryReferences(
+    parsed,
+    references.isSuccess ? references.data : undefined,
+    species.data,
+  );
+  const href = directoryHref(query);
+  const [edit, setEdit] = useState({ base: href, value: query.q ?? "" });
+  if (edit.base !== href) setEdit({ base: href, value: query.q ?? "" });
+  const search = edit.base === href ? edit.value : (query.q ?? "");
   const navigate = useCallback(
     (next: DirectoryQuery, mode: "push" | "replace" = "push") => {
       const target = directoryHref(next);
@@ -76,6 +84,7 @@ export function useDirectoryFilters(initial: DirectoryQuery) {
   const current = () => ({ ...query, q: search.trim() || undefined, page: 1 });
   return {
     query,
+    ready,
     search,
     species,
     references,

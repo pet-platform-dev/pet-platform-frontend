@@ -26,6 +26,7 @@ export function BreederDirectory({ initial }: { initial: DirectoryQuery }) {
     queryFn: ({ signal }) => getBreederDirectory(query, signal),
     staleTime: 0,
     refetchOnMount: "always",
+    enabled: filters.ready,
   });
   return (
     <main className="catalog-shell breeder-directory">
@@ -35,7 +36,7 @@ export function BreederDirectory({ initial }: { initial: DirectoryQuery }) {
         <p>Познайомтеся з розплідниками та їхніми тваринами.</p>
       </header>
       <DirectoryFilters filters={filters} />
-      {result.isPending ? (
+      {!filters.ready || result.isPending ? (
         <BreederDirectorySkeleton />
       ) : result.isError ? (
         <section className="breeder-directory-state" role="alert">

@@ -19,7 +19,7 @@
 .mating-public-card {
   min-width: 0;
 }
-.mating-public-card h2 {
+.mating-public-card :is(h2, h3) {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;

@@ -29,6 +29,13 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+.breeder-directory-filter-fields .selected-breed button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+}
 .breeder-directory-filter-fields .selected-breed strong {
   display: -webkit-box;
   -webkit-line-clamp: 2;

@@ -70,6 +70,7 @@ export function PublicProfileMating({ ownerId }: { ownerId: string }) {
                   key={row.id}
                   row={row}
                   showOwner={false}
+                  headingLevel={3}
                   returnTo={profileMatingHref(ownerId, page)}
                 />
               ))}
