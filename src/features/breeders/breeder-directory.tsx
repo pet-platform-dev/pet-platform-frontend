@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   directoryKey,
   getBreederDirectory,
+  breederCountLabel,
 } from "@/entities/breeder/directory";
 import { BreederCard } from "./breeder-card";
 import { BreederDirectorySkeleton } from "./breeder-directory-skeleton";
@@ -48,6 +49,11 @@ export function BreederDirectory({ initial }: { initial: DirectoryQuery }) {
         </section>
       ) : (
         <>
+          {result.data.meta.total > 0 && (
+            <p className="breeder-directory-summary" aria-live="polite">
+              {breederCountLabel(result.data.meta.total)}
+            </p>
+          )}
           {result.data.data.length ? (
             <section
               className="breeder-directory-grid"

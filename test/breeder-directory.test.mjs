@@ -32,6 +32,8 @@ const card = {
   description: "Турбота про тварин",
   location: { city: "Світловодськ", region: "Кіровоградська область" },
   logo: null,
+  breedCount: 1,
+  species: ["dog"],
   breeds: [
     {
       id: "22222222-2222-4222-8222-222222222222",
@@ -83,6 +85,98 @@ test("public card keeps kennel identity, canonical profile link, safe fallback a
   assert.ok(html.includes("breeder-directory-avatar"));
   assert.equal((html.match(/<a /g) || []).length, 1);
   assert.ok(!html.includes("<button"));
+});
+test("discovery chips show two public breeds with exact +N and complete mixed-species context", () => {
+  const many = {
+    ...card,
+    breedCount: 5,
+    species: ["cat", "dog"],
+    breeds: [
+      card.breeds[0],
+      { ...card.breeds[0], id: card.userId, nameUk: "Німецька вівчарка" },
+      {
+        ...card.breeds[0],
+        id: "33333333-3333-4333-8333-333333333333",
+        nameUk: "Третя порода",
+      },
+    ],
+  };
+  const html = render(React.createElement(BreederCard, { breeder: many }));
+  assert.ok(html.includes("Собаки та коти"));
+  assert.ok(html.includes("Німецька вівчарка"));
+  assert.ok(!html.includes("Третя порода"));
+  assert.ok(html.includes(">+3</li>"));
+  assert.ok(html.includes("Інші породи у профілі: 3"));
+  assert.ok(html.includes('aria-label="Породи розплідника"'));
+});
+test("sparse cards omit absent content; logo space is reserved and images stay lazy/decorative", () => {
+  const sparse = render(
+    React.createElement(BreederCard, {
+      breeder: {
+        ...card,
+        description: null,
+        location: null,
+        breeds: [],
+        breedCount: 0,
+        species: [],
+      },
+    }),
+  );
+  assert.ok(!sparse.includes("breeder-directory-description"));
+  assert.ok(!sparse.includes("breeder-directory-location"));
+  assert.ok(!sparse.includes("Породи розплідника"));
+  assert.ok(!sparse.includes(">+"));
+  const image = render(
+    React.createElement(BreederCard, {
+      breeder: {
+        ...card,
+        logo: {
+          url: "https://res.cloudinary.com/fixture/image/upload/logo.png",
+        },
+      },
+    }),
+  );
+  for (const value of [
+    'width="56"',
+    'height="56"',
+    'loading="lazy"',
+    'alt=""',
+    "breeder-directory-logo",
+  ])
+    assert.ok(image.includes(value));
+});
+test("card clamps have full accessible names and matching noninteractive skeleton structure", () => {
+  const html = render(
+    React.createElement(BreederCard, {
+      breeder: { ...card, description: "Повний опис ".repeat(20) },
+    }),
+  );
+  assert.ok(
+    html.includes('aria-label="Переглянути розплідник ' + card.kennelName),
+  );
+  const skeleton = render(React.createElement(BreederDirectorySkeleton));
+  for (const value of [
+    "breeder-directory-logo",
+    "breeder-directory-location",
+    "breeder-directory-species",
+    "breeder-directory-breeds",
+    "breeder-directory-description",
+    "breeder-directory-cta",
+  ])
+    assert.ok(skeleton.includes(value));
+  assert.ok(!skeleton.includes("<a ") && !skeleton.includes("<button"));
+});
+test("result summary uses the existing count with Ukrainian plural forms", async () => {
+  const { breederCountLabel } = await load("src/entities/breeder/directory.ts");
+  for (const [n, word] of [
+    [0, "розплідників"],
+    [1, "розплідник"],
+    [2, "розплідники"],
+    [5, "розплідників"],
+    [11, "розплідників"],
+    [21, "розплідник"],
+  ])
+    assert.equal(breederCountLabel(n), `Знайдено ${n} ${word}`);
 });
 
 const { parseDirectoryQuery, directoryHref, changeDirectorySpecies } =
@@ -214,7 +308,11 @@ test("loading skeleton is noninteractive and not noisy", () => {
   const html = render(React.createElement(BreederDirectorySkeleton));
   assert.ok(html.includes('role="status"'));
   assert.ok(html.includes('aria-hidden="true"'));
-  assert.equal((html.match(/breeder-directory-skeleton/g) || []).length, 6);
+  assert.equal(
+    (html.match(/breeder-directory-card breeder-directory-skeleton/g) || [])
+      .length,
+    6,
+  );
   assert.ok(!html.includes("<a "));
   assert.ok(directory().includes("Завантажуємо розплідники"));
 });

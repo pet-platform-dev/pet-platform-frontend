@@ -6,6 +6,8 @@ export { directoryPage } from "./directory-query";
 export const breederDirectoryCardSchema = z.object({
   userId: z.uuid(),
   kennelName: z.string().min(1).max(160),
+  breedCount: z.number().int().nonnegative(),
+  species: z.array(z.enum(["dog", "cat"])).max(2),
   description: z.string().max(280).nullable(),
   location: z.object({ city: z.string(), region: z.string() }).nullable(),
   logo: breederMediaSchema.shape.logo,
@@ -37,6 +39,10 @@ export const breederDirectorySchema = z
       data.length <= meta.limit,
   );
 export type BreederDirectoryCard = z.infer<typeof breederDirectoryCardSchema>;
+export function breederCountLabel(total: number) {
+  const plural = new Intl.PluralRules("uk").select(total);
+  return `Знайдено ${total} ${plural === "one" ? "розплідник" : plural === "few" ? "розплідники" : "розплідників"}`;
+}
 export const breederDirectoryKey = ["breeder-directory"] as const;
 export function directoryKey(query: DirectoryQuery) {
   return [...breederDirectoryKey, directoryParams(query).toString()] as const;

@@ -360,6 +360,8 @@ try {
                 location: null,
                 logo: null,
                 breeds: [],
+                breedCount: 0,
+                species: [],
               },
             ],
             meta: {

@@ -36,6 +36,8 @@ await page.route("**/api/v1/**", async (route) => {
           logo: null,
           location: null,
           breeds: [],
+          breedCount: 0,
+          species: [],
         },
       ],
       meta: { page: 1, limit: 24, total: 1, pages: 1, hasPublicBreeders: true },
