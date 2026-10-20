@@ -2,6 +2,7 @@ import type { LegalDocument } from "./legal-document";
 
 export const termsDocument = {
   slug: "terms",
+  version: "16b-draft.1",
   title: "Умови користування",
   description:
     "Чернетка правил користування платформою Лапа: оголошення, профілі, спілкування, контент і модерація.",

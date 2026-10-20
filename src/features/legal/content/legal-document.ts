@@ -5,10 +5,10 @@ export type LegalSection = {
   bullets?: readonly string[];
 };
 
-// Content identity and review state only. Canonical versions/effective dates and
-// acceptance evidence belong to the future backend, not a frontend registry.
+// Revision identity mirrors the backend registry; release checks reject drift.
 export type LegalDocument = {
   slug: "privacy" | "terms";
+  version: string;
   title: string;
   description: string;
   status: "development-draft";

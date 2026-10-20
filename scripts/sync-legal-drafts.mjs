@@ -2,8 +2,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-// The UI content is the review source for 16B. These Markdown copies are generated
-// review artifacts, not separate legal versions. No acceptance/effective date.
+// Generated review artifacts. Revision identity must also pass the backend
+// verify-legal-content release gate; this script cannot approve a document.
 const check = process.argv.slice(2);
 if (check.length !== 1 || !["--check", "--write"].includes(check[0])) {
   throw new Error("Use --check or --write");
@@ -44,7 +44,8 @@ for (const [name, file, symbol] of [
   const text =
     `# ${document.title}\n\n` +
     `DEVELOPMENT DRAFT — NOT APPROVED FOR PRODUCTION. Generated review copy; do not edit independently.\n\n` +
-    `Source: \`pet-platform-frontend/src/features/legal/content/${name}.ts\`. This is content synchronization, not a canonical legal version or effective date. See [publication checklist](legal-publication-checklist.md) and [Phase16B validation](../roadmap/phase-16b-validation.md).\n\n` +
+    `Revision: \`${document.version}\` (development draft, no effective date). See [backend versioning contract](legal-versioning.md).\n\n` +
+    `Source: \`pet-platform-frontend/src/features/legal/content/${name}.ts\`. Generated content synchronization; backend owns accepted revisions. See [publication checklist](legal-publication-checklist.md) and [Phase16B validation](../roadmap/phase-16b-validation.md).\n\n` +
     prose(document.description) +
     "\n\n" +
     sections.join("\n\n") +

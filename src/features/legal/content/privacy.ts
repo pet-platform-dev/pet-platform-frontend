@@ -2,6 +2,7 @@ import type { LegalDocument } from "./legal-document";
 
 export const privacyDocument = {
   slug: "privacy",
+  version: "16b-draft.1",
   title: "Політика конфіденційності",
   description:
     "Як Лапа обробляє дані акаунта, публічних профілів, повідомлень і приватних записів про тварин. Чернетка для ознайомлення.",
