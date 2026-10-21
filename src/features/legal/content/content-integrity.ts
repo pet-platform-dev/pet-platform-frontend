@@ -3,18 +3,18 @@
 export const legalContentIdentity = {
   terms: {
     kind: "TERMS",
-    version: "16b-draft.1",
+    version: "16g-draft.1",
     status: "DRAFT",
     path: "/terms",
     contentDigest:
-      "57e7461a14e6cf2b6393618ab6777cc51659dfabbdde16c1d59b78f288c5a317",
+      "fca1f5897f4f0207f3fcc7bf9ce6197d1d82e2f5fbf26399d651d881432676ee",
   },
   privacy: {
     kind: "PRIVACY",
-    version: "16e-draft.1",
+    version: "16g-draft.1",
     status: "DRAFT",
     path: "/privacy",
     contentDigest:
-      "568627004a3e3353adfc5e0de417feb6fee338d5ab2872e49604caa85115bcb0",
+      "772246224867dae7e820d2adfecca0246c8877be666f2ca722e680038253a7b7",
   },
 } as const;

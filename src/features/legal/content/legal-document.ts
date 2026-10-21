@@ -11,9 +11,10 @@ export type LegalDocument = {
   version: string;
   title: string;
   description: string;
-  status: "development-draft";
+  status: "development-draft" | "published";
   privacyContact?:
     | { status: "UNAVAILABLE"; email: null }
+    | { status: "PENDING_VERIFICATION"; email: string }
     | { status: "VERIFIED"; email: string };
   sections: readonly LegalSection[];
 };

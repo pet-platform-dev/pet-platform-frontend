@@ -28,18 +28,6 @@
   font-weight: 700;
   letter-spacing: 0.04em;
 }
-.legal-draft-notice {
-  margin-block: 28px;
-  padding: 16px 20px;
-  border-left: 3px solid var(--accent);
-  border-radius: 0 12px 12px 0;
-  background: #f0f2e9;
-  font-size: 14px;
-  line-height: 1.7;
-}
-.legal-draft-notice p {
-  margin: 6px 0 0;
-}
 .legal-toc {
   padding-block: 12px;
   border-block: 1px solid #e8e3d8;

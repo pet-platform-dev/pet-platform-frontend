@@ -27,11 +27,15 @@ for (const [route, page, document, count, title] of [
     assert.ok(page.metadata.title.includes(title));
     assert.equal(page.metadata.robots.index, false);
     assert.equal(document.status, "development-draft");
-    assert.match(output, /Чернетка/);
     assert.doesNotMatch(
       output,
-      /mailto:|privacy@|support@|діє з|GDPR compliant/i,
+      /Чернетка|legal-draft-notice|Статус документа|Публікацію документа ще не активовано/,
     );
+    assert.doesNotMatch(
+      output,
+      /privacy@example|support@example|діє з|GDPR compliant/i,
+    );
+    assert.match(output, /mailto:lapaasupport%40gmail.com/);
   });
   test(`/${route} has complete sections, unique accessible anchors and cross-link`, () => {
     const output = html(page.default);
@@ -74,7 +78,10 @@ test("an authenticated cache does not alter legal content or expose account fiel
           React.createElement(page),
         ),
       );
-      assert.ok(output.includes("Чернетка для ознайомлення"));
+      assert.doesNotMatch(
+        output,
+        /Чернетка для ознайомлення|legal-draft-notice/,
+      );
       assert.ok(!output.includes("private@example.invalid"));
     }
   } finally {

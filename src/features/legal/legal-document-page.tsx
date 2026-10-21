@@ -1,7 +1,13 @@
 import type { LegalDocument } from "./content/legal-document";
 import { PrivacyContact } from "./privacy-contact";
 
-export function LegalDocumentPage({ document }: { document: LegalDocument }) {
+export function LegalDocumentPage({
+  document,
+  contact = document.privacyContact,
+}: {
+  document: LegalDocument;
+  contact?: LegalDocument["privacyContact"];
+}) {
   const related =
     document.slug === "privacy"
       ? { href: "/terms", title: "Умови користування" }
@@ -14,13 +20,6 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
           <h1 id="legal-title">{document.title}</h1>
           <p>{document.description}</p>
         </header>
-        <aside className="legal-draft-notice" aria-label="Статус документа">
-          <strong>Чернетка для ознайомлення</strong>
-          <p>
-            Документ ще не затверджено для остаточної публікації. Реквізити й
-            контакт оператора уточнюються.
-          </p>
-        </aside>
         <details className="legal-toc">
           <summary>Зміст документа</summary>
           <nav aria-label="Розділи документа">
@@ -55,9 +54,7 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
                 ))}
               </ul>
             )}
-            {document.slug === "privacy" && section.id === "contact" && (
-              <PrivacyContact config={document.privacyContact} />
-            )}
+            {section.id === "contact" && <PrivacyContact config={contact} />}
           </section>
         ))}
         <nav className="legal-related" aria-label="Пов’язаний документ">

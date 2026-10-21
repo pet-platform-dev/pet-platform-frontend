@@ -25,6 +25,61 @@ const { LegalDocumentPage } = await load(
 const html = (Component, props) =>
   renderToStaticMarkup(React.createElement(Component, props));
 
+test("operator-supplied pending address is readable but never an actionable or verified contact", () => {
+  const config = {
+    status: "PENDING_VERIFICATION",
+    email: "lapaasupport@gmail.com",
+  };
+  assert.equal(privacyContactEmail(config), null);
+  const output = html(PrivacyContact, { config });
+  assert.ok(output.includes(config.email));
+  assert.match(output, /ще не підтверджені/);
+  assert.doesNotMatch(output, /<a\b|mailto:|Перевірена адреса|<form/);
+});
+
+test("invalid pending contact fails closed without displaying unvalidated content", () => {
+  for (const email of [
+    "bad",
+    "privacy@example.com",
+    "<script>alert(1)</script>",
+    "a@x.invalid",
+  ]) {
+    const output = html(PrivacyContact, {
+      config: { status: "PENDING_VERIFICATION", email },
+    });
+    assert.match(output, /Контакт для звернень ще не налаштовано/);
+    assert.doesNotMatch(output, /mailto:|<script|privacy@|a@x/);
+  }
+});
+
+test("new drafts contain only supplied operator facts, disclose incomplete address and retain publication safeguards", () => {
+  for (const document of [privacyDocument, termsDocument]) {
+    assert.equal(document.version, "16g-draft.1");
+    const output = html(LegalDocumentPage, {
+      document,
+      contact: privacyDocument.privacyContact,
+    });
+    for (const fact of [
+      "Єпік Олександр Олександрович",
+      "фізична особа",
+      "Кіровоградська область",
+      "Світловодськ",
+      "27502",
+      "не повна поштова адреса",
+      "lapaasupport@gmail.com",
+    ])
+      assert.ok(output.includes(fact), fact);
+    assert.doesNotMatch(
+      output,
+      /Чернетка для ознайомлення|legal-draft-notice|Статус документа|Публікацію документа ще не активовано/,
+    );
+    assert.doesNotMatch(
+      output,
+      /Перевірена адреса|механізму збереження прийняття версії цих умов|Механізм фіксації прийняття версії користувачем ще не створено|заплановано, але ще не завершено/,
+    );
+  }
+});
+
 for (const [provider, url] of [
   ["YouTube", "https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
   ["Vimeo", "https://vimeo.com/123456789"],
@@ -142,15 +197,16 @@ test("synthetic explicitly verified contact renders exact safe address; it is no
   assert.match(output, /не означає автоматичне виконання/);
   assert.doesNotMatch(output, /<form|успішно надіслано|запит прийнято/);
 });
-test("current legal contact is unavailable, draft/noindex stays; cookies, controls and request limits remain truthful", async () => {
+test("owner-attested contact is verified while blocked publication retains draft/noindex and truthful limits", async () => {
   assert.equal(privacyDocument.status, "development-draft");
   assert.equal(termsDocument.status, "development-draft");
   assert.deepEqual(privacyDocument.privacyContact, {
-    status: "UNAVAILABLE",
-    email: null,
+    status: "VERIFIED",
+    email: "lapaasupport@gmail.com",
   });
   const output = html(LegalDocumentPage, { document: privacyDocument });
-  assert.doesNotMatch(output, /mailto:|<form|PHASE_16E|DRAFT_REGISTRY|BLOCKER/);
+  assert.doesNotMatch(output, /<form|PHASE_16E|DRAFT_REGISTRY|BLOCKER/);
+  assert.match(output, /mailto:lapaasupport%40gmail.com/);
   for (const text of [
     "pet_refresh",
     "pet_csrf",
@@ -167,7 +223,7 @@ test("current legal contact is unavailable, draft/noindex stays; cookies, contro
     "dnt=1",
     "автоматичного видалення акаунта",
     "експорту всіх",
-    "Контакт для звернень ще не налаштовано",
+    "Адреса для звернень",
   ])
     assert.ok(output.includes(text), text);
   for (const route of ["privacy", "terms"])

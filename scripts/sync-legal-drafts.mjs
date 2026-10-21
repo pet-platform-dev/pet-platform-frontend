@@ -10,6 +10,8 @@ if (check.length !== 1 || !["--check", "--write"].includes(check[0])) {
 }
 const prose = (text) => text.replaceAll("_", "\\_");
 let stale = false;
+// Terms presentation reuses the current Privacy contact, not another address/config.
+let privacyContact;
 for (const [name, file, symbol] of [
   ["privacy", "privacy-policy-draft.md", "privacyDocument"],
   ["terms", "terms-of-use-draft.md", "termsDocument"],
@@ -29,6 +31,8 @@ for (const [name, file, symbol] of [
       `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`
     )
   )[symbol];
+  if (name === "privacy") privacyContact = document.privacyContact;
+  const contact = document.privacyContact ?? privacyContact;
   const target = new URL(
     `../../pet-platform-docs/legal/${file}`,
     import.meta.url,
@@ -40,8 +44,8 @@ for (const [name, file, symbol] of [
       (section.bullets
         ? "\n\n" + section.bullets.map((item) => `- ${prose(item)}`).join("\n")
         : "") +
-      (section.id === "contact" && document.privacyContact
-        ? `\n\nPrivacy contact configuration (covered by revision digest): ${document.privacyContact.status}; ${document.privacyContact.status === "VERIFIED" ? document.privacyContact.email : "no actionable address"}.`
+      (section.id === "contact" && contact
+        ? `\n\nPrivacy contact configuration (covered by Privacy revision digest; shared with Terms): ${contact.status}; ${contact.email ?? "no actionable address"}${contact.status === "PENDING_VERIFICATION" ? "; not actionable until verified" : ""}.`
         : ""),
   );
   const text =

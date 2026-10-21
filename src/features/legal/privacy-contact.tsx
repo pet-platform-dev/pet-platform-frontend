@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-const verifiedContact = z.strictObject({
-  status: z.literal("VERIFIED"),
+const suppliedContact = z.strictObject({
+  status: z.enum(["PENDING_VERIFICATION", "VERIFIED"]),
   email: z
     .string()
     .email()
@@ -19,15 +19,26 @@ const verifiedContact = z.strictObject({
 
 // Versioned build configuration, never an environment/personal-account fallback.
 export function privacyContactEmail(config: unknown): string | null {
-  const result = verifiedContact.safeParse(config);
-  return result.success ? result.data.email : null;
+  const result = suppliedContact.safeParse(config);
+  return result.success && result.data.status === "VERIFIED"
+    ? result.data.email
+    : null;
 }
 
 export function PrivacyContact({ config }: { config: unknown }) {
+  const supplied = suppliedContact.safeParse(config);
+  if (supplied.success && supplied.data.status === "PENDING_VERIFICATION")
+    return (
+      <p>
+        Адреса, надана оператором: {supplied.data.email}. Володіння скринькою,
+        доставка листів і регулярний розгляд звернень ще не підтверджені. Поки
+        що ця чернетка не пропонує перевіреного каналу приймання запитів.
+      </p>
+    );
   const email = privacyContactEmail(config);
   return email ? (
     <p>
-      Перевірена адреса для звернень:{" "}
+      Адреса для звернень:{" "}
       <a href={`mailto:${encodeURIComponent(email)}`}>{email}</a>. Надсилання
       листа не означає автоматичне виконання запиту.
     </p>
