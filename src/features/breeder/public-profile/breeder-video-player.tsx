@@ -8,11 +8,6 @@ export function BreederVideoPlayer({
   index: number;
 }) {
   return (
-    <PublicVideoPlayer
-      immediate
-      video={video}
-      index={index}
-      label="Відео розплідника"
-    />
+    <PublicVideoPlayer video={video} index={index} label="Відео розплідника" />
   );
 }

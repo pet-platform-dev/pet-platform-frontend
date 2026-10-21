@@ -1,4 +1,5 @@
 import type { LegalDocument } from "./content/legal-document";
+import { PrivacyContact } from "./privacy-contact";
 
 export function LegalDocumentPage({ document }: { document: LegalDocument }) {
   const related =
@@ -53,6 +54,9 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+            )}
+            {document.slug === "privacy" && section.id === "contact" && (
+              <PrivacyContact config={document.privacyContact} />
             )}
           </section>
         ))}

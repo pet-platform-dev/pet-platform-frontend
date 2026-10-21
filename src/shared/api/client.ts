@@ -14,7 +14,11 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
-    public readonly details: { field: string; message: string }[] = [],
+    public readonly details: {
+      field: string;
+      message: string;
+      code?: string;
+    }[] = [],
   ) {
     super(message);
   }
@@ -110,7 +114,16 @@ async function request<T>(
     let message =
       messages[response.status] ??
       "Не вдалося виконати запит. Спробуйте ще раз.";
-    const details: { field: string; message: string }[] = [];
+    const details: { field: string; message: string; code?: string }[] = [];
+    const legalCodes = new Set([
+      "LEGAL_ACCEPTANCE_REQUIRED",
+      "LEGAL_ACCEPTANCE_NOT_CONFIRMED",
+      "LEGAL_ACCEPTANCE_INVALID",
+      "LEGAL_VERSION_STALE",
+      "LEGAL_VERSION_UNKNOWN",
+      "LEGAL_DOCUMENTS_UNPUBLISHED",
+      "LEGAL_REGISTRY_MISMATCH",
+    ]);
     if (errorBody && typeof errorBody === "object") {
       if (
         "message" in errorBody &&
@@ -119,7 +132,22 @@ async function request<T>(
       )
         message = errorBody.message;
       if ("details" in errorBody && Array.isArray(errorBody.details)) {
-        for (const detail of errorBody.details)
+        for (const detail of errorBody.details) {
+          if (
+            (path === "/auth/register" || path === "/legal/current") &&
+            detail &&
+            typeof detail === "object" &&
+            detail.field === "legalAcceptance" &&
+            typeof detail.code === "string" &&
+            legalCodes.has(detail.code)
+          ) {
+            details.push({
+              field: "legalAcceptance",
+              code: detail.code,
+              message:
+                "Перегляньте актуальні юридичні документи та спробуйте ще раз.",
+            });
+          }
           if (
             detail &&
             typeof detail === "object" &&
@@ -130,6 +158,7 @@ async function request<T>(
             known.has(detail.message)
           )
             details.push({ field: detail.field, message: detail.message });
+        }
       }
     }
     throw new ApiError(response.status, message, details);

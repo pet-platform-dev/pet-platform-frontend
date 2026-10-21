@@ -1,0 +1,46 @@
+.public-video-item {
+  min-width: 0;
+}
+.breeder-video-player.public-video-placeholder-frame {
+  aspect-ratio: auto;
+  min-height: 240px;
+}
+.public-video-placeholder {
+  padding: 24px;
+  max-width: 48ch;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.public-video-placeholder svg {
+  margin: 0 auto 10px;
+  color: var(--accent);
+}
+.public-video-placeholder p {
+  margin: 0;
+}
+.public-video-placeholder .public-video-title {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.public-video-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 12px;
+}
+.public-video-actions > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.public-video-actions > button {
+  max-width: 100%;
+  white-space: normal;
+}

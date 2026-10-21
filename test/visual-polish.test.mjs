@@ -33,16 +33,15 @@ test("active navigation uses path segments and includes account profile children
   ])
     assert.equal(navigationActive(path, href), active);
 });
-test("breeder video immediately available, lazy and never autoplay", () => {
+test("breeder video requires explicit loading and discloses the external provider", () => {
   const html = renderToStaticMarkup(
     React.createElement(BreederVideoPlayer, {
       video: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
       index: 0,
     }),
   );
-  assert.ok(html.includes("<iframe"));
-  assert.ok(html.includes('loading="lazy"'));
-  assert.ok(!html.includes("Переглянути відео"));
-  assert.ok(html.includes("autoplay=0"));
+  assert.ok(!html.includes("<iframe"));
+  assert.ok(html.includes("Завантажити відео"));
+  assert.ok(html.includes("Сторонній сервіс"));
   assert.ok(html.includes("Відео розплідника 1"));
 });

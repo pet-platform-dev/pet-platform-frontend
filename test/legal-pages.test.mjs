@@ -114,7 +114,8 @@ test("privacy copy keeps the audited cookie, identity, messaging, care and media
       value,
     );
   }
-  assert.match(output, /розплідника може завантажуватися до натискання/);
+  assert.match(output, /Лише натискання «Завантажити відео»/);
+  assert.doesNotMatch(output, /розплідника може завантажуватися до натискання/);
   assert.match(output, /автоматичного видалення акаунта/);
 });
 

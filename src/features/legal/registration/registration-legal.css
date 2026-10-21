@@ -1,0 +1,44 @@
+.registration-legal {
+  margin: 20px 0 16px;
+  min-height: 136px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.registration-legal-status p,
+.registration-legal-link-hint {
+  margin: 0;
+  color: var(--muted);
+}
+.registration-legal .registration-legal-checkbox {
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.registration-legal-checkbox input {
+  margin-top: 3px;
+}
+.registration-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 16px;
+  margin-top: 6px;
+}
+.registration-legal-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.registration-legal-link-hint {
+  font-size: 12px;
+}
+.registration-legal-notice {
+  margin: 0 0 12px;
+}
+.registration-legal > .button {
+  margin-top: 12px;
+}

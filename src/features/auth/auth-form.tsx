@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { ApiError, signIn } from "@/shared/api/client";
 import { AuthFields } from "./auth-fields";
 import { AccountTypeChoice } from "./account-type-choice";
@@ -15,6 +15,9 @@ import {
 } from "./session-provider";
 import { clearFormRecovery } from "@/features/listing/form-recovery";
 import { favoriteLoginReturn } from "@/features/favorites/login-return";
+import { useRegistrationLegal } from "@/features/legal/registration/use-registration-legal";
+import { RegistrationAcknowledgement } from "@/features/legal/registration/registration-acknowledgement";
+import { legalRegistrationRecovery } from "@/features/legal/registration/legal-metadata";
 
 export function AuthForm({
   mode,
@@ -29,10 +32,12 @@ export function AuthForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  const submitting = useRef(false);
+  const legal = useRegistrationLegal(registering);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if (submitting.current) return;
     const values = Object.fromEntries(new FormData(event.currentTarget));
     const result = (registering ? registerSchema : loginSchema).safeParse(
       values,
@@ -46,6 +51,16 @@ export function AuthForm({
       return;
     }
     setErrors({});
+    const acceptance = registering
+      ? legal.controller.acceptance()
+      : { ok: true as const };
+    if (!acceptance.ok) {
+      event.currentTarget
+        .querySelector<HTMLInputElement>("#registration-legal-accepted")
+        ?.focus();
+      return;
+    }
+    submitting.current = true;
     setPending(true);
     const { email, password } = result.data;
     const input =
@@ -59,6 +74,9 @@ export function AuthForm({
             firstName: result.data.firstName,
             lastName: result.data.lastName,
             accountType: result.data.accountType,
+            ...("legalAcceptance" in acceptance && acceptance.legalAcceptance
+              ? { legalAcceptance: acceptance.legalAcceptance }
+              : {}),
           }
         : { email, password };
     try {
@@ -69,12 +87,19 @@ export function AuthForm({
       notifySessionChange();
       router.replace(favoriteLoginReturn(returnTo));
     } catch (error) {
+      const recovery = registering ? legalRegistrationRecovery(error) : null;
+      if (recovery) {
+        await legal.controller.refresh(recovery.changed);
+        setMessage(recovery.message);
+        return;
+      }
       setMessage(
         error instanceof ApiError
           ? error.message
           : "Не вдалося виконати запит. Спробуйте ще раз.",
       );
     } finally {
+      submitting.current = false;
       setPending(false);
     }
   }
@@ -102,6 +127,16 @@ export function AuthForm({
         {!registering && (
           <p className="form-hint">Пароль має містити щонайменше 8 символів.</p>
         )}
+        {registering && (
+          <RegistrationAcknowledgement
+            state={legal.state}
+            pending={pending}
+            onCheck={legal.controller.check}
+            onRetry={() => {
+              void legal.controller.refresh();
+            }}
+          />
+        )}
         {message && (
           <p role="alert" className="error-banner">
             {message}
@@ -109,7 +144,7 @@ export function AuthForm({
         )}
         <button
           className="button primary full"
-          disabled={pending}
+          disabled={pending || (registering && legal.state.status !== "ready")}
           type="submit"
         >
           {pending ? "Зачекайте…" : registering ? "Створити акаунт" : "Увійти"}

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/sync-legal-integrity.mjs --check && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "node --test test/*.test.mjs",

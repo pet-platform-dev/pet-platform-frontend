@@ -154,7 +154,7 @@ test("gallery SSR uses shared lightbox and labeled controls; video defers iframe
     ...pet,
     videos: [{ id, url: "https://vimeo.com/123", position: 0 }],
   });
-  assert.ok(videoHtml.includes("Переглянути відео 1"));
+  assert.ok(videoHtml.includes("Завантажити відео"));
   assert.ok(!videoHtml.includes("<iframe"));
 });
 test("gallery editor shows count, styled upload and accessible reorder/delete; videos separate", () => {

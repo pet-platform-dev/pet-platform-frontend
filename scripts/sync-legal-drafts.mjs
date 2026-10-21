@@ -39,6 +39,9 @@ for (const [name, file, symbol] of [
       section.paragraphs.map(prose).join("\n\n") +
       (section.bullets
         ? "\n\n" + section.bullets.map((item) => `- ${prose(item)}`).join("\n")
+        : "") +
+      (section.id === "contact" && document.privacyContact
+        ? `\n\nPrivacy contact configuration (covered by revision digest): ${document.privacyContact.status}; ${document.privacyContact.status === "VERIFIED" ? document.privacyContact.email : "no actionable address"}.`
         : ""),
   );
   const text =

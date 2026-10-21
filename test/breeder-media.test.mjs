@@ -176,12 +176,13 @@ test("empty gallery and videos omit sections", () => {
   assert.equal(render(BreederMediaViewer, { profile }), "");
   assert.equal(render(BreederProfileVideos, { videos: [] }), "");
 });
-test("breeder video iframe is immediately shown with lazy loading", () => {
+test("breeder video starts with a local placeholder and explicit activation", () => {
   const html = render(BreederProfileVideos, {
     videos: [{ id, type: "VIDEO", position: 0, url: "https://vimeo.com/123" }],
   });
-  assert.ok(html.includes("<iframe"));
-  assert.ok(!html.includes("Переглянути відео"));
+  assert.ok(!html.includes("<iframe"));
+  assert.ok(html.includes("Завантажити відео"));
+  assert.ok(html.includes("Сторонній сервіс"));
   assert.ok(html.includes("noopener noreferrer"));
 });
 test("editor exposes accessible reorder buttons and touch alternative", () => {
