@@ -1,7 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import React from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  skipToken,
+} from "@tanstack/react-query";
 import { renderToStaticMarkup } from "react-dom/server";
 import { load } from "./helpers/load-frontend.mjs";
 const { favoriteLoginReturn, favoriteLoginHref } = await load(
@@ -39,6 +43,43 @@ function render(c, component, props) {
     ),
   );
 }
+test("streamed favorite markup stays identical before hydration even if the client session and state restored early", () => {
+  const pending = new QueryClient();
+  const restored = client();
+  restored.setQueryData(favoriteStateKey("owner", "listing"), true);
+  try {
+    assert.equal(
+      render(restored, FavoriteButton, { listingId: "listing" }),
+      render(pending, FavoriteButton, { listingId: "listing" }),
+    );
+  } finally {
+    pending.clear();
+    restored.clear();
+  }
+});
+test("favorite cache observer explicitly skips fetching without a missing-query-function error", (t) => {
+  const c = client();
+  const errors = [];
+  t.mock.method(console, "error", (...args) => errors.push(args.join(" ")));
+  try {
+    c.setQueryData(favoriteStateKey("owner", "listing"), false);
+    render(c, FavoriteButton, { listingId: "listing" });
+    assert.deepEqual(errors, []);
+    const query = c
+      .getQueryCache()
+      .find({ queryKey: favoriteStateKey("owner", "listing"), exact: true });
+    assert.equal(query.options.queryFn, skipToken);
+    assert.equal(query.state.fetchStatus, "idle");
+    c.setQueryData(favoriteStateKey("owner", "listing"), true);
+    assert.equal(c.getQueryData(favoriteStateKey("owner", "listing")), true);
+    assert.match(
+      render(c, FavoriteButton, { listingId: "listing" }),
+      /aria-pressed="false"/,
+    );
+  } finally {
+    c.clear();
+  }
+});
 test("auth preserves filtered catalog, detail and favorites; rejects external or ambiguous targets", () => {
   for (const path of [
     "/listings?q=сві&sort=oldest&page=2",
@@ -67,7 +108,7 @@ test("auth preserves filtered catalog, detail and favorites; rejects external or
   ])
     assert.equal(favoriteLoginReturn(value), "/account");
 });
-test("heart has SVG, accessible add/remove names, pressed state and button semantics", () => {
+test("SSR heart has SVG, accessible pending state and button semantics without exposing restored favorite state", () => {
   const c = client();
   c.setQueryData(favoriteStateKey("owner", "listing"), false);
   let html = render(c, FavoriteButton, { listingId: "listing" });
@@ -77,15 +118,15 @@ test("heart has SVG, accessible add/remove names, pressed state and button seman
   assert.match(html, /<svg/);
   c.setQueryData(favoriteStateKey("owner", "listing"), true);
   html = render(c, FavoriteButton, { listingId: "listing", detail: true });
-  assert.match(html, /Видалити з обраного/);
-  assert.match(html, /aria-pressed="true"/);
-  assert.match(html, /В обраному/);
+  assert.match(html, /Додати в обране/);
+  assert.match(html, /aria-pressed="false"/);
+  assert.match(html, /Зберегти в обране/);
   c.clear();
 });
-test("anonymous heart stays actionable after session is checked; unresolved state waits", () => {
+test("SSR heart waits for hydration with either a checked anonymous session or unresolved favorite state", () => {
   const c = client();
   c.setQueryData(["current-user"], null);
-  assert.doesNotMatch(
+  assert.match(
     render(c, FavoriteButton, { listingId: "listing" }),
     /\sdisabled=/,
   );
@@ -168,6 +209,24 @@ test("all favorite families are private session caches, public catalog remains p
   for (const kind of ["favorites", "favorite-state", "favorite-batch"])
     assert.equal(isSessionQuery({ queryKey: [kind, "owner"] }), true);
   assert.equal(isSessionQuery({ queryKey: ["listings"] }), false);
+});
+
+test("logout removes completed favorite mutations and their user-scoped results", async () => {
+  const c = client();
+  const mutations = c.getMutationCache();
+  const toggle = mutations.build(c, {
+    mutationKey: ["favorite-toggle", "owner", "listing"],
+    mutationFn: async (active) => ({
+      listingId: "listing",
+      isFavorite: active,
+    }),
+  });
+  const unrelated = mutations.build(c, { mutationKey: ["public-action"] });
+  await toggle.execute(true);
+  clearPrivateQueries(c);
+  assert.equal(mutations.getAll().includes(toggle), false);
+  assert.equal(mutations.getAll().includes(unrelated), true);
+  c.clear();
 });
 
 test("favorites shows available count and a compact useful empty state", () => {

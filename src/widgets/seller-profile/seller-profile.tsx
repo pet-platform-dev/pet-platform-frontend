@@ -62,11 +62,11 @@ export function SellerProfile({
       : null;
   const content = (
     <>
-      {profile && <PublicBreederAnimals key={id} userId={id} />}
+      {profile && <PublicBreederAnimals key={`animals-${id}`} userId={id} />}
       <SellerProfileListings id={id} breeder={Boolean(profile)} />
       <PublicProfileMating key={`mating-${id}`} ownerId={id} />
       <SellerReviews
-        key={id}
+        key={`reviews-${id}`}
         targetId={id}
         initialSummary={profile?.reviewSummary ?? seller.data.reviewSummary}
       />

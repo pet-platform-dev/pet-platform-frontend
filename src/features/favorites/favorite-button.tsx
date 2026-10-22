@@ -5,6 +5,7 @@ import {
   useMutationState,
   useQuery,
   useQueryClient,
+  skipToken,
 } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -24,6 +25,7 @@ import {
   unlockFavorite,
 } from "./cache";
 import { favoriteLoginHref } from "./login-return";
+import { useHydrated } from "@/shared/hooks/use-hydrated";
 export function FavoriteButton({
   listingId,
   returnTo,
@@ -33,6 +35,7 @@ export function FavoriteButton({
   returnTo?: string;
   detail?: boolean;
 }) {
+  const hydrated = useHydrated();
   const client = useQueryClient(),
     session = useSession(),
     router = useRouter();
@@ -41,6 +44,7 @@ export function FavoriteButton({
   const batch = useFavoriteBatch(listingId);
   const state = useQuery<boolean>({
     queryKey: favoriteStateKey(userId, listingId),
+    queryFn: skipToken,
     enabled: false,
   });
   const scope = userId + ":" + listingId;
@@ -56,7 +60,9 @@ export function FavoriteButton({
     outcomes.at(-1) === "error"
       ? "Не вдалося змінити обране. Спробуйте ще раз."
       : "";
-  const error = (notice.scope === scope ? notice.message : "") || sharedError;
+  const error = hydrated
+    ? (notice.scope === scope ? notice.message : "") || sharedError
+    : "";
   const setError = (message: string) => setNotice({ scope, message });
   const errorId = useId();
   const mutationKey = ["favorite-toggle", userId, listingId];
@@ -101,7 +107,7 @@ export function FavoriteButton({
         ]);
     },
   });
-  const active = state.data === true;
+  const active = hydrated && state.data === true;
   const label = active ? "Видалити з обраного" : "Додати в обране";
   return (
     <div
@@ -117,18 +123,21 @@ export function FavoriteButton({
         title={label}
         aria-pressed={active}
         aria-busy={
-          busy || (Boolean(userId) && state.data === undefined && !batch.error)
+          hydrated &&
+          (busy ||
+            (Boolean(userId) && state.data === undefined && !batch.error))
         }
         aria-describedby={error ? errorId : undefined}
-        aria-disabled={busy}
+        aria-disabled={hydrated && busy}
         disabled={
+          !hydrated ||
           session.isPending ||
           (Boolean(userId) && state.data === undefined && !batch.error)
         }
         onClick={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          if (busy) return;
+          if (!hydrated || busy) return;
           setError("");
           if (!userId) {
             router.push(

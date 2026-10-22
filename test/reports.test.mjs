@@ -99,19 +99,35 @@ function render(client, component, props) {
     ),
   );
 }
-test("button shown for foreign content, hidden for own, and success per user/target", async () => {
+test("streamed report markup stays stable when the owner session restores before hydration", async () => {
+  const { ReportButton } = await load("src/features/reports/report-button.tsx");
+  const pending = new QueryClient();
+  const restored = new QueryClient();
+  restored.setQueryData(session.sessionKey, { id, role: "USER" });
+  const props = { targetType: "LISTING", targetId: owner, ownerId: id };
+  try {
+    assert.equal(
+      render(restored, ReportButton, props),
+      render(pending, ReportButton, props),
+    );
+  } finally {
+    pending.clear();
+    restored.clear();
+  }
+});
+test("SSR report action keeps pending markup and does not reveal restored per-user success", async () => {
   const { ReportButton, reportSentKey } = await load(
     "src/features/reports/report-button.tsx",
   );
   const c = new QueryClient();
   c.setQueryData(session.sessionKey, { id, role: "USER" });
-  assert.equal(
+  assert.match(
     render(c, ReportButton, {
       targetType: "LISTING",
       targetId: owner,
       ownerId: id,
     }),
-    "",
+    /Поскаржитися/,
   );
   assert.match(
     render(c, ReportButton, {
@@ -128,7 +144,7 @@ test("button shown for foreign content, hidden for own, and success per user/tar
       targetId: owner,
       ownerId: owner,
     }),
-    /Скаргу надіслано/,
+    /Поскаржитися/,
   );
   c.clear();
 });

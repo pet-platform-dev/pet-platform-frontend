@@ -14,6 +14,7 @@ import {
   type ReportReason,
 } from "./model";
 import { ReportDialog } from "./report-dialog";
+import { useHydrated } from "@/shared/hooks/use-hydrated";
 export const reportSentKey = (userId: string, type: ReportType, id: string) =>
   ["report-sent", userId, type, id] as const;
 export function ReportButton({
@@ -30,14 +31,16 @@ export function ReportButton({
   returnFocus?: () => void;
 }) {
   const session = useSession();
-  if (!canReport(session.data?.id, ownerId)) return null;
+  const hydrated = useHydrated();
+  const userId = hydrated ? session.data?.id : undefined;
+  if (!canReport(userId, ownerId)) return null;
   return (
     <ReportAction
-      key={(session.data?.id ?? "anonymous") + targetType + targetId}
+      key={(userId ?? "anonymous") + targetType + targetId}
       targetType={targetType}
       targetId={targetId}
-      userId={session.data?.id}
-      ready={session.isSuccess}
+      userId={userId}
+      ready={hydrated && session.isSuccess}
       messagePreview={messagePreview}
       returnFocus={returnFocus}
     />

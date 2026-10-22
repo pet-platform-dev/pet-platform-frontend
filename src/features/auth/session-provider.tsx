@@ -48,9 +48,13 @@ export function clearPrivateQueries(client: QueryClient) {
   const mutations = client.getMutationCache();
   for (const mutation of mutations.getAll())
     if (
-      ["user-reports", "notifications", "conversations", "pet-care"].includes(
-        String(mutation.options.mutationKey?.[0]),
-      )
+      [
+        "user-reports",
+        "notifications",
+        "conversations",
+        "pet-care",
+        "favorite-toggle",
+      ].includes(String(mutation.options.mutationKey?.[0]))
     )
       mutations.remove(mutation);
   // Cancel before removal so an in-flight private response cannot repopulate the cache.
