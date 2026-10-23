@@ -43,6 +43,17 @@
   font-weight: 600;
   font-size: 14px;
 }
+.email-change-settings {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.email-change-settings form {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
 @media (max-width: 480px) {
   .account-email-verification {
     padding: 18px;

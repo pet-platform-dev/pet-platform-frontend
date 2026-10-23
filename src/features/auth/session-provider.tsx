@@ -42,6 +42,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "favorites",
     "favorite-state",
     "favorite-batch",
+    "email-change-pending",
     "seller-review-me",
   ].includes(String(queryKey[0]));
 }
@@ -89,7 +90,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         }
         return;
       }
-      if (kind === "email-verification" || kind === "password-reset") {
+      if (
+        kind === "email-verification" ||
+        kind === "password-reset" ||
+        kind === "email-change"
+      ) {
         void refreshVerificationSession(
           client,
           currentSessionGeneration(),
@@ -160,7 +165,8 @@ export function notifySessionChange(
     | "reviews"
     | "review-management"
     | "email-verification"
-    | "password-reset" = "login",
+    | "password-reset"
+    | "email-change" = "login",
   userId?: string,
   targetId?: string,
 ) {

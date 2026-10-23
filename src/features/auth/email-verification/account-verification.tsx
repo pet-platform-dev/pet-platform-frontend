@@ -20,7 +20,13 @@ const feedback: Record<ResendState["status"], string> = {
   unauthenticated: "Сесію завершено. Увійдіть знову, щоб запросити лист.",
 };
 
-export function AccountVerification({ user }: { user: User }) {
+export function AccountVerification({
+  user,
+  children,
+}: {
+  user: User;
+  children?: React.ReactNode;
+}) {
   const client = useQueryClient();
   const [generation] = useState(currentSessionGeneration);
   const [controller] = useState(() =>
@@ -102,6 +108,7 @@ export function AccountVerification({ user }: { user: User }) {
           )}
         </>
       )}
+      {children}
     </section>
   );
 }

@@ -105,7 +105,8 @@ async function fixture(query, mode = "success", routePath = "/verify-email") {
         });
       if (
         String(url).endsWith("/email-verification/confirm") ||
-        String(url).endsWith("/password-reset/confirm")
+        String(url).endsWith("/password-reset/confirm") ||
+        String(url).endsWith("/email-change/confirm")
       ) {
         window.fixtureRequests.push(JSON.parse(init.body));
         await new Promise((resolve) => setTimeout(resolve, 80));
@@ -113,9 +114,11 @@ async function fixture(query, mode = "success", routePath = "/verify-email") {
         if (mode === "temporary" && window.fixtureRequests.length === 1)
           return Response.json({}, { status: 503 });
         return Response.json({
-          data: String(url).endsWith("/password-reset/confirm")
-            ? { status: "reset" }
-            : { verificationStatus: "VERIFIED" },
+          data: String(url).endsWith("/email-change/confirm")
+            ? { status: "changed" }
+            : String(url).endsWith("/password-reset/confirm")
+              ? { status: "reset" }
+              : { verificationStatus: "VERIFIED" },
         });
       }
       throw Error("Unexpected fixture request");
@@ -347,6 +350,74 @@ try {
       assert.deepEqual(f.errors, []);
       results.push(
         `reset ${mode}: stable real auth providers, StrictMode, page replacement, explicit original token/password, session isolation`,
+      );
+    } finally {
+      await f.context.close();
+    }
+  }
+  for (const mode of ["success", "temporary", "invalid"]) {
+    const f = await fixture(
+      `?token=${token}&strictMount=1`,
+      mode,
+      "/confirm-email-change",
+    );
+    try {
+      const button = f.page.getByRole("button", {
+        name: "Підтвердити зміну пошти",
+        exact: true,
+      });
+      await button.waitFor();
+      assert.equal(new URL(f.page.url()).search, "");
+      assert.equal(
+        await f.page.evaluate(() => window.fixtureRequests.length),
+        0,
+      );
+      await f.page.locator("#fixture-restore").click();
+      await f.page
+        .locator("#fixture-owner")
+        .getByText("synthetic-owner-a", { exact: true })
+        .waitFor();
+      await f.page.locator("#fixture-switch").click();
+      await f.page
+        .locator("#fixture-owner")
+        .getByText("synthetic-owner-b", { exact: true })
+        .waitFor();
+      await f.page.locator("#fixture-rerender").click();
+      await f.page.locator("#fixture-remount").click();
+      assert(await button.isVisible());
+      await button.evaluate((node) => {
+        node.click();
+        node.click();
+      });
+      if (mode === "temporary") {
+        await f.page.getByRole("alert").waitFor();
+        await button.click();
+      }
+      if (mode === "invalid") {
+        await f.page.getByRole("alert").waitFor();
+        assert.equal(await button.count(), 0);
+      } else {
+        await f.page
+          .getByText(/Електронну адресу змінено й підтверджено/)
+          .waitFor();
+        await f.page
+          .locator("#fixture-owner")
+          .getByText("synthetic-owner-b", { exact: true })
+          .waitFor();
+      }
+      assert.deepEqual(
+        await f.page.evaluate(() => window.fixtureRequests),
+        Array.from({ length: mode === "temporary" ? 2 : 1 }, () => ({ token })),
+      );
+      assert.equal(
+        await f.page.evaluate(
+          () => localStorage.length + sessionStorage.length,
+        ),
+        0,
+      );
+      assert.deepEqual(f.errors, []);
+      results.push(
+        `email change ${mode}: real auth restoration + StrictMode + page replacement + original token + foreign session isolation`,
       );
     } finally {
       await f.context.close();

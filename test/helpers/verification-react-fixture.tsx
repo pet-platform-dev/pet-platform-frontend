@@ -12,9 +12,16 @@ import { EmailConfirmation } from "../../src/features/auth/email-verification/co
 import VerifyEmailLayout from "../../src/app/verify-email/layout";
 import ResetPasswordLayout from "../../src/app/reset-password/layout";
 import { ResetPassword } from "../../src/features/auth/password-recovery/reset-password";
+import ChangeLayout from "../../src/app/confirm-email-change/layout";
+import { EmailChangeConfirmation } from "../../src/features/auth/email-change/confirmation";
 
 const resetting = window.location.pathname === "/reset-password";
-const RouteLayout = resetting ? ResetPasswordLayout : VerifyEmailLayout;
+const changingEmail = window.location.pathname === "/confirm-email-change";
+const RouteLayout = changingEmail
+  ? ChangeLayout
+  : resetting
+    ? ResetPasswordLayout
+    : VerifyEmailLayout;
 
 function Fixture() {
   const client = useQueryClient();
@@ -49,7 +56,9 @@ function Fixture() {
       <button id="fixture-logout" onClick={() => switchAccount(null)}>
         Logout
       </button>
-      {resetting ? (
+      {changingEmail ? (
+        <EmailChangeConfirmation key={revision} />
+      ) : resetting ? (
         <ResetPassword key={revision} />
       ) : (
         <EmailConfirmation key={revision} />
