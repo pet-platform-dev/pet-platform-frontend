@@ -8,7 +8,7 @@ import { refreshVerificationSession } from "./session-sync";
 import { createConfirmationState } from "./verification-state";
 
 const ConfirmationContext = createContext<ReturnType<
-  typeof createConfirmationState
+  typeof createConfirmationState<void>
 > | null>(null);
 
 /** A route-layout instance owns the credential; replacing its page cannot lose it. */

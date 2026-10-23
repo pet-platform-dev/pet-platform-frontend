@@ -127,6 +127,11 @@ export function AuthForm({
         {!registering && (
           <p className="form-hint">Пароль має містити щонайменше 8 символів.</p>
         )}
+        {!registering && (
+          <p className="form-hint">
+            <Link href="/forgot-password">Забули пароль?</Link>
+          </p>
+        )}
         {registering && (
           <RegistrationAcknowledgement
             state={legal.state}

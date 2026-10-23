@@ -59,7 +59,7 @@ const browser = await chromium.launch({
 });
 const token = "a".repeat(43),
   results = [];
-async function fixture(query, mode = "success") {
+async function fixture(query, mode = "success", routePath = "/verify-email") {
   const context = await browser.newContext();
   // Entire document is intercepted before a network connection is attempted.
   await context.route("**/*", (route) =>
@@ -75,9 +75,13 @@ async function fixture(query, mode = "success") {
     if (/hydration failed|hydrated but|same key/i.test(message.text()))
       errors.push(message.text());
   });
-  await page.goto(`http://localhost:3017/verify-email${query}`);
+  await page.goto(`http://localhost:3017${routePath}${query}`);
   await page.evaluate((mode) => {
     window.fixtureRequests = [];
+    window.fixtureAccount = "synthetic-owner-a";
+    window.addEventListener("fixture-account", (event) => {
+      window.fixtureAccount = event.detail;
+    });
     window.fetch = async (url, init) => {
       if (String(url).endsWith("/auth/csrf"))
         return Response.json({ data: { csrfToken: "synthetic-csrf" } });
@@ -95,15 +99,24 @@ async function fixture(query, mode = "success") {
       }
       if (String(url).endsWith("/users/me") || String(url).endsWith("/auth/me"))
         return Response.json({
-          data: { id: "synthetic-owner-a", verificationStatus: "VERIFIED" },
+          data: window.fixtureAccount
+            ? { id: window.fixtureAccount, verificationStatus: "VERIFIED" }
+            : null,
         });
-      if (String(url).endsWith("/email-verification/confirm")) {
+      if (
+        String(url).endsWith("/email-verification/confirm") ||
+        String(url).endsWith("/password-reset/confirm")
+      ) {
         window.fixtureRequests.push(JSON.parse(init.body));
         await new Promise((resolve) => setTimeout(resolve, 80));
         if (mode === "invalid") return Response.json({}, { status: 400 });
         if (mode === "temporary" && window.fixtureRequests.length === 1)
           return Response.json({}, { status: 503 });
-        return Response.json({ data: { verificationStatus: "VERIFIED" } });
+        return Response.json({
+          data: String(url).endsWith("/password-reset/confirm")
+            ? { status: "reset" }
+            : { verificationStatus: "VERIFIED" },
+        });
       }
       throw Error("Unexpected fixture request");
     };
@@ -250,6 +263,91 @@ try {
       } else assert.equal(await confirm(f.page).count(), 0);
       assert.deepEqual(f.errors, []);
       results.push(`${mode}: credential lifetime across page replacement`);
+    } finally {
+      await f.context.close();
+    }
+  }
+  for (const mode of ["success", "temporary", "invalid"]) {
+    const f = await fixture(
+      `?token=${token}&strictMount=1`,
+      mode,
+      "/reset-password",
+    );
+    try {
+      await f.page.locator('input[name="newPassword"]').waitFor();
+      assert.equal(new URL(f.page.url()).search, "");
+      assert.equal(
+        await f.page.evaluate(() => window.fixtureRequests.length),
+        0,
+      );
+      await f.page.locator("#fixture-restore").click();
+      await f.page
+        .locator("#fixture-owner")
+        .getByText("synthetic-owner-a", { exact: true })
+        .waitFor();
+      await f.page.locator("#fixture-switch").click();
+      await f.page
+        .locator("#fixture-owner")
+        .getByText("synthetic-owner-b", { exact: true })
+        .waitFor();
+      await f.page.locator("#fixture-rerender").click();
+      await f.page.locator("#fixture-remount").click();
+      const password = "Synthetic-reset-password-42";
+      await f.page.locator('input[name="newPassword"]').fill(password);
+      await f.page
+        .getByLabel("Підтвердження пароля", { exact: true })
+        .fill(password);
+      await f.page
+        .getByRole("button", { name: "Змінити пароль", exact: true })
+        .evaluate((button) => {
+          button.click();
+          button.click();
+        });
+      if (mode === "temporary") {
+        await f.page.getByRole("alert").waitFor();
+        await f.page
+          .getByRole("button", { name: "Змінити пароль", exact: true })
+          .click();
+      }
+      if (mode === "invalid") {
+        await f.page.getByRole("alert").waitFor();
+        assert.equal(
+          await f.page.locator('input[name="newPassword"]').count(),
+          0,
+        );
+      } else {
+        await f.page
+          .getByText("Пароль змінено. Увійдіть із новим паролем.", {
+            exact: true,
+          })
+          .waitFor();
+        assert.equal(
+          await f.page.locator('input[name="newPassword"]').count(),
+          0,
+        );
+        await f.page
+          .locator("#fixture-owner")
+          .getByText("synthetic-owner-b", { exact: true })
+          .waitFor();
+      }
+      const requests = await f.page.evaluate(() => window.fixtureRequests);
+      assert.deepEqual(
+        requests,
+        Array.from({ length: mode === "temporary" ? 2 : 1 }, () => ({
+          token,
+          newPassword: password,
+        })),
+      );
+      assert.equal(
+        await f.page.evaluate(
+          () => localStorage.length + sessionStorage.length,
+        ),
+        0,
+      );
+      assert.deepEqual(f.errors, []);
+      results.push(
+        `reset ${mode}: stable real auth providers, StrictMode, page replacement, explicit original token/password, session isolation`,
+      );
     } finally {
       await f.context.close();
     }

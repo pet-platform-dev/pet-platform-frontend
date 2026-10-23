@@ -89,7 +89,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         }
         return;
       }
-      if (kind === "email-verification") {
+      if (kind === "email-verification" || kind === "password-reset") {
         void refreshVerificationSession(
           client,
           currentSessionGeneration(),
@@ -159,7 +159,8 @@ export function notifySessionChange(
     | "favorites"
     | "reviews"
     | "review-management"
-    | "email-verification" = "login",
+    | "email-verification"
+    | "password-reset" = "login",
   userId?: string,
   targetId?: string,
 ) {

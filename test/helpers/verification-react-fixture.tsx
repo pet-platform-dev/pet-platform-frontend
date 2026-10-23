@@ -10,10 +10,19 @@ import {
 import { FavoriteProvider } from "../../src/features/favorites/favorite-provider";
 import { EmailConfirmation } from "../../src/features/auth/email-verification/confirmation";
 import VerifyEmailLayout from "../../src/app/verify-email/layout";
+import ResetPasswordLayout from "../../src/app/reset-password/layout";
+import { ResetPassword } from "../../src/features/auth/password-recovery/reset-password";
+
+const resetting = window.location.pathname === "/reset-password";
+const RouteLayout = resetting ? ResetPasswordLayout : VerifyEmailLayout;
 
 function Fixture() {
   const client = useQueryClient();
   const session = useSession();
+  const switchAccount = (id: string | null) => {
+    window.dispatchEvent(new CustomEvent("fixture-account", { detail: id }));
+    client.setQueryData(["current-user"], id ? { id } : null);
+  };
   useEffect(() => {
     const root = document.documentElement;
     root.dataset.strictSetups = String(
@@ -33,19 +42,18 @@ function Fixture() {
       </button>
       <button
         id="fixture-switch"
-        onClick={() =>
-          client.setQueryData(["current-user"], { id: "synthetic-owner-b" })
-        }
+        onClick={() => switchAccount("synthetic-owner-b")}
       >
         Switch account
       </button>
-      <button
-        id="fixture-logout"
-        onClick={() => client.setQueryData(["current-user"], null)}
-      >
+      <button id="fixture-logout" onClick={() => switchAccount(null)}>
         Logout
       </button>
-      <EmailConfirmation key={revision} />
+      {resetting ? (
+        <ResetPassword key={revision} />
+      ) : (
+        <EmailConfirmation key={revision} />
+      )}
       <button
         id="fixture-rerender"
         onClick={() => setRenderCount((value) => value + 1)}
@@ -65,9 +73,9 @@ const tree = (
   <StrictMode>
     <SessionProvider>
       <FavoriteProvider>
-        <VerifyEmailLayout>
+        <RouteLayout>
           <Fixture />
-        </VerifyEmailLayout>
+        </RouteLayout>
       </FavoriteProvider>
     </SessionProvider>
   </StrictMode>

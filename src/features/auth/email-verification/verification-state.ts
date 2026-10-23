@@ -14,8 +14,8 @@ export type ConfirmationState = { status: ConfirmationStatus; retryAt: number };
 const initial: ConfirmationState = { status: "loading", retryAt: 0 };
 
 /** Per-page memory only. The credential is deliberately absent from public snapshots. */
-export function createConfirmationState(
-  confirm: (token: string) => Promise<void>,
+export function createConfirmationState<Input = void>(
+  confirm: (token: string, input: Input) => Promise<void>,
   now = Date.now,
 ) {
   let state = initial,
@@ -54,11 +54,11 @@ export function createConfirmationState(
       // __NA history state skips router synchronization in Next 16.3.
       history.replaceState(null, "", location.pathname);
     },
-    async submit() {
+    async submit(input: Input) {
       if (!token || state.status === "pending" || now() < state.retryAt) return;
       update("pending");
       try {
-        await confirm(token);
+        await confirm(token, input);
         token = null;
         update("success");
       } catch (error) {
