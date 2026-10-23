@@ -1,0 +1,53 @@
+.email-confirmation {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.email-confirmation .button,
+.account-email-verification .button {
+  min-height: 44px;
+  white-space: normal;
+}
+.verification-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  margin-top: 26px;
+  font-size: 14px;
+  color: var(--accent);
+}
+.verification-links a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.account-email-verification {
+  padding: 22px;
+  margin-bottom: 24px;
+  border: 1px solid #e8e3d8;
+  border-radius: 18px;
+  background: #fffdf9;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.account-email-verification h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+.account-email-verification p {
+  margin: 10px 0;
+}
+.verification-email {
+  font-size: 14px;
+}
+.verification-status {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 14px;
+}
+@media (max-width: 480px) {
+  .account-email-verification {
+    padding: 18px;
+  }
+  .account-email-verification .button {
+    width: 100%;
+  }
+}

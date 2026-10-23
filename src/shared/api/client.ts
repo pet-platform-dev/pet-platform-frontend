@@ -19,6 +19,7 @@ export class ApiError extends Error {
       message: string;
       code?: string;
     }[] = [],
+    public readonly retryAfterSeconds?: number,
   ) {
     super(message);
   }
@@ -161,7 +162,14 @@ async function request<T>(
         }
       }
     }
-    throw new ApiError(response.status, message, details);
+    throw new ApiError(
+      response.status,
+      message,
+      details,
+      response.status === 429
+        ? retryAfterSeconds(response.headers.get("Retry-After"))
+        : undefined,
+    );
   }
   if (response.status === 204) return undefined as T;
   const body = (await response.json()) as { data: T };
@@ -194,6 +202,24 @@ async function mutate<T>(path: string, body?: unknown): Promise<T> {
     headers: { "X-CSRF-Token": await csrf() },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
+}
+
+export function retryAfterSeconds(
+  value: string | null,
+  now = Date.now(),
+): number | undefined {
+  if (!value) return undefined;
+  const seconds = /^\d+$/.test(value)
+    ? Number(value)
+    : Math.ceil((Date.parse(value) - now) / 1000);
+  return Number.isFinite(seconds) && seconds > 0 && seconds <= 86400
+    ? seconds
+    : undefined;
+}
+
+/** Public credential POST with the existing Origin/CSRF/cookie/no-store contract. */
+export function publicMutation<T>(path: string, body: unknown): Promise<T> {
+  return mutate<T>(path, body);
 }
 
 type AuthResult = { user: User; accessToken: string; expiresIn: number };

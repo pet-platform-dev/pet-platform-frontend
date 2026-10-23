@@ -5,6 +5,7 @@ import { FavoriteProvider } from "@/features/favorites/favorite-provider";
 import { MessagingRealtime } from "@/features/conversations/messaging-realtime";
 import { SiteFooter } from "@/widgets/footer/site-footer";
 import "./globals.css";
+import "@/features/auth/email-verification/email-verification.css";
 export const metadata: Metadata = {
   title: "Лапа — з турботою про улюбленців",
   description: "Ваш простір для турботи про улюбленців.",

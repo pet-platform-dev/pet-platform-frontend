@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session-provider";
 import { getFavoriteStates } from "./api";
 import {
@@ -21,11 +21,11 @@ const FavoriteContext = createContext<{
   error: boolean;
   retry: () => void;
 }>({ register: () => () => {}, error: false, retry: () => {} });
-function OwnerFavorites({
+function RegisteredFavorites({
   userId,
   children,
 }: {
-  userId: string;
+  userId: string | null;
   children: React.ReactNode;
 }) {
   const client = useQueryClient();
@@ -51,12 +51,17 @@ function OwnerFavorites({
   }, []);
   useEffect(() => () => clearTimeout(timer.current), []);
   const batch = useQuery({
-    queryKey: [...favoriteBatchKey(userId), ids],
-    queryFn: ({ signal }) => getFavoriteStates(ids, signal),
-    enabled: ids.length > 0,
+    queryKey: [
+      ...(userId ? favoriteBatchKey(userId) : ["favorite-batch", null]),
+      ids,
+    ],
+    queryFn: userId
+      ? ({ signal }) => getFavoriteStates(ids, signal)
+      : skipToken,
+    enabled: Boolean(userId) && ids.length > 0,
   });
   useEffect(() => {
-    if (!batch.data || !favoriteOwnerCurrent(client, userId)) return;
+    if (!userId || !batch.data || !favoriteOwnerCurrent(client, userId)) return;
     for (const [id, value] of Object.entries(batch.data)) {
       if (!favoriteLocked(client, userId, id))
         client.setQueryData(favoriteStateKey(userId, id), value);
@@ -66,9 +71,9 @@ function OwnerFavorites({
     <FavoriteContext
       value={{
         register,
-        error: batch.isError,
+        error: Boolean(userId) && batch.isError,
         retry: () => {
-          void batch.refetch();
+          if (userId && ids.length) void batch.refetch();
         },
       }}
     >
@@ -78,12 +83,12 @@ function OwnerFavorites({
 }
 export function FavoriteProvider({ children }: { children: React.ReactNode }) {
   const session = useSession();
-  return session.data ? (
-    <OwnerFavorites key={session.data.id} userId={session.data.id}>
+  // Keep the route subtree mounted during session restoration/logout/account changes.
+  // Only query keys carry the owner identity; registrations contain public listing IDs.
+  return (
+    <RegisteredFavorites userId={session.data?.id ?? null}>
       {children}
-    </OwnerFavorites>
-  ) : (
-    children
+    </RegisteredFavorites>
   );
 }
 export function useFavoriteBatch(id: string) {

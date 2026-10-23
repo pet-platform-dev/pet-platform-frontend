@@ -13,6 +13,8 @@ import { clearFormRecovery } from "@/features/listing/form-recovery";
 import { refreshPersonalIdentity } from "./personal-profile-cache";
 import { refreshReviewPublicCache } from "@/features/reviews/cache";
 import { removeAdminMutations } from "@/shared/lib/admin-cache-privacy";
+import { currentSessionGeneration } from "@/shared/api/client";
+import { refreshVerificationSession } from "./email-verification/session-sync";
 
 export const sessionKey = ["current-user"] as const;
 const sessionSource = crypto.randomUUID();
@@ -87,6 +89,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         }
         return;
       }
+      if (kind === "email-verification") {
+        void refreshVerificationSession(
+          client,
+          currentSessionGeneration(),
+        ).catch(() => {});
+        return;
+      }
       if (kind === "reviews") {
         const user = client.getQueryData<User>(sessionKey);
         if (user && user.id === event.data?.userId)
@@ -149,7 +158,8 @@ export function notifySessionChange(
     | "profile"
     | "favorites"
     | "reviews"
-    | "review-management" = "login",
+    | "review-management"
+    | "email-verification" = "login",
   userId?: string,
   targetId?: string,
 ) {

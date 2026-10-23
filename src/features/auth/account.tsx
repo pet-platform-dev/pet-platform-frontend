@@ -9,6 +9,7 @@ import { AccountTypeSettings } from "./account-type-settings";
 import { PersonalProfile } from "./personal-profile";
 import { ApiError } from "@/shared/api/client";
 import { useLogout, useSession } from "./session-provider";
+import { AccountVerification } from "./email-verification/account-verification";
 
 const roles = {
   USER: "Користувач",
@@ -79,6 +80,7 @@ export function Account() {
           </p>
         </div>
       </header>
+      <AccountVerification key={user.id} user={user} />
       <div className="dashboard-grid">
         <AdminNavigation user={user} />
         <PersonalProfile key={user.id} user={user} />
