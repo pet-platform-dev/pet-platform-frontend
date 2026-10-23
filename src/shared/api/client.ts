@@ -260,8 +260,12 @@ export async function signIn(
   input: unknown,
 ): Promise<User> {
   return authLock(async () => {
+    const generation = sessionGeneration;
     try {
       const result = await mutate<AuthResult>(`/auth/${mode}`, input);
+      // A cross-tab logout/login may invalidate this attempt while HTTP is pending.
+      if (generation !== sessionGeneration)
+        throw new DOMException("Session changed", "AbortError");
       clearSession();
       return accept(result);
     } catch (error) {

@@ -39,6 +39,43 @@ const reply = (data, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 
+test("a delayed login response cannot adopt credentials after a session boundary", async () => {
+  const client = await load("../src/shared/api/client.ts");
+  const saved = globalThis.fetch;
+  let finish, started;
+  const ready = new Promise((resolve) => {
+    started = resolve;
+  });
+  globalThis.fetch = async (url) => {
+    if (url.endsWith("/csrf")) return reply({ csrfToken: "csrf" });
+    if (url.endsWith("/login")) {
+      started();
+      return new Promise((resolve) => {
+        finish = () => resolve(reply(auth));
+      });
+    }
+    throw new Error("Unexpected request");
+  };
+  try {
+    const pending = client.signIn("login", {
+      email: user.email,
+      password: "Synthetic-password-42",
+    });
+    const rejected = assert.rejects(
+      pending,
+      (error) => error.name === "AbortError",
+    );
+    await ready;
+    client.clearSession();
+    const boundary = client.currentSessionGeneration();
+    finish();
+    await rejected;
+    assert.equal(client.currentSessionGeneration(), boundary);
+  } finally {
+    globalThis.fetch = saved;
+  }
+});
+
 test("an in-flight refresh cannot restore access after a logout/account change", async () => {
   const client = await load("../src/shared/api/client.ts");
   const saved = globalThis.fetch;
