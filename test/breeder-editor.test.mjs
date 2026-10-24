@@ -272,6 +272,17 @@ test("delete clears kennel identity but preserves personal/contact session", asy
   assert.equal(c.getQueryData(["seller", id]).phone, person.phone);
   assert.equal(c.getQueryData(["current-user"]).accountType, "BREEDER");
 });
+
+test("claimed private profile updates only owner cache until explicit publication", async () => {
+  const c = client();
+  await updateBreederCache(c, id, { ...profile, publicationHeld: true });
+  assert.equal(c.getQueryData(ownBreederKey(id)).publicationHeld, true);
+  assert.equal(c.getQueryData(["breeder", id]), null);
+  assert.equal(c.getQueryData(["seller", id]).breeder, null);
+  await updateBreederCache(c, id, { ...profile, publicationHeld: false });
+  assert.equal(c.getQueryData(ownBreederKey(id)).publicationHeld, false);
+  assert.equal(c.getQueryData(["breeder", id]).kennelName, profile.kennelName);
+});
 test("late mutation cannot restore previous account data", async () => {
   const c = client();
   c.setQueryData(["current-user"], { id: other });

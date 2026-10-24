@@ -22,16 +22,17 @@ export async function updateBreederCache(
   if (client.getQueryData<User | null>(["current-user"])?.id !== userId)
     return false;
   client.setQueryData(ownBreederKey(userId), profile);
+  const publicProfile = profile && !profile.publicationHeld ? profile : null;
   client.setQueryData(
     ["breeder", userId],
-    profile ? breederSchema.parse(profile) : null,
+    publicProfile ? breederSchema.parse(publicProfile) : null,
   );
   const seller =
     profile?.contactPerson ?? client.getQueryData<Seller>(["seller", userId]);
   if (seller)
     client.setQueryData(["seller", userId], {
       ...seller,
-      breeder: profile ? { kennelName: profile.kennelName } : null,
+      breeder: publicProfile ? { kennelName: publicProfile.kennelName } : null,
     });
   await client.invalidateQueries({ queryKey: breederDirectoryKey });
   await invalidateBreederAnimals(client, userId);

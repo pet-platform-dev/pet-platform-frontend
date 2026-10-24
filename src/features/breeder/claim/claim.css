@@ -1,0 +1,22 @@
+.breeder-claim {
+  max-width: 40rem;
+  overflow-wrap: anywhere;
+}
+.breeder-claim > * + * {
+  margin-top: 1rem;
+}
+.breeder-claim .auth-card {
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+.breeder-claim .action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.breeder-claim button {
+  max-width: 100%;
+  white-space: normal;
+}

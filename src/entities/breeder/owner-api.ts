@@ -3,6 +3,7 @@ import { breederSchema } from "./model";
 import { authenticatedRequest, ApiError } from "@/shared/api/client";
 import type { BreederInput } from "@/features/breeder/editor/validation";
 export const ownBreederSchema = breederSchema.extend({
+  publicationHeld: z.boolean().default(false),
   id: z.uuid(),
   locationId: z.uuid().nullable(),
   breedIds: z.array(z.uuid()),

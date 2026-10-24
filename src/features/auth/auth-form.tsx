@@ -22,11 +22,14 @@ import { legalRegistrationRecovery } from "@/features/legal/registration/legal-m
 export function AuthForm({
   mode,
   returnTo,
+  onAuthenticated,
 }: {
   mode: "login" | "register";
   returnTo?: unknown;
+  onAuthenticated?: () => void;
 }) {
   const registering = mode === "register";
+  const Heading = onAuthenticated ? "h2" : "h1";
   const router = useRouter();
   const client = useQueryClient();
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -85,7 +88,8 @@ export function AuthForm({
       clearPrivateQueries(client);
       client.setQueryData(sessionKey, user);
       notifySessionChange();
-      router.replace(favoriteLoginReturn(returnTo));
+      if (onAuthenticated) onAuthenticated();
+      else router.replace(favoriteLoginReturn(returnTo));
     } catch (error) {
       const recovery = registering ? legalRegistrationRecovery(error) : null;
       if (recovery) {
@@ -109,7 +113,7 @@ export function AuthForm({
       <p className="eyebrow">
         {registering ? "Знайомство починається тут" : "Раді бачити вас знову"}
       </p>
-      <h1>{registering ? "Створити акаунт" : "Увійти до акаунта"}</h1>
+      <Heading>{registering ? "Створити акаунт" : "Увійти до акаунта"}</Heading>
       <p className="muted">
         {registering
           ? "Ваш простір для турботи про улюбленців."
@@ -155,12 +159,14 @@ export function AuthForm({
           {pending ? "Зачекайте…" : registering ? "Створити акаунт" : "Увійти"}
         </button>
       </form>
-      <p className="form-footer">
-        {registering ? "Уже маєте акаунт?" : "Ще не маєте акаунта?"}{" "}
-        <Link href={registering ? "/login" : "/register"}>
-          {registering ? "Увійти" : "Зареєструватися"}
-        </Link>
-      </p>
+      {!onAuthenticated && (
+        <p className="form-footer">
+          {registering ? "Уже маєте акаунт?" : "Ще не маєте акаунта?"}{" "}
+          <Link href={registering ? "/login" : "/register"}>
+            {registering ? "Увійти" : "Зареєструватися"}
+          </Link>
+        </p>
+      )}
     </section>
   );
 }

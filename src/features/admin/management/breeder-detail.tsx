@@ -10,6 +10,7 @@ import { getManagedBreeder, managementKey } from "./api";
 import { managementReturn } from "./navigation";
 import { AdminBreederForm } from "./breeder-form";
 import { sourceLabels, type ManagedBreeder } from "./model";
+import { InvitationPanel } from "../invitations/invitation-panel";
 export function ManagedBreederDetail({ id }: { id?: string }) {
   const actor = useSession().data,
     client = useQueryClient(),
@@ -94,8 +95,19 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
               на використання матеріалів оператор отримує поза додатком.
             </p>
           )}
-          {row.source === "OWNER_MANAGED" &&
-          row.user?.accountType !== "BREEDER" ? (
+          {row.source === "OPERATOR_PREPARED" && (
+            <InvitationPanel
+              key={actor.id + row.id}
+              id={row.id}
+              revision={row.updatedAt}
+            />
+          )}
+          {row.claimedProfileId ? (
+            <p className="status-panel">
+              Підготовку завершено. Профілем керує справжній власник.
+            </p>
+          ) : row.source === "OWNER_MANAGED" &&
+            row.user?.accountType !== "BREEDER" ? (
             <p className="status-panel">
               Акаунт власника зараз не є акаунтом заводчика. Інформація доступна
               лише для перегляду.
@@ -113,16 +125,24 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
               <ul>
                 {row.audit.map((action) => (
                   <li key={action.id}>
-                    {action.action === "CREATE_DRAFT"
-                      ? "Створено чернетку"
-                      : "Інформацію змінено"}{" "}
+                    {
+                      {
+                        CREATE_DRAFT: "Створено чернетку",
+                        UPDATE_DRAFT: "Інформацію змінено",
+                        UPDATE_OWNER_PROFILE: "Профіль змінено",
+                        INVITATION_ISSUED: "Створено запрошення",
+                        INVITATION_ROTATED: "Запрошення надіслано повторно",
+                        INVITATION_REVOKED: "Запрошення відкликано",
+                        CLAIM_ACCEPTED: "Власник прийняв профіль",
+                      }[action.action]
+                    }{" "}
                     ·{" "}
                     {new Intl.DateTimeFormat("uk-UA", {
                       dateStyle: "short",
                       timeStyle: "short",
                       timeZone: "Europe/Kyiv",
                     }).format(new Date(action.createdAt))}{" "}
-                    · Адміністратор: {action.actorId}
+                    · Учасник дії: {action.actorId}
                   </li>
                 ))}
               </ul>

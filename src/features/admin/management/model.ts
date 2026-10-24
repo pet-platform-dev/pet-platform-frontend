@@ -78,6 +78,8 @@ export const breederDetailSchema = breederRowSchema
       .optional(),
     operatorNotes: z.string().nullable().optional(),
     preparedById: z.uuid().optional(),
+    claimedProfileId: z.uuid().nullable().optional(),
+    claimedAt: z.string().nullable().optional(),
     publicPath: z.string().nullable(),
     audit: z.array(
       z.object({
@@ -87,6 +89,10 @@ export const breederDetailSchema = breederRowSchema
           "CREATE_DRAFT",
           "UPDATE_DRAFT",
           "UPDATE_OWNER_PROFILE",
+          "INVITATION_ISSUED",
+          "INVITATION_ROTATED",
+          "INVITATION_REVOKED",
+          "CLAIM_ACCEPTED",
         ]),
         changedFields: z.array(z.string()),
         createdAt: date,

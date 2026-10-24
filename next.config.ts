@@ -12,16 +12,19 @@ const nextConfig: NextConfig = {
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
         ],
       },
-      ...["/reset-password", "/forgot-password", "/confirm-email-change"].map(
-        (source) => ({
-          source,
-          headers: [
-            { key: "Referrer-Policy", value: "no-referrer" },
-            { key: "X-Robots-Tag", value: "noindex, nofollow" },
-            { key: "Cache-Control", value: "no-store" },
-          ],
-        }),
-      ),
+      ...[
+        "/reset-password",
+        "/forgot-password",
+        "/confirm-email-change",
+        "/claim-breeder",
+      ].map((source) => ({
+        source,
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      })),
     ];
   },
 };
