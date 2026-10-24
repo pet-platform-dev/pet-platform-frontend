@@ -8,6 +8,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     search = useSearchParams().toString();
   const links = [
     ["/admin", "Огляд"],
+    ["/admin/users", "Користувачі"],
+    ["/admin/breeders", "Розплідники"],
     ["/admin/moderation", "Модерація"],
     ["/admin/moderation/reports", "Скарги"],
   ];

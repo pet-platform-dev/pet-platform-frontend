@@ -105,7 +105,7 @@ test("auth preserves filtered catalog, detail and favorites; rejects external or
     "/listings/../account",
     "/listings#evil",
     "javascript:alert(1)",
-    "/admin/users",
+    "/admin/settings",
   ])
     assert.equal(favoriteLoginReturn(value), "/account");
 });

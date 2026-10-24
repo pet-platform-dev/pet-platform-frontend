@@ -135,7 +135,7 @@ test("late aggregate response is rejected after switching away from its administ
 test("login return accepts only implemented admin routes and keeps redirect protection", () => {
   assert.equal(favoriteLoginReturn("/admin"), "/admin");
   for (const target of [
-    "/admin/users",
+    "/admin/settings",
     "https://evil.invalid/admin",
     "//evil.invalid/admin",
     "/admin/../users",

@@ -1,0 +1,63 @@
+.admin-management {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+.admin-management-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.admin-management-filters .field {
+  min-width: 0;
+}
+.admin-management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.admin-management-grid h2 {
+  font-size: 1.15rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.admin-management p,
+.admin-management dd {
+  overflow-wrap: anywhere;
+}
+.admin-detail-fields div {
+  min-width: 0;
+}
+.admin-detail-fields dt {
+  font-weight: 600;
+}
+.admin-detail-fields dd {
+  margin: 0.35rem 0 0;
+}
+.admin-management-form {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 800px;
+}
+.admin-management-form fieldset {
+  border: 1px solid #e8e3d8;
+  border-radius: 16px;
+  padding: 1.25rem;
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+}
+.admin-management-form input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+.admin-management .button {
+  min-height: 44px;
+}
+@media (max-width: 639px) {
+  .admin-management-filters,
+  .admin-management-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

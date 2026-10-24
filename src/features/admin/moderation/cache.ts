@@ -41,6 +41,8 @@ export function clearAdminQueries(client: QueryClient) {
   client.removeQueries({ queryKey: adminModerationKeys.root });
   void client.cancelQueries({ queryKey: ["admin-dashboard"] });
   client.removeQueries({ queryKey: ["admin-dashboard"] });
+  void client.cancelQueries({ queryKey: ["admin-management"] });
+  client.removeQueries({ queryKey: ["admin-management"] });
 }
 export function loseAdminAccess(client: QueryClient, userId: string) {
   if (client.getQueryData<User | null>(sessionKey)?.id !== userId) return;

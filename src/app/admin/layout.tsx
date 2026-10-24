@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { AdminShell } from "@/features/admin/dashboard/shell";
 import "@/features/admin/dashboard/dashboard.css";
+import "@/features/admin/management/management.css";
 import "@/features/auth/account-dashboard.css";
 import "@/features/admin/moderation/moderation.css";
 

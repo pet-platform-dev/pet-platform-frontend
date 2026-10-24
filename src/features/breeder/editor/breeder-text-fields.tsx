@@ -5,11 +5,13 @@ export function BreederTextFields({
   onChange,
   errors,
   disabled,
+  optionalName = false,
 }: {
   values: BreederValues;
   onChange: (key: keyof BreederValues, value: string) => void;
   errors: Record<string, string>;
   disabled: boolean;
+  optionalName?: boolean;
 }) {
   return (
     <>
@@ -42,7 +44,7 @@ export function BreederTextFields({
           <div className="field" key={key}>
             <label htmlFor={id}>
               {label}
-              {key !== "kennelName" && (
+              {(key !== "kennelName" || optionalName) && (
                 <span className="muted"> — Необов’язково</span>
               )}
             </label>
@@ -51,7 +53,7 @@ export function BreederTextFields({
             ) : (
               <input
                 {...props}
-                required={key === "kennelName"}
+                required={key === "kennelName" && !optionalName}
                 inputMode={
                   key === "startedYear"
                     ? "numeric"

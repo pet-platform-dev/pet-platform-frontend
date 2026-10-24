@@ -52,7 +52,7 @@ test("login preserves a safe admin queue/detail context and rejects unsafe admin
   for (const path of [
     "https://evil.invalid/admin/moderation",
     "//evil.invalid/admin/moderation",
-    "/admin/users",
+    "/admin/settings",
     "/admin/moderation/../users",
     "/admin/moderation/listings/bad",
   ])
