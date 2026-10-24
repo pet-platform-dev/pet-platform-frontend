@@ -8,9 +8,11 @@ import { adminModerationKeys, clearAdminQueries } from "./cache";
 export function RequireAdmin({
   children,
   returnTo = "/admin/moderation",
+  deniedTitle = "Доступ до модерації недоступний",
 }: {
   children: React.ReactNode;
   returnTo?: string;
+  deniedTitle?: string;
 }) {
   const session = useSession(),
     client = useQueryClient(),
@@ -52,7 +54,7 @@ export function RequireAdmin({
   if (user?.role !== "ADMIN" || access.data)
     return (
       <section className="admin-empty">
-        <h1>Доступ до модерації недоступний</h1>
+        <h1>{deniedTitle}</h1>
         <p>Цей розділ доступний лише адміністратору.</p>
         <button
           className="button secondary"

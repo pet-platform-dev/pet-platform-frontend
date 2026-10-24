@@ -1,0 +1,68 @@
+.admin-shell-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0;
+}
+.admin-shell-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.admin-shell-links [aria-current="page"] {
+  background: var(--accent);
+  color: #fff;
+}
+.admin-dashboard {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+.admin-metric {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.admin-metric dt {
+  font-weight: 600;
+}
+.admin-metric dd {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0.75rem 0;
+  line-height: 1.2;
+}
+.admin-metric p {
+  margin: 0;
+}
+.admin-metric .admin-metric-description {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin: 0;
+}
+.admin-metric-skeleton {
+  min-height: 10rem;
+  background: #f0eee7;
+}
+@media (max-width: 479px) {
+  .admin-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin-shell-nav {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+@media (min-width: 1100px) {
+  .admin-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

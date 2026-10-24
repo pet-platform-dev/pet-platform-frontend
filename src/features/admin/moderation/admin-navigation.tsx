@@ -7,6 +7,9 @@ export function AdminNavigation({ user }: { user: Pick<User, "role"> }) {
       <h2>Модерація</h2>
       <p>Перевіряйте матеріали перед публікацією.</p>
       <div className="account-actions">
+        <Link className="button secondary" href="/admin" prefetch={false}>
+          Огляд адміністрування
+        </Link>
         <Link
           className="button secondary"
           href="/admin/moderation"

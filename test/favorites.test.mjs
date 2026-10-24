@@ -84,6 +84,7 @@ test("auth preserves filtered catalog, detail and favorites; rejects external or
   for (const path of [
     "/listings?q=сві&sort=oldest&page=2",
     "/favorites",
+    "/admin",
     "/listings/45b62860-314e-484e-8888-a904901aaaaa",
   ]) {
     assert.equal(favoriteLoginReturn(path), path);
@@ -104,7 +105,7 @@ test("auth preserves filtered catalog, detail and favorites; rejects external or
     "/listings/../account",
     "/listings#evil",
     "javascript:alert(1)",
-    "/admin",
+    "/admin/users",
   ])
     assert.equal(favoriteLoginReturn(value), "/account");
 });
