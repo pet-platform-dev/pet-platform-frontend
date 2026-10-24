@@ -1,4 +1,6 @@
 "use client";
+import { hasAdminAccess } from "@/entities/user/permissions";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session-provider";
 import { runAdminRequest } from "../moderation/cache";
@@ -13,11 +15,11 @@ export function AdminDashboard() {
     queryKey: dashboardKey(user?.id ?? ""),
     queryFn: ({ signal }) =>
       runAdminRequest(client, user!.id, () => getDashboard(signal)),
-    enabled: user?.role === "ADMIN",
+    enabled: hasAdminAccess(user?.role),
     staleTime: 15000,
     refetchOnMount: "always",
   });
-  if (session.isPending || !user || user.role !== "ADMIN") return null;
+  if (session.isPending || !user || !hasAdminAccess(user.role)) return null;
   return (
     <section
       className="admin-dashboard"

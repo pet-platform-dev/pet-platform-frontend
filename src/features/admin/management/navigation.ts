@@ -41,6 +41,7 @@ export function parseListState(
             "BREEDER",
             "MODERATOR",
             "ADMIN",
+            "SUPER_ADMIN",
           ]),
           accountType: allowed(search.get("accountType"), [
             "SELLER",

@@ -1,4 +1,6 @@
 "use client";
+import { hasAdminAccess } from "@/entities/user/permissions";
+
 import Link from "next/link";
 import { useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -45,7 +47,7 @@ export function ManagementList({ kind }: { kind: ManagementKind }) {
           ? listUsers(state, signal)
           : listBreeders(state, signal),
       ),
-    enabled: user?.role === "ADMIN",
+    enabled: hasAdminAccess(user?.role),
     staleTime: 0,
     retry: false,
   });
@@ -58,7 +60,7 @@ export function ManagementList({ kind }: { kind: ManagementKind }) {
     )
       change({ page: Math.max(1, query.data.meta.pages) });
   }, [query.data, query.isFetching, query.isError, state.page, change]);
-  if (!user || user.role !== "ADMIN") return null;
+  if (!user || !hasAdminAccess(user.role)) return null;
   return (
     <section className="admin-management" aria-labelledby="admin-list-title">
       <header>

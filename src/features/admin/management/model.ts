@@ -7,7 +7,7 @@ export const userSchema = z.object({
   firstName: z.string(),
   lastName: z.string().nullable(),
   email: z.string().email(),
-  role: z.enum(["USER", "BREEDER", "MODERATOR", "ADMIN"]),
+  role: z.enum(["USER", "BREEDER", "MODERATOR", "ADMIN", "SUPER_ADMIN"]),
   accountType: z.enum(["SELLER", "BREEDER"]),
   verificationStatus: z.enum(["UNVERIFIED", "PENDING", "VERIFIED", "REJECTED"]),
   createdAt: date,
@@ -106,6 +106,7 @@ export const roleLabels = {
   BREEDER: "Заводчик (технічна роль)",
   MODERATOR: "Модератор",
   ADMIN: "Адміністратор",
+  SUPER_ADMIN: "Суперадміністратор",
 };
 export const accountLabels = { SELLER: "Власник тварини", BREEDER: "Заводчик" };
 export const verificationLabels = {

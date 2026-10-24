@@ -1,7 +1,8 @@
+import { hasAdminAccess } from "@/entities/user/permissions";
 import Link from "next/link";
 import type { User } from "@/entities/user/model";
 export function AdminNavigation({ user }: { user: Pick<User, "role"> }) {
-  if (user.role !== "ADMIN") return null;
+  if (!hasAdminAccess(user.role)) return null;
   return (
     <section className="dashboard-card">
       <h2>Модерація</h2>

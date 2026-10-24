@@ -1,4 +1,6 @@
 "use client";
+import { hasAdminAccess } from "@/entities/user/permissions";
+
 import { Fragment, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +20,12 @@ export function RequireAdmin({
     client = useQueryClient(),
     router = useRouter();
   const user = session.data;
+  useEffect(() => {
+    if (user?.role !== "SUPER_ADMIN") {
+      void client.cancelQueries({ queryKey: ["admin-roles"] });
+      client.removeQueries({ queryKey: ["admin-roles"] });
+    }
+  }, [client, user?.role]);
   const access = useQuery({
     queryKey: adminModerationKeys.access(user?.id ?? ""),
     queryFn: () => false,
@@ -31,7 +39,7 @@ export function RequireAdmin({
         "/login?" +
           new URLSearchParams({ returnTo: favoriteLoginReturn(returnTo) }),
       );
-    } else if (user && user.role !== "ADMIN") clearAdminQueries(client);
+    } else if (user && !hasAdminAccess(user.role)) clearAdminQueries(client);
   }, [session.isSuccess, user, client, router, returnTo]);
   if (session.isPending || (session.isSuccess && !user))
     return (
@@ -51,7 +59,7 @@ export function RequireAdmin({
         </button>
       </div>
     );
-  if (user?.role !== "ADMIN" || access.data)
+  if (!hasAdminAccess(user?.role) || access.data)
     return (
       <section className="admin-empty">
         <h1>{deniedTitle}</h1>
@@ -60,7 +68,7 @@ export function RequireAdmin({
           className="button secondary"
           onClick={async () => {
             const fresh = await session.refetch();
-            if (fresh.data?.role === "ADMIN")
+            if (hasAdminAccess(fresh.data?.role))
               client.setQueryData(
                 adminModerationKeys.access(fresh.data.id),
                 false,
@@ -71,5 +79,5 @@ export function RequireAdmin({
         </button>
       </section>
     );
-  return <Fragment key={user.id}>{children}</Fragment>;
+  return <Fragment key={user.id + ":" + user.role}>{children}</Fragment>;
 }

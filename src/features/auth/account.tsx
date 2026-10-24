@@ -17,6 +17,7 @@ const roles = {
   BREEDER: "Заводчик",
   MODERATOR: "Модератор",
   ADMIN: "Адміністратор",
+  SUPER_ADMIN: "Суперадміністратор",
 };
 const statuses = {
   UNVERIFIED: "Не верифіковано",

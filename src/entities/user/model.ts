@@ -6,7 +6,7 @@ export type User = {
   lastName: string | null;
   avatarUrl: string | null;
   accountType: AccountType;
-  role: "USER" | "BREEDER" | "MODERATOR" | "ADMIN";
+  role: "USER" | "BREEDER" | "MODERATOR" | "ADMIN" | "SUPER_ADMIN";
   verificationStatus: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED";
   createdAt: string;
 };

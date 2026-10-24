@@ -1,4 +1,6 @@
 "use client";
+import { hasAdminAccess } from "@/entities/user/permissions";
+
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +29,7 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
       runAdminRequest(client, actor!.id, () =>
         getManagedBreeder(id!, source, signal),
       ),
-    enabled: Boolean(id) && actor?.role === "ADMIN",
+    enabled: Boolean(id) && hasAdminAccess(actor?.role),
     staleTime: 0,
     retry: false,
   });
@@ -50,7 +52,7 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
         }),
     );
   };
-  if (!actor || actor.role !== "ADMIN") return null;
+  if (!actor || !hasAdminAccess(actor.role)) return null;
   const row = query.data;
   return (
     <section className="admin-management">

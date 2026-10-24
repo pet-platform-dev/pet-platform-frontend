@@ -1,4 +1,6 @@
 "use client";
+import { hasAdminAccess } from "@/entities/user/permissions";
+
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -7,6 +9,8 @@ import { runAdminRequest } from "../moderation/cache";
 import { getManagedUser, managementKey } from "./api";
 import { managementReturn } from "./navigation";
 import { roleLabels, accountLabels, verificationLabels } from "./model";
+import type { ManagedUser } from "./model";
+import { RolePanel } from "../roles/role-panel";
 export function ManagedUserDetail({ id }: { id: string }) {
   const actor = useSession().data,
     client = useQueryClient(),
@@ -15,11 +19,11 @@ export function ManagedUserDetail({ id }: { id: string }) {
     queryKey: managementKey(actor?.id ?? "", "user", id),
     queryFn: ({ signal }) =>
       runAdminRequest(client, actor!.id, () => getManagedUser(id, signal)),
-    enabled: actor?.role === "ADMIN",
+    enabled: hasAdminAccess(actor?.role),
     staleTime: 0,
     retry: false,
   });
-  if (!actor || actor.role !== "ADMIN") return null;
+  if (!actor || !hasAdminAccess(actor.role)) return null;
   const row = query.data;
   return (
     <section className="admin-management">
@@ -85,9 +89,19 @@ export function ManagedUserDetail({ id }: { id: string }) {
             )}
           </div>
           <p className="muted">
-            Редагування акаунта, ролі, пароля й підтвердження пошти тут
-            недоступне.
+            Зміна електронної адреси, пароля, типу акаунта й підтвердження пошти
+            тут недоступна.
           </p>
+          <RolePanel
+            key={row.id}
+            targetId={row.id}
+            onRoleChanged={(role) =>
+              client.setQueryData<ManagedUser>(
+                managementKey(actor.id, "user", id),
+                (current) => (current ? { ...current, role } : current),
+              )
+            }
+          />
         </>
       )}
     </section>

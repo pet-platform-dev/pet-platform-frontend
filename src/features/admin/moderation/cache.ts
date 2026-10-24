@@ -1,3 +1,4 @@
+import { hasAdminAccess } from "@/entities/user/permissions";
 import type { QueryClient } from "@tanstack/react-query";
 import type { User } from "@/entities/user/model";
 import { sessionKey } from "@/features/auth/session-provider";
@@ -31,11 +32,13 @@ export function currentAdmin(client: QueryClient, userId: string) {
   const user = client.getQueryData<User | null>(sessionKey);
   return (
     user?.id === userId &&
-    user.role === "ADMIN" &&
+    hasAdminAccess(user.role) &&
     client.getQueryData<boolean>(adminModerationKeys.access(userId)) !== true
   );
 }
 export function clearAdminQueries(client: QueryClient) {
+  void client.cancelQueries({ queryKey: ["admin-roles"] });
+  client.removeQueries({ queryKey: ["admin-roles"] });
   removeAdminMutations(client);
   void client.cancelQueries({ queryKey: adminModerationKeys.root });
   client.removeQueries({ queryKey: adminModerationKeys.root });
