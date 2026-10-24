@@ -2,18 +2,18 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { load } from "./helpers/load-frontend.mjs";
 const nav = await load("src/features/admin/management/navigation.ts");
 const model = await load("src/features/admin/management/model.ts");
-const { parseManagedFields, consentSchema } = await load(
+const { parseManagedFields } = await load(
   "src/features/admin/management/form-validation.ts",
 );
 const { ManagementListCards } = await load(
   "src/features/admin/management/list-cards.tsx",
 );
-const { ConsentFields, emptyConsent } = await load(
-  "src/features/admin/management/consent-fields.tsx",
+const { AdminBreederForm } = await load(
+  "src/features/admin/management/breeder-form.tsx",
 );
 const { clearAdminQueries, runAdminRequest } = await load(
   "src/features/admin/moderation/cache.ts",
@@ -127,40 +127,37 @@ test("incomplete draft is allowed but owner name, validated references and safe 
     false,
   );
 });
-test("permission must be explicit, dated and scoped; default consent does not invent permission", () => {
-  const permission = {
-    consentConfirmed: true,
-    consentAt: "2026-01-01T10:00:00.000Z",
-    consentScope: "Private preparation only",
-    consentSource: "OWNER_MESSAGE",
-    sourceReference: "synthetic-permission-18b",
-  };
-  assert.equal(consentSchema.safeParse(permission).success, true);
-  for (const change of [
-    { consentConfirmed: false },
-    { consentAt: "" },
-    { consentAt: "2099-01-01" },
-    { consentScope: "yes" },
-    { sourceReference: "" },
-    { ownerId: id },
-    { consentSource: "PUBLIC_WEBSITE" },
-  ])
-    assert.equal(
-      consentSchema.safeParse({ ...permission, ...change }).success,
-      false,
-    );
-  assert.equal(consentSchema.safeParse(emptyConsent).success, false);
+test("operator breeder form has no consent controls or fabricated input defaults", () => {
+  const client = new QueryClient();
+  client.setQueryData(["current-user"], user);
   const html = renderToStaticMarkup(
-    React.createElement(ConsentFields, {
-      value: emptyConsent,
-      onChange() {},
-      errors: {},
-    }),
+    React.createElement(
+      QueryClientProvider,
+      { client },
+      React.createElement(AdminBreederForm, { profile: null, onSaved() {} }),
+    ),
   );
-  assert(!html.includes(" checked"));
-  assert(
-    html.includes("не є згодою") && html.includes('type="datetime-local"'),
+  assert(html.includes("Інформація розплідника"));
+  for (const key of [
+    "consentConfirmed",
+    "consentAt",
+    "consentScope",
+    "consentSource",
+    "sourceReference",
+    "mediaRightsReference",
+    "datetime-local",
+  ])
+    assert(!html.includes(key));
+  const result = parseManagedFields(
+    { kennelName: "", description: "", website: "", startedYear: "" },
+    true,
+    null,
+    [],
+    "",
   );
+  assert(result.success);
+  assert(!Object.keys(result.data).some((k) => k.startsWith("consent")));
+  client.clear();
 });
 test("private admin-management caches clear together and late responses cannot cross identity boundary", async () => {
   const client = new QueryClient({

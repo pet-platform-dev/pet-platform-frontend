@@ -9,8 +9,7 @@ import { BreederBreedSelector } from "@/features/breeder/editor/breeder-breed-se
 import { emptyValues } from "@/features/breeder/editor/validation";
 import { LocationSelector } from "@/entities/location/location-selector";
 import type { Location } from "@/entities/location/model";
-import { ConsentFields, emptyConsent } from "./consent-fields";
-import { parseManagedFields, consentSchema } from "./form-validation";
+import { parseManagedFields } from "./form-validation";
 import { saveManagedBreeder } from "./api";
 import type { ManagedBreeder } from "./model";
 export function AdminBreederForm({
@@ -47,8 +46,7 @@ export function AdminBreederForm({
   const [breeds, setBreeds] = useState(
       profile?.breeds.map((item) => item.breed) ?? [],
     ),
-    [notes, setNotes] = useState(profile?.operatorNotes ?? ""),
-    [consent, setConsent] = useState(emptyConsent);
+    [notes, setNotes] = useState(profile?.operatorNotes ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({}),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false),
@@ -62,20 +60,14 @@ export function AdminBreederForm({
         event.preventDefault();
         if (submitted.current || conflict) return;
         const fields = parseManagedFields(
-            values,
-            draft,
-            location?.id ?? null,
-            breeds.map((b) => b.id),
-            notes,
-          ),
-          permission = profile ? null : consentSchema.safeParse(consent);
-        if (!fields.success || (permission && !permission.success)) {
-          const issues = [
-            ...(!fields.success ? fields.error.issues : []),
-            ...(permission && !permission.success
-              ? permission.error.issues
-              : []),
-          ];
+          values,
+          draft,
+          location?.id ?? null,
+          breeds.map((b) => b.id),
+          notes,
+        );
+        if (!fields.success) {
+          const issues = fields.error.issues;
           setErrors(
             Object.fromEntries(
               issues.map((issue) => [String(issue.path[0]), issue.message]),
@@ -100,7 +92,6 @@ export function AdminBreederForm({
                   }
                 : {
                     ...fields.data,
-                    ...(permission?.success ? permission.data : {}),
                   },
             ),
           );
@@ -171,9 +162,6 @@ export function AdminBreederForm({
           </div>
         )}
       </fieldset>
-      {!profile && (
-        <ConsentFields value={consent} onChange={setConsent} errors={errors} />
-      )}
       {message && (
         <p className="field-error" role="alert">
           {message}

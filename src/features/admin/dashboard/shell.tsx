@@ -10,6 +10,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     ["/admin", "Огляд"],
     ["/admin/users", "Користувачі"],
     ["/admin/breeders", "Розплідники"],
+    ["/admin/listings", "Оголошення"],
+    ["/admin/pets", "Тварини"],
     ["/admin/moderation", "Модерація"],
     ["/admin/moderation/reports", "Скарги"],
   ];

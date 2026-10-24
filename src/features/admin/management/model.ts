@@ -37,7 +37,6 @@ export const breederRowSchema = z.object({
   userId: z.uuid().nullable(),
   createdAt: date,
   updatedAt: date,
-  consentConfirmed: z.boolean().optional(),
 });
 export const breedersSchema = z.object({
   data: z.array(breederRowSchema),
@@ -77,10 +76,6 @@ export const breederDetailSchema = breederRowSchema
         accountType: z.enum(["SELLER", "BREEDER"]),
       })
       .optional(),
-    consentAt: date.optional(),
-    consentScope: z.string().optional(),
-    consentSource: z.string().optional(),
-    sourceReference: z.string().optional(),
     operatorNotes: z.string().nullable().optional(),
     preparedById: z.uuid().optional(),
     publicPath: z.string().nullable(),
@@ -118,9 +113,4 @@ export const verificationLabels = {
 export const sourceLabels = {
   OWNER_MANAGED: "Профілі власників",
   OPERATOR_PREPARED: "Операторські чернетки",
-};
-export const sourceConsentLabels = {
-  OWNER_REQUEST: "Запит власника",
-  OWNER_MESSAGE: "Повідомлення власника",
-  OWNER_DOCUMENT: "Документ від власника",
 };

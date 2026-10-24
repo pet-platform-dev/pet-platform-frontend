@@ -147,7 +147,15 @@ async function fixture(width, actor = admin, held = false) {
       if (path === "/admin/breeders" && method === "POST") {
         const input = request.postDataJSON();
         assert.equal(request.headers()["x-csrf-token"], "synthetic-csrf");
-        assert.equal(input.consentConfirmed, true);
+        for (const key of [
+          "consentConfirmed",
+          "consentAt",
+          "consentScope",
+          "consentSource",
+          "sourceReference",
+          "mediaRightsReference",
+        ])
+          assert(!(key in input));
         assert(
           !("userId" in input) && !("status" in input) && !("media" in input),
         );
@@ -161,7 +169,6 @@ async function fixture(width, actor = admin, held = false) {
           visibility: "PRIVATE",
           publicPath: null,
           preparedById: id,
-          consentAt: input.consentAt,
           audit: [
             {
               id: profileId,
@@ -251,7 +258,7 @@ async function choose(page, label, option) {
 }
 const results = [];
 try {
-  await mkdir("test-results/phase18b", { recursive: true });
+  await mkdir("test-results/phase18c1/breeders", { recursive: true });
   for (const width of [375, 768, 1440]) {
     for (const role of process.env.ADMIN_OWNER_BOUNDARY_ONLY === "1"
       ? []
@@ -369,40 +376,17 @@ try {
         name: "Створити приватну чернетку",
         exact: true,
       });
-      await create.click();
-      await page
-        .getByText(
-          "Підтвердьте наявність дозволу власника на підготовку чернетки.",
-          { exact: true },
-        )
-        .waitFor();
       assert.equal(f.writes.length, 0);
       await page.locator("#breeder-kennelName").fill("Синтетична чернетка");
-      await page
-        .getByLabel("Маю дозвіл власника на підготовку цієї чернетки")
-        .check();
-      await page
-        .getByLabel("Фактична дата й час згоди")
-        .fill("2026-01-01T10:00");
-      await page
-        .getByLabel("Обсяг дозволу на підготовку")
-        .fill("Лише приватна підготовка синтетичного профілю");
-      await page
-        .getByLabel("Довідка про джерело згоди")
-        .fill("synthetic-owner-permission-18b");
-      const combo = page.getByRole("combobox", {
-        name: "Джерело дозволу",
-        exact: true,
-      });
-      await combo.focus();
-      await page.keyboard.press("Enter");
-      await page.keyboard.press("Escape");
-      assert(await combo.evaluate((node) => node === document.activeElement));
+      assert.equal(
+        await page.locator('input[type="datetime-local"]').count(),
+        0,
+      );
+      await page.locator("#breeder-kennelName").focus();
+      await page.keyboard.press("Tab");
       await layout(page);
       await create.click();
-      await page
-        .getByRole("heading", { name: "Походження та згода" })
-        .waitFor();
+      await page.locator("#operatorNotes").waitFor();
       assert.equal(f.writes.length, 1);
       assert(
         await page
@@ -450,7 +434,7 @@ try {
       );
       await layout(page);
       await page.screenshot({
-        path: `test-results/phase18b/draft-${width}.png`,
+        path: `test-results/phase18c1/breeders/draft-${width}.png`,
         fullPage: true,
       });
       f.mode("denied");
@@ -463,9 +447,7 @@ try {
       await page
         .getByRole("button", { name: "Перевірити доступ", exact: true })
         .click();
-      await page
-        .getByRole("heading", { name: "Походження та згода" })
-        .waitFor();
+      await page.locator("#operatorNotes").waitFor();
       const other = await f.context.newPage();
       await other.goto(`${base}/account`);
       await other.locator(".verification-email").waitFor();
@@ -484,9 +466,7 @@ try {
       await page
         .getByRole("button", { name: "Перевірити доступ", exact: true })
         .click();
-      await page
-        .getByRole("heading", { name: "Походження та згода" })
-        .waitFor();
+      await page.locator("#operatorNotes").waitFor();
       const tab = await f.context.newPage();
       await tab.goto(`${base}/account`);
       await tab.locator(".verification-email").waitFor();
@@ -501,7 +481,7 @@ try {
         width,
         passed: true,
         coverage:
-          "guest/USER/BREEDER/MODERATOR, delayed restore, debounce/search/filter/sort/page/back, readonly user, empty/error/retry, owner/draft, consent/create/edit/conflict refresh, disabled publication, CSRF, 403, cross-tab account switch/logout, keyboard focus, no overflow/hydration errors",
+          "guest/USER/BREEDER/MODERATOR, delayed restore, debounce/search/filter/sort/page/back, readonly user, empty/error/retry, owner/draft, no-consent/create/edit/conflict refresh, disabled publication, CSRF, 403, cross-tab account switch/logout, keyboard focus, no overflow/hydration errors",
       });
     } finally {
       f.release();
@@ -509,7 +489,7 @@ try {
     }
   }
   await writeFile(
-    `test-results/phase18b/${process.env.ADMIN_OWNER_BOUNDARY_ONLY === "1" ? "owner-boundary-results" : "results"}.json`,
+    `test-results/phase18c1/breeders/${process.env.ADMIN_OWNER_BOUNDARY_ONLY === "1" ? "owner-boundary-results" : "results"}.json`,
     JSON.stringify(results, null, 2),
   );
   console.log(JSON.stringify(results, null, 2));

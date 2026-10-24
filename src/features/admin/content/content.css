@@ -1,0 +1,36 @@
+.admin-content-card {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+  min-width: 0;
+}
+.admin-content-card p {
+  margin: 0;
+}
+.admin-content-description {
+  white-space: pre-wrap;
+}
+.admin-content-images {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.admin-content-images img {
+  object-fit: cover;
+  border-radius: 12px;
+  max-width: 100%;
+}
+.admin-content-audit {
+  display: grid;
+  gap: 1rem;
+  padding-left: 1.25rem;
+  overflow-wrap: anywhere;
+}
+.admin-management textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 6rem;
+}
+.admin-management-form > .button {
+  justify-self: start;
+}

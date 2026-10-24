@@ -24,3 +24,4 @@ export default function AdminLayout({
     </Suspense>
   );
 }
+import "@/features/admin/content/content.css";

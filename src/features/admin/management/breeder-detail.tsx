@@ -9,11 +9,7 @@ import { runAdminRequest } from "../moderation/cache";
 import { getManagedBreeder, managementKey } from "./api";
 import { managementReturn } from "./navigation";
 import { AdminBreederForm } from "./breeder-form";
-import {
-  sourceLabels,
-  sourceConsentLabels,
-  type ManagedBreeder,
-} from "./model";
+import { sourceLabels, type ManagedBreeder } from "./model";
 export function ManagedBreederDetail({ id }: { id?: string }) {
   const actor = useSession().data,
     client = useQueryClient(),
@@ -93,45 +89,10 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
             </Link>
           )}
           {row.source === "OPERATOR_PREPARED" && (
-            <section className="dashboard-card">
-              <h2>Походження та згода</h2>
-              <p>
-                Згоду підтверджено оператором. Це не реєстрація чи верифікація
-                заводчика.
-              </p>
-              <dl className="admin-detail-fields">
-                {[
-                  [
-                    "Джерело",
-                    sourceConsentLabels[
-                      row.consentSource as keyof typeof sourceConsentLabels
-                    ],
-                  ],
-                  [
-                    "Дата згоди",
-                    row.consentAt
-                      ? new Intl.DateTimeFormat("uk-UA", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                          timeZone: "Europe/Kyiv",
-                        }).format(new Date(row.consentAt))
-                      : "",
-                  ],
-                  ["Обсяг дозволу", row.consentScope],
-                  ["Довідка про джерело", row.sourceReference],
-                  ["Підготував (ID)", row.preparedById],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <dt>{label}</dt>
-                    <dd>{value}</dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="muted">
-                Джерело й зафіксована згода не змінюються під час редагування
-                інформації.
-              </p>
-            </section>
+            <p className="status-panel">
+              Приватна чернетка. Підготував: {row.preparedById}. Реальний дозвіл
+              на використання матеріалів оператор отримує поза додатком.
+            </p>
           )}
           {row.source === "OWNER_MANAGED" &&
           row.user?.accountType !== "BREEDER" ? (

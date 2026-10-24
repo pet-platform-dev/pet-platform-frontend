@@ -29,11 +29,13 @@ export function ListingImages({
   onBusy,
   initialImages = [],
   active = false,
+  reorderable = true,
 }: {
   ref: Ref<ListingImagesHandle>;
   onBusy: (busy: boolean) => void;
   initialImages?: { id: string; url: string }[];
   active?: boolean;
+  reorderable?: boolean;
 }) {
   const [items, setItems] = useState<Item[]>(() =>
       initialImages.map((image) => ({
@@ -259,6 +261,7 @@ export function ListingImages({
             <div className="photo-controls">
               <button
                 type="button"
+                hidden={!reorderable}
                 disabled={busy || index === 0}
                 aria-label={`Перемістити фото ${index + 1} ліворуч`}
                 onClick={() =>
@@ -269,6 +272,7 @@ export function ListingImages({
               </button>
               <button
                 type="button"
+                hidden={!reorderable}
                 disabled={busy || index === items.length - 1}
                 aria-label={`Перемістити фото ${index + 1} праворуч`}
                 onClick={() =>
@@ -277,7 +281,7 @@ export function ListingImages({
               >
                 →
               </button>
-              {index > 0 && (
+              {reorderable && index > 0 && (
                 <button
                   type="button"
                   disabled={busy}
