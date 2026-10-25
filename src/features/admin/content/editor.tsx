@@ -21,8 +21,12 @@ import { kindLabels, statusLabels, type Content } from "./model";
 export function ContentEditor({
   row,
   onSaved,
+  breederDraftId,
+  breederProfileId,
 }: {
   row: Content | null;
+  breederDraftId?: string;
+  breederProfileId?: string;
   onSaved: (row: Content) => void;
 }) {
   const actor = useSession().data!,
@@ -48,8 +52,12 @@ export function ContentEditor({
     );
   const [draftDetails, setDraftDetails] = useState({
     ownerReference: prepared?.ownerReference ?? "",
-    breederDraftId: prepared?.breederDraftId ?? "",
+    breederDraftId: breederDraftId ?? prepared?.breederDraftId ?? "",
   });
+  const [gender, setGender] = useState(prepared?.gender ?? "UNKNOWN"),
+    [birthDate, setBirthDate] = useState(
+      prepared?.birthDate?.slice(0, 10) ?? "",
+    );
   const [dirty, setDirty] = useState(false),
     [busy, setBusy] = useState(false),
     [uploading, setUploading] = useState(false),
@@ -88,6 +96,10 @@ export function ContentEditor({
             locationId: location?.id ?? null,
             photos: draft ? images.current?.submission() : undefined,
             draftDetails,
+            breederProfileId:
+              breederProfileId ?? prepared?.breederProfileId ?? undefined,
+            gender,
+            birthDate,
           });
           lock.current = true;
           setBusy(true);
@@ -146,6 +158,31 @@ export function ContentEditor({
         <legend>
           {draft ? "Матеріали чернетки" : "Дозволені зміни оголошення"}
         </legend>
+        {draft && (
+          <>
+            <SelectDropdown
+              label="Стать тварини"
+              value={gender}
+              options={[
+                { value: "UNKNOWN", label: "Не вказано" },
+                { value: "MALE", label: "Самець" },
+                { value: "FEMALE", label: "Самка" },
+              ]}
+              onChange={(v) => setGender(v as typeof gender)}
+            />
+            <div className="field">
+              <label htmlFor="draft-birth">
+                Дата народження — необов’язково
+              </label>
+              <input
+                id="draft-birth"
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+              />
+            </div>
+          </>
+        )}
         {draft && (
           <div className="field">
             <span>Тип оголошення</span>
@@ -286,6 +323,12 @@ export function ContentEditor({
         <fieldset disabled={busy || conflict}>
           <legend>Приватна підготовка</legend>
           <DraftDetails
+            locked={Boolean(
+              breederDraftId ||
+              breederProfileId ||
+              prepared?.breederDraftId ||
+              prepared?.breederProfileId,
+            )}
             value={draftDetails}
             onChange={(v) => {
               setDraftDetails(v);
@@ -293,7 +336,7 @@ export function ContentEditor({
             }}
           />
           <ListingImages
-            reorderable={false}
+            reorderable={true}
             ref={images}
             initialImages={row?.images ?? []}
             onBusy={(v) => {

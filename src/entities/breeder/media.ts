@@ -1,3 +1,4 @@
+import { isUploadedBreederVideo } from "./uploaded-video";
 import { z } from "zod";
 import { normalizedVideoUrl } from "./video-url";
 export const BREEDER_MEDIA_LIMITS = {
@@ -19,7 +20,11 @@ const image = z.object({
 export const videoSchema = z.object({
   id: z.uuid(),
   type: z.literal("VIDEO"),
-  url: z.string().refine((url) => normalizedVideoUrl(url) === url),
+  url: z
+    .string()
+    .refine(
+      (url) => normalizedVideoUrl(url) === url || isUploadedBreederVideo(url),
+    ),
   position: z.number().int().nonnegative(),
 });
 export const breederMediaSchema = z.object({

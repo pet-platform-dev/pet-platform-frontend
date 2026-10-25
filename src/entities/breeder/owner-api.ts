@@ -3,6 +3,16 @@ import { breederSchema } from "./model";
 import { authenticatedRequest, ApiError } from "@/shared/api/client";
 import type { BreederInput } from "@/features/breeder/editor/validation";
 export const ownBreederSchema = breederSchema.extend({
+  preparedContacts: z
+    .object({
+      phone: z.string().nullable(),
+      telegram: z.string().nullable(),
+      viber: z.string().nullable(),
+      whatsapp: z.string().nullable(),
+      updatedAt: z.string(),
+    })
+    .nullable()
+    .optional(),
   publicationHeld: z.boolean().default(false),
   id: z.uuid(),
   locationId: z.uuid().nullable(),

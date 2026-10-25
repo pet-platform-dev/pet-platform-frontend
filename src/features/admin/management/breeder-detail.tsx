@@ -1,7 +1,12 @@
 "use client";
+import { WorkspaceVideos } from "../breeder-workspace/videos";
 import { hasAdminAccess } from "@/entities/user/permissions";
 
 import Link from "next/link";
+import { WorkspaceMedia } from "../breeder-workspace/media";
+import { WorkspaceContacts } from "../breeder-workspace/contacts";
+import { WorkspaceListings } from "../breeder-workspace/listings";
+import "../breeder-workspace/workspace.css";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session-provider";
@@ -85,7 +90,7 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
             </Link>
           )}
           {row.publicPath && row.userId && row.visibility === "PUBLIC" && (
-            <Link href={`/breeders/${row.userId}`}>
+            <Link href={`/sellers/${row.userId}`}>
               Переглянути публічний профіль
             </Link>
           )}
@@ -102,6 +107,14 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
               revision={row.updatedAt}
             />
           )}
+          {row.claimedProfileId && (
+            <Link
+              href={`/admin/breeders/${row.claimedProfileId}?source=OWNER_MANAGED`}
+            >
+              Відкрити робоче місце профілю власника
+            </Link>
+          )}
+          <h2>Основна інформація</h2>
           {row.claimedProfileId ? (
             <p className="status-panel">
               Підготовку завершено. Профілем керує справжній власник.
@@ -119,6 +132,52 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
               onSaved={saved}
             />
           )}
+          {!row.claimedProfileId &&
+            (row.source === "OPERATOR_PREPARED" ||
+              row.user?.accountType === "BREEDER") && (
+              <WorkspaceMedia
+                key={row.id + row.updatedAt}
+                profile={row}
+                onSaved={() => {
+                  void query.refetch();
+                  if (row.userId)
+                    for (const queryKey of [
+                      ["breeder", row.userId],
+                      ["seller", row.userId],
+                      ["breeder-directory"],
+                      ["own-breeder", row.userId],
+                    ])
+                      void client.invalidateQueries({ queryKey });
+                }}
+              />
+            )}
+          {!row.claimedProfileId &&
+            (row.source === "OPERATOR_PREPARED" ||
+              row.user?.accountType === "BREEDER") && (
+              <WorkspaceContacts
+                key={`contacts:${actor.id}:${row.id}:${row.updatedAt}`}
+                profile={row}
+                onSaved={() => void query.refetch()}
+              />
+            )}
+          {!row.claimedProfileId &&
+            (row.source === "OPERATOR_PREPARED" ||
+              row.user?.accountType === "BREEDER") && (
+              <WorkspaceVideos
+                key={`videos:${actor.id}:${row.id}:${row.updatedAt}`}
+                profile={row}
+                onSaved={() => {
+                  void query.refetch();
+                  if (row.userId)
+                    for (const queryKey of [
+                      ["breeder", row.userId],
+                      ["own-breeder", row.userId],
+                    ])
+                      void client.invalidateQueries({ queryKey });
+                }}
+              />
+            )}
+          <WorkspaceListings key={actor.id + row.id} profile={row} />
           <section className="dashboard-card">
             <h2>Останні адміністративні зміни</h2>
             {row.audit.length ? (

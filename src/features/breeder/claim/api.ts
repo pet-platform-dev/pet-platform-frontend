@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { authenticatedRequest } from "@/shared/api/client";
 export const claimPreviewSchema = z.object({
+  publicContacts: z
+    .object({
+      phone: z.string().nullable(),
+      telegram: z.string().nullable(),
+      viber: z.string().nullable(),
+      whatsapp: z.string().nullable(),
+    })
+    .optional(),
   kennelName: z.string(),
   description: z.string().nullable(),
   website: z.string().nullable(),

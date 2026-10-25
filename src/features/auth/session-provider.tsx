@@ -26,6 +26,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "admin-moderation",
     "admin-dashboard",
     "admin-management",
+    "breeder-handoffs",
     "admin-roles",
     "admin-access",
     "report-sent",

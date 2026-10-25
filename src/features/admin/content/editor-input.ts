@@ -2,6 +2,9 @@ import type { Content } from "./model";
 import type { ListingImagesHandle } from "@/features/listing/create-listing/ui/listing-images";
 import { editorFields, readyDraftError } from "./validation";
 export type ContentInput = {
+  breederProfileId?: string;
+  gender?: string;
+  birthDate?: string;
   row: Content | null;
   title: string;
   description: string;
@@ -46,6 +49,9 @@ export function buildContentInput(v: ContentInput) {
   if (!row || row.source === "OPERATOR_DRAFT") {
     if (!photos) throw Error("Дочекайтеся завантаження фотографій.");
     const body = {
+      ...(v.breederProfileId ? { breederProfileId: v.breederProfileId } : {}),
+      gender: v.gender ?? "UNKNOWN",
+      birthDate: v.birthDate || null,
       kind,
       title: fields.title,
       description,

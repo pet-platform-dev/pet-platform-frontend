@@ -137,6 +137,33 @@ export function BreederClaimPage() {
               {current && state.preview && (
                 <div className="status-panel">
                   <h2>{state.preview.kennelName}</h2>
+                  {state.preview.publicContacts && (
+                    <div>
+                      <h3>Підготовлені публічні контакти</h3>
+                      {Object.entries(state.preview.publicContacts).map(
+                        ([key, value]) =>
+                          value && (
+                            <p key={key}>
+                              {
+                                (
+                                  {
+                                    phone: "Телефон",
+                                    telegram: "Telegram",
+                                    viber: "Viber",
+                                    whatsapp: "WhatsApp",
+                                  } as Record<string, string>
+                                )[key]
+                              }
+                              : {value}
+                            </p>
+                          ),
+                      )}
+                      <p>
+                        Контакти залишаться приватними до окремої публікації
+                        профілю. Ваші наявні публічні контакти не замінюються.
+                      </p>
+                    </div>
+                  )}
                   {state.preview.description && (
                     <p
                       style={{

@@ -6,8 +6,10 @@ export type DraftDetailsValues = {
 export function DraftDetails({
   value,
   onChange,
+  locked = false,
 }: {
   value: DraftDetailsValues;
+  locked?: boolean;
   onChange: (value: DraftDetailsValues) => void;
 }) {
   return (
@@ -17,22 +19,31 @@ export function DraftDetails({
         Дозвіл на використання інформації та фото оператор отримує поза
         додатком. Чернетка залишається приватною.
       </p>
+      {locked && (
+        <p className="muted">
+          Оголошення пов’язане з поточним розплідником. Перепризначення
+          недоступне.
+        </p>
+      )}
       {(
         [
           ["ownerReference", "Довідка про власника", 200],
           ["breederDraftId", "ID підготовленої чернетки розплідника", 36],
         ] as const
-      ).map(([key, label, maxLength]) => (
-        <div className="field" key={key}>
-          <label htmlFor={key}>{label}</label>
-          <input
-            id={key}
-            maxLength={maxLength}
-            value={value[key]}
-            onChange={(e) => onChange({ ...value, [key]: e.target.value })}
-          />
-        </div>
-      ))}
+      )
+        .filter(([key]) => !(locked && key === "breederDraftId"))
+        .map(([key, label, maxLength]) => (
+          <div className="field" key={key}>
+            <label htmlFor={key}>{label}</label>
+            <input
+              id={key}
+              maxLength={maxLength}
+              readOnly={key === "breederDraftId" && locked}
+              value={value[key]}
+              onChange={(e) => onChange({ ...value, [key]: e.target.value })}
+            />
+          </div>
+        ))}
     </fieldset>
   );
 }

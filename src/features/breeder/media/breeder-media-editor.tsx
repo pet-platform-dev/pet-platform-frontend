@@ -6,6 +6,7 @@ import {
   removeBreederMedia,
   reorderBreederMedia,
   addBreederVideo,
+  updateBreederVideo,
 } from "./api";
 import { BreederLogoField } from "./breeder-logo-field";
 import { BreederCoverField } from "./breeder-cover-field";
@@ -80,6 +81,9 @@ export function BreederMediaEditor({
         videos={profile.media.videos}
         disabled={locked}
         onAdd={(url) => state.command(() => addBreederVideo(url), "VIDEO")}
+        onEdit={(id, url) =>
+          state.command(() => updateBreederVideo(id, url), "VIDEO")
+        }
         onRemove={remove("VIDEO")}
         onReorder={(ids) =>
           void state.command(() => reorderBreederMedia("VIDEO", ids), "VIDEO")

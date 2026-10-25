@@ -154,7 +154,12 @@ export function ManagedContentDetail({ id }: { id?: string }) {
       <h1>{id ? "Оголошення" : "Підготувати оголошення"}</h1>
       {message && <p role="status">{message}</p>}
       {!id ? (
-        <ContentEditor row={null} onSaved={saved} />
+        <ContentEditor
+          row={null}
+          breederDraftId={search.get("breederDraftId") ?? undefined}
+          breederProfileId={search.get("breederProfileId") ?? undefined}
+          onSaved={saved}
+        />
       ) : q.isPending ? (
         <p role="status">Завантажуємо…</p>
       ) : q.isError || !row ? (
@@ -236,13 +241,14 @@ export function ManagedContentDetail({ id }: { id?: string }) {
               ))}
             </div>
           )}
-          {row.status !== "ARCHIVED" && (
-            <ContentEditor
-              key={row.id + row.updatedAt}
-              row={row}
-              onSaved={saved}
-            />
-          )}
+          {row.status !== "ARCHIVED" &&
+            !(row.source === "OPERATOR_DRAFT" && row.transferredAt) && (
+              <ContentEditor
+                key={row.id + row.updatedAt}
+                row={row}
+                onSaved={saved}
+              />
+            )}
           <section>
             <h2>Останні адміністративні зміни</h2>
             {!row.audit?.length ? (

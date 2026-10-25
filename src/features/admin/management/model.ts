@@ -46,6 +46,26 @@ export const breederDetailSchema = breederRowSchema
   .omit({ userId: true })
   .extend({
     userId: z.uuid().optional(),
+    publicContacts: z
+      .object({
+        phone: z.string().nullable(),
+        telegram: z.string().nullable(),
+        viber: z.string().nullable(),
+        whatsapp: z.string().nullable(),
+        updatedAt: z.string().nullable(),
+      })
+      .optional(),
+    preparationDraftId: z.uuid().nullable().optional(),
+    media: z
+      .array(
+        z.object({
+          id: z.uuid(),
+          type: z.enum(["LOGO", "COVER", "IMAGE", "VIDEO"]),
+          url: z.url(),
+          position: z.number(),
+        }),
+      )
+      .optional(),
     description: z.string().nullable(),
     website: z.string().nullable(),
     startedYear: z.number().int().nullable(),

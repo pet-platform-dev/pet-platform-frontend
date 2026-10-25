@@ -4,6 +4,7 @@ import { RequireSession } from "@/features/auth/require-session";
 import { useSession } from "@/features/auth/session-provider";
 import { useOwnBreeder } from "./use-own-breeder";
 import { BreederForm } from "./breeder-form";
+import { BreederHandoffs } from "../handoff/handoffs";
 import { ClaimPublication } from "./claim-publication";
 function OwnBreederEditor({ userId }: { userId: string }) {
   const query = useOwnBreeder(userId);
@@ -30,8 +31,13 @@ function OwnBreederEditor({ userId }: { userId: string }) {
   return (
     <>
       {query.data?.publicationHeld && (
-        <ClaimPublication key={`publication:${userId}`} userId={userId} />
+        <ClaimPublication
+          key={`publication:${userId}`}
+          userId={userId}
+          preparedContacts={query.data.preparedContacts}
+        />
       )}
+      <BreederHandoffs key={`handoffs:${userId}`} userId={userId} />
       <BreederForm key={userId} userId={userId} profile={query.data} />
     </>
   );

@@ -41,3 +41,12 @@ export async function addBreederVideo(url: string) {
     }),
   );
 }
+
+export async function updateBreederVideo(id: string, url: string) {
+  return ownBreederSchema.parse(
+    await authenticatedRequest(
+      "/breeders/me/media/videos/" + encodeURIComponent(id),
+      { method: "PATCH", body: JSON.stringify({ url }) },
+    ),
+  );
+}

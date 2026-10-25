@@ -7,7 +7,18 @@ import {
 } from "@/shared/api/client";
 import { ownBreederSchema } from "@/entities/breeder/owner-api";
 import { updateBreederCache } from "./cache";
-export function ClaimPublication({ userId }: { userId: string }) {
+export function ClaimPublication({
+  userId,
+  preparedContacts,
+}: {
+  userId: string;
+  preparedContacts?: {
+    phone: string | null;
+    telegram: string | null;
+    viber: string | null;
+    whatsapp: string | null;
+  } | null;
+}) {
   const client = useQueryClient(),
     [pending, setPending] = useState(false),
     [message, setMessage] = useState(""),
@@ -38,6 +49,32 @@ export function ClaimPublication({ userId }: { userId: string }) {
   return (
     <section className="status-panel">
       <h2>Отриманий профіль приватний</h2>
+      {preparedContacts && (
+        <div>
+          <h3>Підготовлені контакти</h3>
+          {Object.entries(preparedContacts)
+            .filter(([key, value]) => key !== "updatedAt" && value)
+            .map(([key, value]) => (
+              <p key={key}>
+                {
+                  (
+                    {
+                      phone: "Телефон",
+                      telegram: "Telegram",
+                      viber: "Viber",
+                      whatsapp: "WhatsApp",
+                    } as Record<string, string>
+                  )[key]
+                }
+                : {value}
+              </p>
+            ))}
+          <p>
+            Публікація використає ці контакти лише якщо ви ще не зберігали
+            власні публічні контакти.
+          </p>
+        </div>
+      )}
       <p>
         Перевірте й збережіть інформацію перед окремою публікацією. Оголошення
         не публікуються цією дією.
