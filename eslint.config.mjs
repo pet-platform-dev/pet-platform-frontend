@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated browser fixtures and local audit artifacts are not source.
+    "test-results/**",
+    ".tmp/**",
   ]),
 ]);
 

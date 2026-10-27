@@ -83,7 +83,7 @@ export function ManagedUserDetail({ id }: { id: string }) {
               Публічний профіль
             </Link>
             {row.breederPath && row.accountType === "BREEDER" && (
-              <Link className="button secondary" href={`/breeders/${row.id}`}>
+              <Link className="button secondary" href={`/sellers/${row.id}`}>
                 Профіль розплідника
               </Link>
             )}

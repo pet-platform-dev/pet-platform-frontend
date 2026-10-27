@@ -209,7 +209,7 @@ try {
         name: "Адміністрування",
         exact: true,
       });
-      assert.equal(await nav.getByRole("link").count(), 5);
+      assert.equal(await nav.getByRole("link").count(), 7);
       const overview = nav.getByRole("link", { name: "Огляд", exact: true });
       await page.keyboard.press("Tab");
       await overview.focus();

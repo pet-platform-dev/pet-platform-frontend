@@ -39,7 +39,7 @@ const owner = {
   locationId: null,
   location: null,
   breeds: [],
-  publicPath: `/breeders/${id}`,
+  publicPath: `/sellers/${id}`,
   audit: [],
 };
 async function fixture(width, actor = admin, held = false) {
@@ -121,7 +121,8 @@ async function fixture(width, actor = admin, held = false) {
           counts: { pets: 2, listings: 3, matingListings: 0 },
           breederProfile: null,
           sellerPath: `/sellers/${id}`,
-          breederPath: null,
+          accountType: "BREEDER",
+          breederPath: `/sellers/${id}`,
         });
       if (path === "/admin/breeders" && method === "GET") {
         const rows =
@@ -327,6 +328,12 @@ try {
       await page.locator(".admin-management-grid a").click();
       await page.getByText(admin.email, { exact: true }).waitFor();
       assert.equal(await page.locator(".admin-management form").count(), 0);
+      assert.equal(
+        await page
+          .getByRole("link", { name: "Профіль розплідника", exact: true })
+          .getAttribute("href"),
+        `/sellers/${id}`,
+      );
       await layout(page);
       await page
         .getByRole("link", { name: "До користувачів", exact: true })

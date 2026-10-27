@@ -144,7 +144,9 @@ try {
     );
     const videoLinks = new WorkspaceVideosService(db, workspace),
       ownerVideos = new BreederVideoService(db, profiles),
-      draftWrites = new AdminBreedersWriteService(db),
+      draftWrites = new AdminBreedersWriteService(db, {
+        authenticate: async () => admin,
+      }),
       claims = new BreederClaimService(db, {
         authenticate: async () => active,
       });
@@ -694,9 +696,13 @@ try {
     assert.deepEqual(errors, []);
 
     const prepared = (
-      await draftWrites.create(admin.id, {
-        kennelName: "Приватний підготовлений розплідник",
-      })
+      await draftWrites.create(
+        admin.id,
+        {
+          kennelName: "Приватний підготовлений розплідник",
+        },
+        "synthetic-access",
+      )
     ).data;
     active = admin;
     await context.clearCookies();
