@@ -1,9 +1,9 @@
-import { ManagedBreederDetail } from "@/features/admin/management/breeder-detail";
+import { BreederCreationWizard } from "@/features/admin/breeder-wizard/wizard";
 export const metadata = { title: "Приватна чернетка розплідника — Лапа" };
 export default function Page() {
   return (
     <main className="catalog-shell">
-      <ManagedBreederDetail />
+      <BreederCreationWizard />
     </main>
   );
 }

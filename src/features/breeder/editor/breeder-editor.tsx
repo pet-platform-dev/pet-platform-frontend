@@ -37,7 +37,11 @@ function OwnBreederEditor({ userId }: { userId: string }) {
           preparedContacts={query.data.preparedContacts}
         />
       )}
-      <BreederHandoffs key={`handoffs:${userId}`} userId={userId} />
+      <BreederHandoffs
+        key={`handoffs:${userId}`}
+        userId={userId}
+        profileId={query.data?.id}
+      />
       <BreederForm key={userId} userId={userId} profile={query.data} />
     </>
   );

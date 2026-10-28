@@ -1,12 +1,17 @@
 import { z } from "zod";
-const draftSchema = z.object({
+export const draftSchema = z.object({
   id: z.uuid(),
   title: z.string(),
   description: z.string(),
   gender: z.enum(["MALE", "FEMALE", "UNKNOWN"]),
   birthDate: z.string().nullable(),
   price: z.string().nullable(),
-  species: z.object({ name: z.string() }).nullable().optional(),
+  kind: z.enum(["SALE", "FREE", "ADOPTION", "MATING"]),
+  status: z.enum(["DRAFT", "READY_FOR_REVIEW", "ARCHIVED"]),
+  species: z
+    .object({ name: z.string(), slug: z.string().optional() })
+    .nullable()
+    .optional(),
   breed: z
     .object({ name: z.string(), nameUk: z.string().nullable() })
     .nullable()
@@ -28,3 +33,9 @@ export const envelope = z.object({
   meta: z.object({ pages: z.number() }),
 });
 export type Handoff = z.infer<typeof handoffSchema>;
+
+export const preparedEnvelope = z.object({
+  breeder: z.object({ id: z.uuid(), kennelName: z.string() }),
+  data: z.array(draftSchema),
+  meta: z.object({ pages: z.number(), total: z.number() }),
+});

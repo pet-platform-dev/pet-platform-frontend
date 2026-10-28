@@ -196,7 +196,7 @@ test("DRAFT editor shows save/publish and staged existing images", () => {
   );
   for (const text of [
     "Зберегти зміни",
-    "Надіслати на модерацію",
+    "Подати на публікацію",
     "В архів",
     "Дані тварини редагуються окремо",
     "Головне фото",
@@ -218,7 +218,7 @@ test("ACTIVE editor locks type and retains safe edits without publish", () => {
   assert.ok(html.includes("Тип активного оголошення змінити не можна"));
   assert.ok(html.includes('disabled=""'));
   assert.ok(html.includes("Зберегти зміни"));
-  assert.ok(!html.includes(">Надіслати на модерацію<"));
+  assert.ok(!html.includes(">Подати на публікацію<"));
 });
 for (const status of ["SOLD", "TRANSFERRED", "ADOPTED", "ARCHIVED"])
   test(`${status} editor is read-only`, () => {

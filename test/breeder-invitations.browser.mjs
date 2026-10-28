@@ -235,6 +235,15 @@ async function fixture(width, initial = owner, held = false) {
       invites.invitations[0].status = "REVOKED";
       return reply(invites);
     }
+    if (path.startsWith("/breeder-claims/packages/"))
+      return reply({
+        breeder: { id: draftId, kennelName: prepared.kennelName },
+        revision: "a".repeat(64),
+        count: 0,
+        canAccept: true,
+        blockers: [],
+        listings: [],
+      });
     if (path.startsWith("/breeder-claims/")) {
       assert.equal(req.headers().authorization, "Bearer synthetic-access");
       const body = req.postDataJSON();
@@ -268,6 +277,14 @@ async function fixture(width, initial = owner, held = false) {
           startedYear: null,
           expiresAt: "2026-11-01T00:00:00Z",
           draftRevision: at,
+          location: null,
+          package: {
+            revision: "a".repeat(64),
+            count: 0,
+            canAccept: true,
+            blockers: [],
+            listings: [],
+          },
         });
       }
       assert.equal(body.acceptOwnership, true);
@@ -287,7 +304,7 @@ async function fixture(width, initial = owner, held = false) {
       return reply({
         profileId: draftId,
         ownerId: id,
-        redirectTo: "/profile/breeder",
+        redirectTo: "/my-listings",
       });
     }
     if (path === "/breeders/me/publish") {
@@ -445,7 +462,7 @@ try {
       await inspect.focus();
       await c.page.keyboard.press("Enter");
       await c.page
-        .getByRole("button", { name: "Підтвердити отримання профілю" })
+        .getByRole("button", { name: "Прийняти розплідник та оголошення" })
         .waitFor();
       assert.equal(c.stats.accepts, 0);
       await c.check();
@@ -454,12 +471,13 @@ try {
         fullPage: true,
       });
       await c.page
-        .getByRole("button", { name: "Підтвердити отримання профілю" })
+        .getByRole("button", { name: "Прийняти розплідник та оголошення" })
         .evaluate((b) => {
           b.click();
           b.click();
         });
-      await c.page.waitForURL(`${base}/profile/breeder`);
+      await c.page.waitForURL(`${base}/my-listings`);
+      await c.page.goto(`${base}/profile/breeder`);
       assert.equal(c.stats.accepts, 1);
       await c.page
         .getByRole("heading", { name: "Отриманий профіль приватний" })
@@ -518,7 +536,7 @@ try {
       .getByRole("button", { name: "Переглянути підготовлений профіль" })
       .click();
     await guest.page
-      .getByRole("button", { name: "Підтвердити отримання профілю" })
+      .getByRole("button", { name: "Прийняти розплідник та оголошення" })
       .waitFor();
     guest.setActive({ ...owner, id: draftId, email: "wrong@example.invalid" });
     await guest.notify();
@@ -579,7 +597,7 @@ try {
       .getByRole("button", { name: "Переглянути підготовлений профіль" })
       .click();
     await registering.page
-      .getByRole("button", { name: "Підтвердити отримання профілю" })
+      .getByRole("button", { name: "Прийняти розплідник та оголошення" })
       .waitFor();
     await registering.check();
   } finally {
@@ -597,7 +615,7 @@ try {
         await c.page.getByText(/Відкрийте оригінальне посилання/).waitFor();
       else {
         await c.page
-          .getByRole("button", { name: "Підтвердити отримання профілю" })
+          .getByRole("button", { name: "Прийняти розплідник та оголошення" })
           .click();
         await c.page.getByRole("alert").waitFor();
         assert.equal(c.stats.accepts, 1);
@@ -606,9 +624,10 @@ try {
             .getByRole("button", { name: "Переглянути підготовлений профіль" })
             .click();
           await c.page
-            .getByRole("button", { name: "Підтвердити отримання профілю" })
+            .getByRole("button", { name: "Прийняти розплідник та оголошення" })
             .click();
-          await c.page.waitForURL(`${base}/profile/breeder`);
+          await c.page.waitForURL(`${base}/my-listings`);
+          await c.page.goto(`${base}/profile/breeder`);
           assert.equal(c.stats.accepts, 2);
         }
       }

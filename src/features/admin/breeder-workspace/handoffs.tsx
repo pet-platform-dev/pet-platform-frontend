@@ -8,7 +8,7 @@ import {
   currentSessionGeneration,
 } from "@/shared/api/client";
 import { currentAdmin, runAdminRequest } from "../moderation/cache";
-const schema = z.array(
+export const workspaceHandoffsSchema = z.array(
   z.object({
     id: z.uuid(),
     status: z.enum(["PENDING", "ACCEPTED", "EXPIRED", "REVOKED"]),
@@ -33,11 +33,17 @@ export function WorkspaceHandoffs({
     client = useQueryClient(),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
-  const key = ["admin-management", actor.id, "workspace-handoffs", draftId];
+  const key = [
+    "admin-management",
+    actor.id,
+    "workspace-handoffs",
+    draftId,
+    source,
+  ];
   const q = useQuery({
     queryKey: key,
     queryFn: async ({ signal }) =>
-      schema.parse(
+      workspaceHandoffsSchema.parse(
         await runAdminRequest(client, actor.id, () =>
           authenticatedRequest(
             `/admin/breeders/${draftId}/handoffs?source=${source}`,

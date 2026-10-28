@@ -276,11 +276,12 @@ function Editor({
             {canSubmitPublication(listing) && (
               <button
                 type="button"
+                id="publication"
                 className="button primary"
                 disabled={uploading}
                 onClick={() => void submit(true)}
               >
-                Надіслати на модерацію
+                Подати на публікацію
               </button>
             )}
             <Link className="button secondary" href="/my-listings">

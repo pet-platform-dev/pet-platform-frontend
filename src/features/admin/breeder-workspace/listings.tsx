@@ -10,7 +10,7 @@ import {
 import { runAdminRequest, currentAdmin } from "../moderation/cache";
 import { getContentList } from "../content/api";
 import { invalidateContentCaches } from "../content/cache";
-import { WorkspaceHandoffs } from "./handoffs";
+import { WorkspaceHandoffs, workspaceHandoffsSchema } from "./handoffs";
 import { ContentEditor } from "../content/editor";
 import {
   statusLabels,
@@ -19,6 +19,7 @@ import {
   type ContentSource,
 } from "../content/model";
 import { SelectDropdown } from "@/shared/ui/select-dropdown";
+import { getManagedBreeder } from "../management/api";
 import type { ManagedBreeder } from "../management/model";
 export function WorkspaceListings({ profile }: { profile: ManagedBreeder }) {
   const actor = useSession().data!,
@@ -41,6 +42,44 @@ export function WorkspaceListings({ profile }: { profile: ManagedBreeder }) {
   const claimed = Boolean(
     profile.claimedProfileId || profile.source === "OWNER_MANAGED",
   );
+  const handoffs = useQuery({
+    queryKey: [
+      "admin-management",
+      actor.id,
+      "workspace-handoffs",
+      handoffId,
+      handoffSource,
+    ],
+    queryFn: async ({ signal }) =>
+      workspaceHandoffsSchema.parse(
+        await runAdminRequest(client, actor.id, () =>
+          authenticatedRequest(
+            `/admin/breeders/${handoffId}/handoffs?source=${handoffSource}`,
+            { signal },
+          ),
+        ),
+      ),
+    enabled: claimed,
+    retry: false,
+  });
+  const pendingIds = (handoffs.data ?? [])
+    .filter((h) => h.status === "PENDING")
+    .flatMap((h) => h.items.map((i) => i.draftId));
+  const recipient = useQuery({
+    queryKey: [
+      "admin-management",
+      actor.id,
+      "breeder",
+      profile.claimedProfileId,
+      "OWNER_MANAGED",
+    ],
+    queryFn: ({ signal }) =>
+      runAdminRequest(client, actor.id, () =>
+        getManagedBreeder(profile.claimedProfileId!, "OWNER_MANAGED", signal),
+      ),
+    enabled: Boolean(profile.claimedProfileId),
+    retry: false,
+  });
   const params = new URLSearchParams({
     source,
     page: String(page),
@@ -97,7 +136,8 @@ export function WorkspaceListings({ profile }: { profile: ManagedBreeder }) {
             "admin-management",
             actor.id,
             "workspace-handoffs",
-            preparationId,
+            handoffId,
+            handoffSource,
           ],
         });
       }
@@ -116,6 +156,25 @@ export function WorkspaceListings({ profile }: { profile: ManagedBreeder }) {
   return (
     <section className="dashboard-card">
       <h2>Оголошення</h2>
+      <p className="muted">
+        Щоб прибрати підготовлений запис, відкрийте «Редагувати», виберіть «В
+        архіві» та збережіть. Запис залишиться в історії.
+      </p>
+      {claimed && (
+        <p>
+          Передати оголошення власнику:{" "}
+          {profile.user
+            ? [profile.user.firstName, profile.user.lastName]
+                .filter(Boolean)
+                .join(" ")
+            : recipient.data?.user
+              ? [recipient.data.user.firstName, recipient.data.user.lastName]
+                  .filter(Boolean)
+                  .join(" ")
+              : "підтверджений власник профілю"}
+          . Виберіть конкретні чернетки; власник має окремо прийняти їх.
+        </p>
+      )}
       <SelectDropdown
         label="Матеріали розплідника"
         value={source}
@@ -144,10 +203,17 @@ export function WorkspaceListings({ profile }: { profile: ManagedBreeder }) {
           <ContentEditor
             key={editor?.id ?? "new"}
             row={editor}
-            breederDraftId={preparationId ?? undefined}
-            breederProfileId={
-              !preparationId && profile.source === "OWNER_MANAGED"
-                ? profile.id
+            breederContext={
+              !editor ||
+              (editor.source === "OPERATOR_DRAFT" && editor.type !== "MATING")
+                ? {
+                    id: preparationId ?? profile.id,
+                    source: preparationId
+                      ? "OPERATOR_PREPARED"
+                      : "OWNER_MANAGED",
+                    name: profile.kennelName,
+                    location: profile.location,
+                  }
                 : undefined
             }
             onSaved={(row) => {
@@ -234,6 +300,11 @@ export function WorkspaceListings({ profile }: { profile: ManagedBreeder }) {
                     <label>
                       <input
                         type="checkbox"
+                        disabled={
+                          handoffs.isPending ||
+                          handoffs.isError ||
+                          pendingIds.includes(row.id)
+                        }
                         checked={selected.includes(row.id)}
                         onChange={(e) =>
                           setSelected((old) =>
@@ -285,7 +356,7 @@ export function WorkspaceListings({ profile }: { profile: ManagedBreeder }) {
           disabled={busy}
           onClick={() => void propose()}
         >
-          Запропонувати передачу ({selected.length})
+          Передати оголошення власнику ({selected.length})
         </button>
       )}
       {message && <p role="status">{message}</p>}

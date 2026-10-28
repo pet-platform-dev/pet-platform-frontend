@@ -1,7 +1,12 @@
 import type { Content } from "./model";
 import type { ListingImagesHandle } from "@/features/listing/create-listing/ui/listing-images";
 import { editorFields, readyDraftError } from "./validation";
+import {
+  withoutBreederReferences,
+  type BreederListingContext,
+} from "./breeder-context";
 export type ContentInput = {
+  breederContext?: BreederListingContext;
   breederProfileId?: string;
   gender?: string;
   birthDate?: string;
@@ -74,7 +79,11 @@ export function buildContentInput(v: ContentInput) {
     };
     const error = readyDraftError(body);
     if (error) throw Error(error);
-    return body;
+    if (v.breederContext && kind === "MATING")
+      throw Error(
+        "Для розплідника оберіть продаж, безкоштовно або прилаштування.",
+      );
+    return v.breederContext ? withoutBreederReferences(body) : body;
   }
   if (reason.trim().length < 10)
     throw Error("Вкажіть адміністративну причину (щонайменше 10 символів).");

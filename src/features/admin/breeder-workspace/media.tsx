@@ -13,15 +13,20 @@ import type { ManagedBreeder } from "../management/model";
 export function WorkspaceMedia({
   profile,
   onSaved,
+  types = ["LOGO", "COVER", "IMAGE"],
+  heading = "Логотип і обкладинка",
 }: {
   profile: ManagedBreeder;
-  onSaved: () => void;
+  types?: readonly ("LOGO" | "COVER" | "IMAGE")[];
+  heading?: string;
+  onSaved: () => void | Promise<unknown>;
 }) {
   const actor = useSession().data!,
     client = useQueryClient();
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
-  const lock = useRef(false),
+  const uploadLock = useRef(false),
+    lock = useRef(false),
     requests = useRef(new AbortController());
   useEffect(() => {
     requests.current = new AbortController();
@@ -35,18 +40,23 @@ export function WorkspaceMedia({
     setMessage("");
     const generation = currentSessionGeneration();
     try {
-      await runAdminRequest(client, actor.id, () =>
-        authenticatedRequest(`/admin/breeders/${profile.id}/media${suffix}`, {
-          method,
-          body,
-          signal: requests.current.signal,
-        }),
+      const result = await runAdminRequest(client, actor.id, () =>
+        authenticatedRequest<{ updatedAt: string }>(
+          `/admin/breeders/${profile.id}/media${suffix}`,
+          {
+            method,
+            body,
+            signal: requests.current.signal,
+          },
+        ),
       );
       if (
         generation === currentSessionGeneration() &&
         currentAdmin(client, actor.id)
-      )
-        onSaved();
+      ) {
+        await onSaved();
+        return result.updatedAt;
+      }
     } catch {
       if (
         generation === currentSessionGeneration() &&
@@ -60,6 +70,39 @@ export function WorkspaceMedia({
       if (generation === currentSessionGeneration()) setBusy(false);
     }
   }
+  async function upload(files: File[], type: "LOGO" | "COVER" | "IMAGE") {
+    if (uploadLock.current || !files.length) return;
+    if (
+      (type === "IMAGE" &&
+        files.length +
+          (profile.media ?? []).filter((m) => m.type === "IMAGE").length >
+          20) ||
+      files.some(
+        (f) =>
+          f.size > 8 * 1024 * 1024 ||
+          !["image/jpeg", "image/png", "image/webp"].includes(f.type),
+      )
+    ) {
+      setMessage("Оберіть JPEG, PNG або WebP до 8 МБ; у галереї — до 20 фото.");
+      return;
+    }
+    uploadLock.current = true;
+    let revision = profile.updatedAt;
+    try {
+      for (const file of files) {
+        const body = new FormData();
+        body.set("file", file);
+        body.set("type", type);
+        body.set("source", profile.source);
+        body.set("expectedUpdatedAt", revision);
+        const next = await change("", "POST", body);
+        if (!next) break;
+        revision = next;
+      }
+    } finally {
+      uploadLock.current = false;
+    }
+  }
   const fields = {
     source: profile.source,
     expectedUpdatedAt: profile.updatedAt,
@@ -71,12 +114,12 @@ export function WorkspaceMedia({
       className="dashboard-card breeder-workspace-media"
       aria-busy={busy}
     >
-      <h2>Логотип і обкладинка</h2>
+      <h2>{heading}</h2>
       <p className="muted">
         JPEG, PNG або WebP до 8 МБ. Фотогалерея — до 20 фото. Кожна зміна
         зберігається окремо.
       </p>
-      {(["LOGO", "COVER", "IMAGE"] as const).map((type) => (
+      {types.map((type) => (
         <section key={type}>
           <h3>
             {
@@ -94,25 +137,13 @@ export function WorkspaceMedia({
             <input
               id={`workspace-${type}`}
               type="file"
+              multiple={type === "IMAGE"}
               accept="image/jpeg,image/png,image/webp"
               disabled={busy || (type === "IMAGE" && gallery.length >= 20)}
               onChange={(e) => {
-                const file = e.target.files?.[0];
+                const files = Array.from(e.target.files ?? []);
                 e.target.value = "";
-                if (!file) return;
-                if (
-                  file.size > 8 * 1024 * 1024 ||
-                  !["image/jpeg", "image/png", "image/webp"].includes(file.type)
-                ) {
-                  setMessage("Оберіть JPEG, PNG або WebP до 8 МБ.");
-                  return;
-                }
-                const body = new FormData();
-                body.set("file", file);
-                body.set("type", type);
-                body.set("source", fields.source);
-                body.set("expectedUpdatedAt", fields.expectedUpdatedAt);
-                void change("", "POST", body);
+                void upload(files, type);
               }}
             />
           </div>
@@ -136,6 +167,7 @@ export function WorkspaceMedia({
                   />
                   <div className="account-actions">
                     <button
+                      type="button"
                       className="button secondary"
                       disabled={busy}
                       onClick={() =>
@@ -151,6 +183,7 @@ export function WorkspaceMedia({
                     {type === "IMAGE" && (
                       <>
                         <button
+                          type="button"
                           className="button secondary"
                           aria-label={`Фото ${i + 1}: перемістити ліворуч`}
                           disabled={busy || i === 0}
@@ -167,6 +200,7 @@ export function WorkspaceMedia({
                           Ліворуч
                         </button>
                         <button
+                          type="button"
                           className="button secondary"
                           aria-label={`Фото ${i + 1}: перемістити праворуч`}
                           disabled={busy || i === gallery.length - 1}
@@ -193,7 +227,7 @@ export function WorkspaceMedia({
           )}
         </section>
       ))}
-      {gallery.length > 0 && (
+      {types.includes("IMAGE") && gallery.length > 0 && (
         <ImageGallery
           heading={profile.kennelName ?? "Розплідник"}
           images={gallery.map((m) => ({ ...m, thumbnailUrl: m.url }))}

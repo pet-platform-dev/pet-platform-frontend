@@ -1,3 +1,4 @@
+import { finishSkippedBreederWizard } from "./helpers/breeder-wizard.mjs";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 const { chromium } = await import(
@@ -227,7 +228,11 @@ async function fixture(width, actor = admin, held = false) {
   page.setDefaultTimeout(15000);
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
-    if (/hydration failed|hydrated but/i.test(message.text()))
+    if (
+      /hydration failed|hydrated but|same key|two children/i.test(
+        message.text(),
+      )
+    )
       errors.push(message.text());
   });
   return {
@@ -321,7 +326,11 @@ try {
       assert.equal(f.calls.length, before, "Search must debounce");
       await page.waitForURL((url) => url.searchParams.get("q") === "Олена");
       await choose(page, "Технічна роль", "Адміністратор");
+      await page.waitForURL((url) => url.searchParams.get("role") === "ADMIN");
       await choose(page, "Сортування", "За назвою: А–Я");
+      await page.waitForURL(
+        (url) => url.searchParams.get("sort") === "NAME_ASC",
+      );
       await page.getByRole("link", { name: "Сторінка 2", exact: true }).click();
       await page.waitForURL((url) => url.searchParams.get("page") === "2");
       const listUrl = page.url();
@@ -380,7 +389,7 @@ try {
         .getByRole("link", { name: "Створити приватну чернетку", exact: true })
         .click();
       const create = page.getByRole("button", {
-        name: "Створити приватну чернетку",
+        name: "Далі",
         exact: true,
       });
       assert.equal(f.writes.length, 0);
@@ -393,6 +402,7 @@ try {
       await page.keyboard.press("Tab");
       await layout(page);
       await create.click();
+      await finishSkippedBreederWizard(page);
       await page.locator("#operatorNotes").waitFor();
       assert.equal(f.writes.length, 1);
       assert(

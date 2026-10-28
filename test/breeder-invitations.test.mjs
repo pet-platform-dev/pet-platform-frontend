@@ -14,6 +14,14 @@ const token = "s".repeat(43),
     startedYear: null,
     expiresAt: "2026-11-01T00:00:00Z",
     draftRevision: "2026-10-24T00:00:00Z",
+    location: null,
+    package: {
+      revision: "a".repeat(64),
+      count: 0,
+      canAccept: true,
+      blockers: [],
+      listings: [],
+    },
   };
 function capture(c, query = `?token=${token}`) {
   const calls = [];
@@ -39,9 +47,10 @@ test("URL capture is memory-only, idempotent under Strict Mode replay, and never
       calls.push("preview");
       return preview;
     },
-    async (raw, revision) => {
+    async (raw, revision, packageRevision) => {
       assert.equal(raw, token);
       assert.equal(revision, preview.draftRevision);
+      assert.equal(packageRevision, preview.package.revision);
       calls.push("accept");
       return { ownerId: "owner" };
     },

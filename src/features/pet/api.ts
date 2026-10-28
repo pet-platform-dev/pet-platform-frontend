@@ -5,7 +5,7 @@ import type { Breed } from "@/entities/breed/model";
 import type { Pet, PetInput } from "@/entities/pet/model";
 export const getSpecies = () => publicRequest<Species[]>("/species");
 export const getBreeds = (
-  species: string | undefined,
+  species: Species["slug"] | undefined,
   search: string,
   page: number,
 ) =>

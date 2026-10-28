@@ -259,7 +259,7 @@ test("create/edit cache refresh only current seller listing projections", async 
   );
   assert.equal(c.getQueryState(["listing", "mine"]).isInvalidated, true);
   assert.equal(c.getQueryState(["listing", "other"]).isInvalidated, false);
-  assert.equal(c.getQueryState(["listings"]).isInvalidated, false);
+  assert.equal(c.getQueryState(["listings"]).isInvalidated, true);
   assert.equal(c.getQueryData(["breeder", id]).id, undefined);
 });
 test("delete clears kennel identity but preserves personal/contact session", async () => {

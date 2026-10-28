@@ -50,20 +50,25 @@ export function DraftDetails({
 export function ContentState({
   value,
   onChange,
+  scoped = false,
 }: {
   value: string;
   onChange: (v: string) => void;
+  scoped?: boolean;
 }) {
   return (
     <div className="field">
-      <span>Стан приватної чернетки</span>
+      <span>{scoped ? "Статус оголошення" : "Стан приватної чернетки"}</span>
       <SelectDropdown
-        label="Стан приватної чернетки"
+        label={scoped ? "Статус оголошення" : "Стан приватної чернетки"}
         value={value}
         onChange={onChange}
         options={[
           { value: "DRAFT", label: "Чернетка" },
-          { value: "READY_FOR_REVIEW", label: "Готова до перевірки" },
+          {
+            value: "READY_FOR_REVIEW",
+            label: scoped ? "Готове до передачі" : "Готова до перевірки",
+          },
           { value: "ARCHIVED", label: "В архіві" },
         ]}
       />

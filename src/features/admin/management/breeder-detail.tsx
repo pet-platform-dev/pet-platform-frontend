@@ -7,7 +7,7 @@ import { WorkspaceMedia } from "../breeder-workspace/media";
 import { WorkspaceContacts } from "../breeder-workspace/contacts";
 import { WorkspaceListings } from "../breeder-workspace/listings";
 import "../breeder-workspace/workspace.css";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session-provider";
 import { runAdminRequest } from "../moderation/cache";
@@ -16,10 +16,9 @@ import { managementReturn } from "./navigation";
 import { AdminBreederForm } from "./breeder-form";
 import { sourceLabels, type ManagedBreeder } from "./model";
 import { InvitationPanel } from "../invitations/invitation-panel";
-export function ManagedBreederDetail({ id }: { id?: string }) {
+export function ManagedBreederDetail({ id }: { id: string }) {
   const actor = useSession().data,
     client = useQueryClient(),
-    router = useRouter(),
     search = useSearchParams(),
     source =
       search.get("source") === "OPERATOR_PREPARED"
@@ -36,6 +35,10 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
     retry: false,
   });
   const saved = (row: ManagedBreeder) => {
+    client.setQueryData(
+      managementKey(actor!.id, "breeder", row.id, row.source),
+      row,
+    );
     void client.invalidateQueries({
       queryKey: ["admin-management", actor!.id],
     });
@@ -46,27 +49,18 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
         ["breeder-directory"],
       ])
         void client.invalidateQueries({ queryKey: key });
-    router.replace(
-      `/admin/breeders/${row.id}?` +
-        new URLSearchParams({
-          source: row.source,
-          returnTo: managementReturn(search.get("returnTo"), "breeders"),
-        }),
-    );
   };
   if (!actor || !hasAdminAccess(actor.role)) return null;
   const row = query.data;
   return (
-    <section className="admin-management">
+    <section className="admin-management" aria-busy={query.isFetching}>
       <Link href={managementReturn(search.get("returnTo"), "breeders")}>
         До розплідників
       </Link>
-      <h1>{id ? "Профіль розплідника" : "Нова приватна чернетка"}</h1>
-      {!id ? (
-        <AdminBreederForm profile={null} onSaved={saved} />
-      ) : query.isPending || query.isFetching ? (
+      <h1>Профіль розплідника</h1>
+      {query.isPending ? (
         <p role="status">Завантажуємо профіль…</p>
-      ) : query.isError || !row ? (
+      ) : !row ? (
         <div>
           <p role="alert">Не вдалося завантажити профіль або чернетку.</p>
           <button
@@ -102,7 +96,7 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
           )}
           {row.source === "OPERATOR_PREPARED" && (
             <InvitationPanel
-              key={actor.id + row.id}
+              key={`invitations:${actor.id}:${row.id}`}
               id={row.id}
               revision={row.updatedAt}
             />
@@ -112,6 +106,11 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
               href={`/admin/breeders/${row.claimedProfileId}?source=OWNER_MANAGED`}
             >
               Відкрити робоче місце профілю власника
+            </Link>
+          )}
+          {row.source === "OPERATOR_PREPARED" && !row.claimedProfileId && (
+            <Link href={`/admin/breeders/new?draftId=${row.id}&step=1`}>
+              Продовжити майстер створення
             </Link>
           )}
           <h2>Основна інформація</h2>
@@ -127,7 +126,7 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
             </p>
           ) : (
             <AdminBreederForm
-              key={row.id + row.updatedAt}
+              key={`information:${actor.id}:${row.source}:${row.id}`}
               profile={row}
               onSaved={saved}
             />
@@ -136,10 +135,10 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
             (row.source === "OPERATOR_PREPARED" ||
               row.user?.accountType === "BREEDER") && (
               <WorkspaceMedia
-                key={row.id + row.updatedAt}
+                key={`media:${actor.id}:${row.source}:${row.id}`}
                 profile={row}
-                onSaved={() => {
-                  void query.refetch();
+                onSaved={async () => {
+                  await query.refetch();
                   if (row.userId)
                     for (const queryKey of [
                       ["breeder", row.userId],
@@ -155,19 +154,21 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
             (row.source === "OPERATOR_PREPARED" ||
               row.user?.accountType === "BREEDER") && (
               <WorkspaceContacts
-                key={`contacts:${actor.id}:${row.id}:${row.updatedAt}`}
+                key={`contacts:${actor.id}:${row.source}:${row.id}`}
                 profile={row}
-                onSaved={() => void query.refetch()}
+                onSaved={async () => {
+                  await query.refetch();
+                }}
               />
             )}
           {!row.claimedProfileId &&
             (row.source === "OPERATOR_PREPARED" ||
               row.user?.accountType === "BREEDER") && (
               <WorkspaceVideos
-                key={`videos:${actor.id}:${row.id}:${row.updatedAt}`}
+                key={`videos:${actor.id}:${row.source}:${row.id}`}
                 profile={row}
-                onSaved={() => {
-                  void query.refetch();
+                onSaved={async () => {
+                  await query.refetch();
                   if (row.userId)
                     for (const queryKey of [
                       ["breeder", row.userId],
@@ -177,7 +178,10 @@ export function ManagedBreederDetail({ id }: { id?: string }) {
                 }}
               />
             )}
-          <WorkspaceListings key={actor.id + row.id} profile={row} />
+          <WorkspaceListings
+            key={`listings:${actor.id}:${row.source}:${row.id}`}
+            profile={row}
+          />
           <section className="dashboard-card">
             <h2>Останні адміністративні зміни</h2>
             {row.audit.length ? (

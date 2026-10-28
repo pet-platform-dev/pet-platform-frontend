@@ -9,6 +9,7 @@ import { AuthForm } from "@/features/auth/auth-form";
 import { AccountVerification } from "@/features/auth/email-verification/account-verification";
 import { useClaimSession } from "./claim-session";
 import type { User } from "@/entities/user/model";
+import { PackagePreview } from "./package-preview";
 export function BreederClaimPage() {
   const controller = useClaimSession(),
     state = useSyncExternalStore(
@@ -33,14 +34,19 @@ export function BreederClaimPage() {
     const generation = currentSessionGeneration();
     const result = await controller.accept();
     if (!result) return;
-    await client.invalidateQueries({
-      queryKey: ["own-breeder", result.ownerId],
-    });
+    await Promise.all([
+      client.invalidateQueries({ queryKey: ["own-breeder", result.ownerId] }),
+      client.invalidateQueries({
+        queryKey: ["breeder-handoffs", result.ownerId],
+      }),
+      client.invalidateQueries({ queryKey: ["my-listings", result.ownerId] }),
+      session.refetch(),
+    ]);
     if (
       generation === currentSessionGeneration() &&
       client.getQueryData<User | null>(["current-user"])?.id === result.ownerId
     )
-      router.replace("/profile/breeder");
+      router.replace("/my-listings");
   }
   async function switchAccount() {
     if (switching) return;
@@ -61,9 +67,9 @@ export function BreederClaimPage() {
       <p className="eyebrow">Запрошення від Лапи</p>
       <h1>Отримати профіль розплідника</h1>
       <p>
-        Профіль буде передано лише після вашого підтвердження. Оголошення та
-        фотографії з адміністративної підготовки не передаються й не
-        публікуються.
+        Перегляньте розплідник та включені оголошення. Одне підтвердження
+        передасть їх вам як приватні чернетки. Нічого не публікується
+        автоматично.
       </p>
       {state.status === "loading" ? (
         <p role="status">Перевіряємо посилання…</p>
@@ -137,6 +143,12 @@ export function BreederClaimPage() {
               {current && state.preview && (
                 <div className="status-panel">
                   <h2>{state.preview.kennelName}</h2>
+                  {state.preview.location && (
+                    <p>
+                      {state.preview.location.city},{" "}
+                      {state.preview.location.region}
+                    </p>
+                  )}
                   {state.preview.publicContacts && (
                     <div>
                       <h3>Підготовлені публічні контакти</h3>
@@ -178,17 +190,33 @@ export function BreederClaimPage() {
                     Після отримання профіль залишиться приватним до окремої
                     публікації вами.
                   </p>
+                  <PackagePreview
+                    value={state.preview.package}
+                    breederName={state.preview.kennelName}
+                  />
                 </div>
               )}
               {current && state.status === "success" ? (
-                <p role="status">Профіль передано. Відкриваємо редактор…</p>
+                <p role="status">
+                  Розплідник та оголошення прийнято. Відкриваємо мої оголошення…
+                </p>
               ) : current && state.status === "preview" ? (
-                <button
-                  className="button primary"
-                  onClick={() => void accept()}
-                >
-                  Підтвердити отримання профілю
-                </button>
+                <>
+                  <button
+                    className="button primary"
+                    disabled={!state.preview?.package.canAccept}
+                    onClick={() => void accept()}
+                  >
+                    Прийняти розплідник та оголошення
+                  </button>
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() => void controller.inspect()}
+                  >
+                    Оновити перегляд пакета
+                  </button>
+                </>
               ) : (
                 <button
                   className="button primary"

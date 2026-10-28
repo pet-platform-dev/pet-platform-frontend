@@ -1,3 +1,4 @@
+import { finishSkippedBreederWizard } from "./helpers/breeder-wizard.mjs";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -111,7 +112,7 @@ try {
     page.on("console", (m) => {
       if (
         m.type() === "error" &&
-        /hydration|did not match|same key/i.test(m.text())
+        /hydration|did not match|same key|two children|same key/i.test(m.text())
       )
         errors.push(m.text());
     });
@@ -174,8 +175,11 @@ try {
       if (path === "/admin/breeders" && method === "POST") {
         const b = req.postDataJSON();
         prepared = {
+          website: null,
+          locationId: null,
+          operatorNotes: null,
           ...b,
-          id: randomUUID(),
+          id: b.creationId ?? randomUUID(),
           source: "OPERATOR_PREPARED",
           visibility: "PRIVATE",
           createdAt: now,
@@ -247,12 +251,24 @@ try {
         uploads.push({ id, url: imageUrl(id) });
         return reply({ id });
       }
-      if (path === "/admin/listing-drafts" && method === "POST") {
+      if (
+        path === `/admin/breeders/${prepared?.id}/listing-drafts` &&
+        method === "POST"
+      ) {
         const b = req.postDataJSON();
-        assert.equal(b.breederDraftId, prepared.id);
+        assert.equal(url.searchParams.get("source"), "OPERATOR_PREPARED");
+        for (const key of [
+          "breederDraftId",
+          "breederProfileId",
+          "ownerReference",
+        ])
+          assert(!(key in b));
         assert(!("ownerId" in b));
         const d = {
           ...b,
+          breederDraftId: prepared.id,
+          breederProfileId: null,
+          ownerReference: null,
           id: randomUUID(),
           source: "OPERATOR_DRAFT",
           type: b.kind,
@@ -302,27 +318,46 @@ try {
             : [],
         });
       }
-      if (path === "/breeder-claims/preview")
+      if (path === "/breeder-claims/packages/" + profileId) {
+        const remaining = drafts.filter(
+          (d) => !d.transferredAt && d.status !== "ARCHIVED",
+        );
         return reply({
-          publicContacts: prepared.publicContacts,
-          kennelName: prepared.kennelName,
-          description: prepared.description,
-          website: null,
-          startedYear: null,
-          expiresAt: "2026-11-01T00:00:00Z",
-          draftRevision: prepared.updatedAt,
-        });
-      if (path === "/breeder-claims/accept") {
-        assert.equal(req.postDataJSON().acceptOwnership, true);
-        prepared.claimedProfileId = profileId;
-        prepared.claimedAt = now;
-        return reply({
-          profileId,
-          ownerId: owner.id,
-          redirectTo: "/profile/breeder",
+          breeder: { id: profileId, kennelName: prepared.kennelName },
+          revision: "a".repeat(64),
+          count: remaining.length,
+          canAccept: !proposal,
+          blockers: proposal
+            ? remaining.map((d) => ({
+                id: d.id,
+                title: d.title,
+                message: "Існує окрема пропозиція передачі",
+              }))
+            : [],
+          listings: remaining,
         });
       }
       if (path === "/breeders/me") return reply(ownerProfile());
+      if (path === `/breeder-handoffs/prepared/${profileId}`) {
+        assert.equal(active.id, owner.id);
+        const remaining = drafts.filter(
+          (d) => !d.transferredAt && d.status !== "ARCHIVED",
+        );
+        return reply(
+          {
+            breeder: { id: profileId, kennelName: prepared.kennelName },
+            data: remaining,
+            meta: {
+              page: 1,
+              limit: 10,
+              total: remaining.length,
+              pages: remaining.length ? 1 : 0,
+            },
+          },
+          200,
+          true,
+        );
+      }
       if (path === `/admin/breeders/${prepared?.id}/handoffs`) {
         if (method === "GET")
           return reply(
@@ -356,7 +391,6 @@ try {
         });
       }
       if (path === "/breeder-handoffs" && proposal && failHandoffRead) {
-        failHandoffRead = false;
         return reply(null, 503);
       }
       if (path === "/breeder-handoffs")
@@ -430,11 +464,11 @@ try {
       await page.getByLabel(/Назва розплідника/).fill("Синтетичний теплий дім");
       await page
         .getByRole("button", {
-          name: "Створити приватну чернетку",
+          name: "Далі",
           exact: true,
         })
         .click();
-      await page.waitForURL(/\/admin\/breeders\/[0-9a-f-]{36}/);
+      await finishSkippedBreederWizard(page);
       for (const type of ["LOGO", "COVER", "IMAGE", "IMAGE"]) {
         await page.locator(`#workspace-${type}`).setInputFiles(file);
         await page
@@ -514,15 +548,11 @@ try {
         .getByRole("button", { name: "Надіслати запрошення", exact: true })
         .click();
       await page.getByText("Очікує прийняття", { exact: true }).waitFor();
+      // Historical claimed fixture: independent post-claim handoff remains supported.
+      prepared.claimedProfileId = profileId;
+      prepared.claimedAt = now;
       await switchUser(owner);
-      await page.goto(base + "/claim-breeder?token=" + "s".repeat(43));
-      await page
-        .getByRole("button", { name: "Переглянути підготовлений профіль" })
-        .click();
-      await page
-        .getByRole("button", { name: "Підтвердити отримання профілю" })
-        .click();
-      await page.waitForURL("**/profile/breeder");
+      await page.goto(base + "/profile/breeder");
       await page
         .getByRole("heading", { name: "Отриманий профіль приватний" })
         .first()
@@ -542,13 +572,19 @@ try {
       await checks.nth(1).check();
       await page
         .getByRole("button", {
-          name: "Запропонувати передачу (2)",
+          name: "Передати оголошення власнику (2)",
           exact: true,
         })
         .click();
       await page.getByText(/Власник може переглянути й прийняти/).waitFor();
       await switchUser(owner);
       await page.goto(base + "/profile/breeder");
+      // Session refetch/remount may read before navigation finishes. Keep the
+      // synthetic outage active until the user explicitly retries the UI.
+      await page
+        .getByRole("button", { name: "Повторити", exact: true })
+        .waitFor();
+      failHandoffRead = false;
       await page
         .getByRole("button", { name: "Повторити", exact: true })
         .click();
@@ -570,7 +606,7 @@ try {
         })
         .click();
       await page
-        .getByText("Нових пропозицій немає.", { exact: true })
+        .getByText(/Прийнято\. Тварини й оголошення створені/)
         .waitFor();
       assert.equal(accepted, 1);
       await check();
@@ -608,7 +644,7 @@ try {
         logoCoverGallery: true,
         threeListings: true,
         listingPhotosReorder: true,
-        claim: true,
+        legacyClaimedFixture: true,
         selectedHandoff: true,
         explicitOwnerAcceptance: true,
         retryAfterTemporaryFailure: true,

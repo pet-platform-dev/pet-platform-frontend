@@ -1887,3 +1887,28 @@ form {
   margin: 0.25rem 0 0;
   white-space: pre-wrap;
 }
+.breeder-seller-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  overflow-wrap: anywhere;
+}
+.breeder-seller-identity img {
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.breeder-seller-identity span {
+  min-width: 0;
+}
+.breeder-seller-identity strong,
+.breeder-seller-identity .muted {
+  display: block;
+}
+.listing-seller-panel .breeder-seller-identity {
+  padding: 0;
+}

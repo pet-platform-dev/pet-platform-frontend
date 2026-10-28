@@ -93,3 +93,14 @@ test("owner handoff and workspace queries are private and cleared at a session b
   });
   client.clear();
 });
+test("prepared preview caches are owner/private and cleared on account switching, while public breeder cache survives", () => {
+  const client = new QueryClient();
+  const key = ["breeder-handoffs", "owner-a", "prepared", "profile-a", 1];
+  client.setQueryData(key, { data: [{ id: "synthetic-prepared" }] });
+  client.setQueryData(["breeder", "public-a"], { public: true });
+  clearPrivateQueries(client);
+  assert.equal(client.getQueryData(key), undefined);
+  assert.deepEqual(client.getQueryData(["breeder", "public-a"]), {
+    public: true,
+  });
+});

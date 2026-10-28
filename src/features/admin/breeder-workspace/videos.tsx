@@ -14,7 +14,7 @@ export function WorkspaceVideos({
   onSaved,
 }: {
   profile: ManagedBreeder;
-  onSaved: () => void;
+  onSaved: () => void | Promise<unknown>;
 }) {
   const actor = useSession().data!,
     client = useQueryClient();
@@ -50,7 +50,7 @@ export function WorkspaceVideos({
         generation === currentSessionGeneration() &&
         currentAdmin(client, actor.id)
       ) {
-        onSaved();
+        await onSaved();
         return true;
       }
       return false;

@@ -24,6 +24,17 @@ export function AccountBreederLink({ userId }: { userId: string }) {
           ? "Редагувати профіль розплідника"
           : "Налаштувати профіль розплідника"}
       </Link>
+      {query.data &&
+        (query.data.publicationHeld ? (
+          <p className="muted">
+            Розплідник ще не опубліковано. Перегляньте та опублікуйте його в
+            редакторі.
+          </p>
+        ) : (
+          <Link className="button secondary" href={`/sellers/${userId}`}>
+            Переглянути розплідник
+          </Link>
+        ))}
       {query.data && (
         <Link className="button secondary" href="/profile/breeder/animals">
           Керувати тваринами

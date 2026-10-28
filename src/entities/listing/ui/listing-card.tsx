@@ -12,6 +12,7 @@ import {
 import { formatPetAge } from "@/shared/lib/format-pet-age";
 import { ListingPlaceholder } from "./listing-placeholder";
 import { ListingImage } from "./listing-image";
+import { SellerIdentity } from "@/entities/seller/seller-identity";
 export function ListingCard({
   listing,
   headingLevel = 2,
@@ -84,6 +85,7 @@ export function ListingCard({
           </div>
         </div>
       </Link>
+      {listing.seller?.breeder && <SellerIdentity seller={listing.seller} />}
       <div className="listing-card-actions">
         <FavoriteButton listingId={listing.id} returnTo={detailHref} />
       </div>

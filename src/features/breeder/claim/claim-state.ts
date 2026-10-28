@@ -24,7 +24,11 @@ const initial: ClaimState = {
 /** A route instance owns the secret. Public snapshots never contain it. */
 export function createClaimState(
   preview: (token: string) => Promise<ClaimPreview>,
-  accept: (token: string, revision: string) => Promise<{ ownerId: string }>,
+  accept: (
+    token: string,
+    revision: string,
+    packageRevision: string,
+  ) => Promise<{ ownerId: string }>,
 ) {
   let token: string | null = null,
     captured = false,
@@ -97,13 +101,23 @@ export function createClaimState(
       }
     },
     async accept() {
-      if (!token || !identity || !state.preview || state.status !== "preview")
+      if (
+        !token ||
+        !identity ||
+        !state.preview ||
+        !state.preview.package.canAccept ||
+        state.status !== "preview"
+      )
         return null;
       const run = epoch,
         revision = state.preview.draftRevision;
       update({ status: "pending", message: "" });
       try {
-        const result = await accept(token, revision);
+        const result = await accept(
+          token,
+          revision,
+          state.preview!.package.revision,
+        );
         token = null;
         if (run !== epoch) {
           update({ status: "invalid", preview: null, message: "" });

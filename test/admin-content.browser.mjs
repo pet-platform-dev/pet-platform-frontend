@@ -345,8 +345,10 @@ try {
       .getByRole("link", { name: "Тестове оголошення", exact: true })
       .waitFor();
     await choose(page, "Джерело", "В’язка");
+    await page.waitForURL((url) => url.searchParams.get("source") === "MATING");
     await page
-      .getByRole("link", { name: "Тестове оголошення", exact: true })
+      .locator('a[href*="source=MATING"]')
+      .filter({ hasText: "Тестове оголошення" })
       .click();
     await page.getByLabel("Умови партнера", { exact: true }).waitFor();
     assert.equal(

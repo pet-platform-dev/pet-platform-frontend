@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { authenticatedRequest } from "@/shared/api/client";
+import { packageSchema } from "./package-schema";
 export const claimPreviewSchema = z.object({
+  package: packageSchema,
+  location: z.object({ city: z.string(), region: z.string() }).nullable(),
   publicContacts: z
     .object({
       phone: z.string().nullable(),
@@ -24,12 +27,16 @@ export const previewClaim = async (token: string) =>
       body: JSON.stringify({ token }),
     }),
   );
-export const acceptClaim = async (token: string, expectedUpdatedAt: string) => {
+export const acceptClaim = async (
+  token: string,
+  expectedUpdatedAt: string,
+  packageRevision: string,
+) => {
   const result = z
     .object({
       profileId: z.uuid(),
       ownerId: z.uuid(),
-      redirectTo: z.literal("/profile/breeder"),
+      redirectTo: z.literal("/my-listings"),
     })
     .parse(
       await authenticatedRequest("/breeder-claims/accept", {
@@ -38,6 +45,7 @@ export const acceptClaim = async (token: string, expectedUpdatedAt: string) => {
           token,
           expectedUpdatedAt,
           acceptOwnership: true,
+          packageRevision,
         }),
       }),
     );

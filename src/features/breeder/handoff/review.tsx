@@ -8,6 +8,8 @@ import {
 } from "@/shared/api/client";
 import { SelectDropdown } from "@/shared/ui/select-dropdown";
 import { ImageGallery } from "@/shared/ui/image-gallery";
+import { speciesLabel } from "@/entities/species/model";
+import { listingTypeLabels } from "@/entities/listing/model/presentation";
 import type { Handoff } from "./contracts";
 export function HandoffReview({
   handoff,
@@ -66,6 +68,9 @@ export function HandoffReview({
             ["my-listings"],
             ["my-pets"],
             ["breeder-handoffs", user.id],
+            ["own-breeder", user.id],
+            ["breeder-animals", user.id],
+            sessionKey,
           ])
             void client.invalidateQueries({ queryKey });
         } catch {
@@ -91,7 +96,9 @@ export function HandoffReview({
             <h4>{d.title}</h4>
             <p>
               {[
-                d.species?.name,
+                d.species?.slug
+                  ? speciesLabel(d.species.slug)
+                  : d.species?.name,
                 d.breed?.nameUk ?? d.breed?.name,
                 d.location
                   ? [d.location.city, d.location.region].join(", ")
@@ -99,6 +106,10 @@ export function HandoffReview({
               ]
                 .filter(Boolean)
                 .join(" · ")}
+            </p>
+            <p>
+              {d.kind === "MATING" ? "В’язка" : listingTypeLabels[d.kind]} ·
+              Очікує вашого підтвердження
             </p>
             <p>{d.description}</p>
             <p>{d.price ? `${d.price} грн` : "Ціна за домовленістю"}</p>

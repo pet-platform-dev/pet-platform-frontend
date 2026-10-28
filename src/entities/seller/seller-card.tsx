@@ -2,6 +2,7 @@
 import { SellerContacts } from "./seller-contacts";
 import Link from "next/link";
 import { messengerLinks, sellerIdentity, type Seller } from "./model";
+import { SellerIdentity } from "./seller-identity";
 export function SellerCard({
   seller,
   heading = "Продавець",
@@ -21,7 +22,11 @@ export function SellerCard({
       aria-label={heading}
     >
       <h2>{heading}</h2>
-      <p className="listing-seller-name">{sellerIdentity(seller)}</p>
+      {seller.breeder ? (
+        <SellerIdentity seller={seller} />
+      ) : (
+        <p className="listing-seller-name">{sellerIdentity(seller)}</p>
+      )}
       {seller.breeder && <p className="muted">{seller.displayName}</p>}
       {seller.location && (
         <p>

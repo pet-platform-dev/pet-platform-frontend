@@ -18,15 +18,18 @@ import { buildContentInput } from "./editor-input";
 import { useContentUnsaved } from "./unsaved";
 import { saveContent } from "./api";
 import { kindLabels, statusLabels, type Content } from "./model";
+import type { BreederListingContext } from "./breeder-context";
 export function ContentEditor({
   row,
   onSaved,
   breederDraftId,
   breederProfileId,
+  breederContext,
 }: {
   row: Content | null;
   breederDraftId?: string;
   breederProfileId?: string;
+  breederContext?: BreederListingContext;
   onSaved: (row: Content) => void;
 }) {
   const actor = useSession().data!,
@@ -46,8 +49,15 @@ export function ContentEditor({
   const [speciesId, setSpecies] = useState(prepared?.speciesId ?? ""),
     [breed, setBreed] = useState<BreedChoice | null>(prepared?.breed ?? null),
     [location, setLocation] = useState<Location | null>(
-      row?.location
-        ? { ...row.location, countryCode: "UA", katottgCode: null }
+      (row ? row.location : breederContext?.location)
+        ? {
+            ...(row ? row.location! : breederContext!.location!),
+            countryCode: "UA",
+            katottgCode: null,
+            district: row?.location?.district ?? null,
+            community: row?.location?.community ?? null,
+            settlementType: row?.location?.settlementType ?? null,
+          }
         : null,
     );
   const [draftDetails, setDraftDetails] = useState({
@@ -100,13 +110,14 @@ export function ContentEditor({
               breederProfileId ?? prepared?.breederProfileId ?? undefined,
             gender,
             birthDate,
+            breederContext,
           });
           lock.current = true;
           setBusy(true);
           const generation = currentSessionGeneration();
           try {
             const saved = await runAdminRequest(client, actor.id, () =>
-              saveContent(row?.id ?? null, draft, body),
+              saveContent(row?.id ?? null, draft, body, breederContext),
             );
             if (
               generation !== currentSessionGeneration() ||
@@ -142,10 +153,17 @@ export function ContentEditor({
         }
       }}
     >
+      {breederContext && (
+        <p className="muted">
+          Розплідник:{" "}
+          <strong>{breederContext.name?.trim() || "Назву не вказано"}</strong>
+        </p>
+      )}
       {draft && (
         <p className="status-panel">
-          Приватна підготовка. Обліковий запис, тварина та публічне оголошення
-          не створюються.
+          {breederContext
+            ? "Оголошення залишиться приватним. Збереження не публікує його й не передає власнику автоматично."
+            : "Приватна підготовка. Обліковий запис, тварина та публічне оголошення не створюються."}
         </p>
       )}
       {!editable && (
@@ -156,7 +174,11 @@ export function ContentEditor({
       )}
       <fieldset disabled={busy || conflict || !editable}>
         <legend>
-          {draft ? "Матеріали чернетки" : "Дозволені зміни оголошення"}
+          {breederContext
+            ? "Дані оголошення"
+            : draft
+              ? "Матеріали чернетки"
+              : "Дозволені зміни оголошення"}
         </legend>
         {draft && (
           <>
@@ -189,10 +211,12 @@ export function ContentEditor({
             <SelectDropdown
               label="Тип оголошення"
               value={kind}
-              options={Object.entries(kindLabels).map(([value, label]) => ({
-                value,
-                label,
-              }))}
+              options={Object.entries(kindLabels)
+                .filter(([value]) => !breederContext || value !== "MATING")
+                .map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
               onChange={(v) => {
                 setKind(v as typeof kind);
                 if (v !== "SALE" && v !== "MATING") setPrice("");
@@ -321,20 +345,24 @@ export function ContentEditor({
       )}
       {draft && (
         <fieldset disabled={busy || conflict}>
-          <legend>Приватна підготовка</legend>
-          <DraftDetails
-            locked={Boolean(
-              breederDraftId ||
-              breederProfileId ||
-              prepared?.breederDraftId ||
-              prepared?.breederProfileId,
-            )}
-            value={draftDetails}
-            onChange={(v) => {
-              setDraftDetails(v);
-              setDirty(true);
-            }}
-          />
+          <legend>
+            {breederContext ? "Фотографії" : "Приватна підготовка"}
+          </legend>
+          {!breederContext && (
+            <DraftDetails
+              locked={Boolean(
+                breederDraftId ||
+                breederProfileId ||
+                prepared?.breederDraftId ||
+                prepared?.breederProfileId,
+              )}
+              value={draftDetails}
+              onChange={(v) => {
+                setDraftDetails(v);
+                setDirty(true);
+              }}
+            />
+          )}
           <ListingImages
             reorderable={true}
             ref={images}
@@ -344,13 +372,21 @@ export function ContentEditor({
               setDirty(true);
             }}
           />
-          <ContentState
-            value={status}
-            onChange={(v) => {
-              setStatus(v);
-              setDirty(true);
-            }}
-          />
+          {breederContext && !row ? (
+            <p className="muted">
+              Статус оголошення: Чернетка. Оголошення залишається приватним;
+              збереження не публікує його.
+            </p>
+          ) : (
+            <ContentState
+              scoped={Boolean(breederContext)}
+              value={status}
+              onChange={(v) => {
+                setStatus(v);
+                setDirty(true);
+              }}
+            />
+          )}
         </fieldset>
       )}
       {error && (

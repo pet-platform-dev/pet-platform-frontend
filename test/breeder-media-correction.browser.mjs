@@ -1,3 +1,4 @@
+import { BreederPackageService } from "../../pet-platform-backend/dist/src/admin/invitations/breeder-package.service.js";
 import { WorkspaceVideosService } from "../../pet-platform-backend/dist/src/admin/management/workspace-videos.service.js";
 import { BreederVideoService } from "../../pet-platform-backend/dist/src/breeders/media/breeder-video.service.js";
 import { AdminBreedersWriteService } from "../../pet-platform-backend/dist/src/admin/management/breeders-write.service.js";
@@ -126,7 +127,9 @@ try {
     page.on("console", (message) => {
       if (
         message.type() === "error" &&
-        /hydration|did not match|same key/i.test(message.text())
+        /hydration|did not match|same key|two children|same key/i.test(
+          message.text(),
+        )
       )
         errors.push(message.text());
     });
@@ -147,9 +150,13 @@ try {
       draftWrites = new AdminBreedersWriteService(db, {
         authenticate: async () => admin,
       }),
-      claims = new BreederClaimService(db, {
-        authenticate: async () => active,
-      });
+      claims = new BreederClaimService(
+        db,
+        {
+          authenticate: async () => active,
+        },
+        new BreederPackageService(db, {}, { authenticate: async () => active }),
+      );
     await context.route("**/api/v1/**", async (route) => {
       const req = route.request(),
         url = new URL(req.url()),
@@ -196,7 +203,10 @@ try {
             200,
             true,
           );
-        if (path === "/breeder-handoffs")
+        if (
+          path === "/breeder-handoffs" ||
+          path.startsWith("/breeder-handoffs/prepared/")
+        )
           return reply(
             { data: [], meta: { page: 1, limit: 20, total: 0, pages: 0 } },
             200,
@@ -335,6 +345,18 @@ try {
               )
             ).data,
           );
+        if (path.startsWith("/breeder-claims/packages/") && method === "GET")
+          return reply({
+            breeder: {
+              id: path.split("/").at(-1),
+              kennelName: "Синтетичний профіль",
+            },
+            revision: "a".repeat(64),
+            count: 0,
+            canAccept: true,
+            blockers: [],
+            listings: [],
+          });
         if (path === "/breeder-claims/preview")
           return reply(
             (
@@ -354,6 +376,7 @@ try {
                 "synthetic",
                 body.token,
                 new Date(body.expectedUpdatedAt),
+                body.packageRevision,
               )
             ).data,
           );
@@ -735,11 +758,12 @@ try {
       .click();
     await page
       .getByRole("button", {
-        name: "Підтвердити отримання профілю",
+        name: "Прийняти розплідник та оголошення",
         exact: true,
       })
       .click();
-    await page.waitForURL("**/profile/breeder");
+    await page.waitForURL("**/my-listings");
+    await go("/profile/breeder");
     await page
       .getByRole("button", { name: "Редагувати відео 1", exact: true })
       .waitFor();

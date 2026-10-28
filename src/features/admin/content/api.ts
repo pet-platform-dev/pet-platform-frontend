@@ -52,11 +52,18 @@ export async function saveContent(
   id: string | null,
   draft: boolean,
   body: unknown,
+  breederContext?: import("./breeder-context").BreederListingContext,
 ) {
   if (id) z.uuid().parse(id);
+  if (breederContext) {
+    z.uuid().parse(breederContext.id);
+    if (!draft) throw Error("Breeder preparation requires a private draft");
+  }
   const row = contentSchema.parse(
     await authenticatedRequest(
-      `/admin/${draft ? "listing-drafts" : "listings"}${id ? "/" + id : ""}`,
+      breederContext
+        ? `/admin/breeders/${breederContext.id}/listing-drafts${id ? "/" + id : ""}?source=${breederContext.source}`
+        : `/admin/${draft ? "listing-drafts" : "listings"}${id ? "/" + id : ""}`,
       { method: id ? "PATCH" : "POST", body: JSON.stringify(body) },
     ),
   );

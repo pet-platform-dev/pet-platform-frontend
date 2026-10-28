@@ -1,6 +1,9 @@
 "use client";
 import { PublicationState } from "@/shared/ui/publication-state";
-import { isPublicPublication } from "@/shared/lib/moderation";
+import {
+  isPublicPublication,
+  canSubmitPublication,
+} from "@/shared/lib/moderation";
 import Link from "next/link";
 import { useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -17,6 +20,7 @@ import {
 import { ListingPlaceholder } from "@/entities/listing/ui/listing-placeholder";
 import { ListingImage } from "@/entities/listing/ui/listing-image";
 import { getOwnListings } from "./api";
+import { PreparedNotice } from "@/features/breeder/handoff/prepared-notice";
 import { ListingActions } from "./listing-actions";
 import { ListingManagementSkeleton } from "./listing-management-skeleton";
 import { formatPetAge } from "@/shared/lib/format-pet-age";
@@ -83,6 +87,14 @@ export function OwnerListingCard({ listing }: { listing: OwnListing }) {
               У каталозі
             </Link>
           )}
+          {canSubmitPublication(listing) && (
+            <Link
+              className="button secondary"
+              href={`/listings/${listing.id}/edit#publication`}
+            >
+              Подати на публікацію
+            </Link>
+          )}
           <ListingActions listing={listing} showArchive={false} />
         </div>
       </div>
@@ -115,6 +127,10 @@ function OwnList() {
           Створити оголошення
         </Link>
       </div>
+      {session.data?.accountType === "BREEDER" &&
+        session.data.verificationStatus === "VERIFIED" && (
+          <PreparedNotice userId={session.data.id} />
+        )}
       <nav aria-label="Статус оголошень" className="owner-status-filters">
         {Object.entries(statusGroups).map(([key, value]) => (
           <button

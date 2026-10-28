@@ -26,7 +26,10 @@ export const sellerSchema = z.object({
   whatsapp: phone,
   memberSince: z.string(),
   breeder: z
-    .object({ kennelName: z.string().min(1).max(160) })
+    .object({
+      kennelName: z.string().min(1).max(160),
+      logoUrl: z.url().nullable().optional(),
+    })
     .nullable()
     .optional(),
 });

@@ -13,9 +13,15 @@ import type { ManagedBreeder } from "../management/model";
 export function WorkspaceContacts({
   profile,
   onSaved,
+  beforeSave,
+  submitLabel,
+  onPendingChange,
 }: {
   profile: ManagedBreeder;
-  onSaved: () => void;
+  onSaved: () => void | Promise<unknown>;
+  beforeSave?: () => Promise<ManagedBreeder>;
+  submitLabel?: string;
+  onPendingChange?: (busy: boolean) => void;
 }) {
   const actor = useSession().data!,
     client = useQueryClient(),
@@ -27,6 +33,26 @@ export function WorkspaceContacts({
     }),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
+  useEffect(() => {
+    onPendingChange?.(busy);
+  }, [busy, onPendingChange]);
+  const identity = (
+    value:
+      | {
+          phone?: string | null;
+          telegram?: string | null;
+          viber?: string | null;
+          whatsapp?: string | null;
+        }
+      | undefined,
+  ) =>
+    JSON.stringify([
+      value?.phone?.replace(/[ ()-]/g, "") || null,
+      value?.telegram?.replace(/^@/, "") || null,
+      value?.viber?.replace(/[ ()-]/g, "") || null,
+      value?.whatsapp?.replace(/[ ()-]/g, "") || null,
+    ]);
+  const [baseline, setBaseline] = useState(identity(profile.publicContacts));
   const lock = useRef(false),
     requests = useRef(new AbortController());
   useEffect(() => {
@@ -37,9 +63,16 @@ export function WorkspaceContacts({
   return (
     <form
       className="dashboard-card admin-management-form"
+      aria-busy={busy}
       onSubmit={async (e) => {
         e.preventDefault();
         if (lock.current) return;
+        if (identity(profile.publicContacts) !== baseline) {
+          setMessage(
+            "Контакти змінилися. Перезавантажте сторінку перед повторним збереженням.",
+          );
+          return;
+        }
         const checked = profileInputSchema.safeParse(values);
         if (!checked.success) {
           setMessage(checked.error.issues[0].message);
@@ -50,14 +83,15 @@ export function WorkspaceContacts({
         setMessage("");
         const generation = currentSessionGeneration();
         try {
+          const current = beforeSave ? await beforeSave() : profile;
           await runAdminRequest(client, actor.id, () =>
             authenticatedRequest(`/admin/breeders/${profile.id}/contacts`, {
               method: "PATCH",
               signal: requests.current.signal,
               body: JSON.stringify({
-                source: profile.source,
-                expectedUpdatedAt: profile.updatedAt,
-                contactRevision: profile.publicContacts?.updatedAt ?? null,
+                source: current.source,
+                expectedUpdatedAt: current.updatedAt,
+                contactRevision: current.publicContacts?.updatedAt ?? null,
                 contacts: checked.data,
               }),
             }),
@@ -72,7 +106,8 @@ export function WorkspaceContacts({
               ["own-breeder", profile.userId],
             ])
               void client.invalidateQueries({ queryKey });
-            onSaved();
+            setBaseline(identity(checked.data));
+            await onSaved();
           }
         } catch (error) {
           if (
@@ -122,8 +157,8 @@ export function WorkspaceContacts({
           </div>
         ))}
       </fieldset>
-      <button className="button secondary" disabled={busy}>
-        {busy ? "Зберігаємо…" : "Зберегти контакти"}
+      <button type="submit" className="button secondary" disabled={busy}>
+        {busy ? "Зберігаємо…" : (submitLabel ?? "Зберегти контакти")}
       </button>
       {message && <p role="alert">{message}</p>}
     </form>

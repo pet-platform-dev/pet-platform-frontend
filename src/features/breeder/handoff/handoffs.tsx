@@ -1,11 +1,19 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session-provider";
 import { authenticatedRequest } from "@/shared/api/client";
 import { envelope } from "./contracts";
+import { RemainingPackage } from "../claim/remaining-package";
 import { HandoffReview } from "./review";
-export function BreederHandoffs({ userId }: { userId: string }) {
+export function BreederHandoffs({
+  userId,
+  profileId,
+}: {
+  userId: string;
+  profileId?: string;
+}) {
   const session = useSession(),
     [page, setPage] = useState(1),
     [accepted, setAccepted] = useState<string[]>([]);
@@ -25,8 +33,11 @@ export function BreederHandoffs({ userId }: { userId: string }) {
   });
   if (session.data?.id !== userId) return null;
   return (
-    <section className="breeder-editor-content">
-      <h2>Підготовлені оголошення від оператора</h2>
+    <section id="prepared-listings" className="breeder-editor-content">
+      {(query.isError || (query.data?.data.length ?? 0) > 0) && (
+        <h2>Окремі пропозиції передачі</h2>
+      )}
+      {profileId && <RemainingPackage userId={userId} profileId={profileId} />}
       {query.isPending ? (
         <p role="status">Завантажуємо передачі…</p>
       ) : query.isError ? (
@@ -41,18 +52,18 @@ export function BreederHandoffs({ userId }: { userId: string }) {
             <HandoffReview
               key={`${userId}:${h.id}`}
               handoff={h}
-              onAccepted={() => setAccepted((old) => [...old, h.id])}
+              onAccepted={() => {
+                setAccepted((old) => [...old, h.id]);
+              }}
             />
           ))
       )}
       {accepted.length > 0 && (
         <p role="status">
           Прийнято. Тварини й оголошення створені як приватні чернетки.
-          Перевірте їх перед поданням на модерацію.
+          Перевірте їх перед поданням на модерацію.{" "}
+          <Link href="/my-listings">Переглянути мої оголошення</Link>
         </p>
-      )}
-      {query.data?.data.length === 0 && (
-        <p className="muted">Нових пропозицій немає.</p>
       )}
       {(query.data?.meta.pages ?? 0) > 1 && (
         <nav aria-label="Сторінки передач">

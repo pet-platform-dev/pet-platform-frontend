@@ -32,9 +32,15 @@ export async function updateBreederCache(
   if (seller)
     client.setQueryData(["seller", userId], {
       ...seller,
-      breeder: publicProfile ? { kennelName: publicProfile.kennelName } : null,
+      breeder: publicProfile
+        ? {
+            kennelName: publicProfile.kennelName,
+            logoUrl: publicProfile.media?.logo?.url ?? null,
+          }
+        : null,
     });
   await client.invalidateQueries({ queryKey: breederDirectoryKey });
+  await client.invalidateQueries({ queryKey: ["listings"] });
   await invalidateBreederAnimals(client, userId);
   if (!profile) {
     client.removeQueries({ queryKey: ["breeder-animals", userId] });

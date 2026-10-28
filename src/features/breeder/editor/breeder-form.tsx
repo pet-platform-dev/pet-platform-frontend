@@ -134,7 +134,7 @@ export function BreederForm({
             >
               {mutation.isPending ? "Зберігаємо…" : "Зберегти зміни"}
             </button>
-            {profile && (
+            {profile && !profile.publicationHeld && (
               <Link href={"/sellers/" + userId}>
                 Переглянути публічний профіль
               </Link>

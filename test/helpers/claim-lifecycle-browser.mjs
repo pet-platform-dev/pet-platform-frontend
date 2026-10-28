@@ -99,6 +99,14 @@ export async function runClaimLifecycle(browser, output) {
                 startedYear: null,
                 expiresAt: "2026-11-01T00:00:00Z",
                 draftRevision: "2026-10-24T00:00:00Z",
+                location: null,
+                package: {
+                  revision: "a".repeat(64),
+                  count: 0,
+                  canAccept: true,
+                  blockers: [],
+                  listings: [],
+                },
               },
             });
           }
@@ -112,7 +120,7 @@ export async function runClaimLifecycle(browser, output) {
               data: {
                 profileId: "22222222-2222-4222-8222-222222222222",
                 ownerId: "11111111-1111-4111-8111-111111111111",
-                redirectTo: "/profile/breeder",
+                redirectTo: "/my-listings",
               },
             });
           }

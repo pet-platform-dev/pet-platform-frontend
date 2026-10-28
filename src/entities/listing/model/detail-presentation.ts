@@ -2,7 +2,7 @@ import type { Listing } from "./listing";
 import { listingHeading, listingPrice } from "./presentation";
 
 export function sellerName(seller: Listing["seller"]): string {
-  return seller.displayName;
+  return seller.breeder?.kennelName ?? seller.displayName;
 }
 export function supportingListingTitle(listing: Listing): string | null {
   const title = listing.title.trim();

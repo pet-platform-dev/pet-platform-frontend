@@ -6,12 +6,14 @@ export function BreederTextFields({
   errors,
   disabled,
   optionalName = false,
+  fields,
 }: {
   values: BreederValues;
   onChange: (key: keyof BreederValues, value: string) => void;
   errors: Record<string, string>;
   disabled: boolean;
   optionalName?: boolean;
+  fields?: readonly (keyof BreederValues)[];
 }) {
   return (
     <>
@@ -22,64 +24,66 @@ export function BreederTextFields({
           ["startedYear", "Рік початку діяльності"],
           ["website", "Вебсайт"],
         ] as const
-      ).map(([key, label]) => {
-        const id = "breeder-" + key;
-        const props = {
-          id,
-          value: values[key],
-          disabled,
-          "aria-invalid": Boolean(errors[key]),
-          "aria-describedby": id + "-hint",
-          onChange: (
-            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-          ) =>
-            onChange(
-              key,
-              key === "startedYear"
-                ? numericInput(event.target.value)
-                : event.target.value,
-            ),
-        };
-        return (
-          <div className="field" key={key}>
-            <label htmlFor={id}>
-              {label}
-              {(key !== "kennelName" || optionalName) && (
-                <span className="muted"> — Необов’язково</span>
+      )
+        .filter(([key]) => !fields || fields.includes(key))
+        .map(([key, label]) => {
+          const id = "breeder-" + key;
+          const props = {
+            id,
+            value: values[key],
+            disabled,
+            "aria-invalid": Boolean(errors[key]),
+            "aria-describedby": id + "-hint",
+            onChange: (
+              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+            ) =>
+              onChange(
+                key,
+                key === "startedYear"
+                  ? numericInput(event.target.value)
+                  : event.target.value,
+              ),
+          };
+          return (
+            <div className="field" key={key}>
+              <label htmlFor={id}>
+                {label}
+                {(key !== "kennelName" || optionalName) && (
+                  <span className="muted"> — Необов’язково</span>
+                )}
+              </label>
+              {key === "description" ? (
+                <textarea {...props} rows={5} />
+              ) : (
+                <input
+                  {...props}
+                  required={key === "kennelName" && !optionalName}
+                  inputMode={
+                    key === "startedYear"
+                      ? "numeric"
+                      : key === "website"
+                        ? "url"
+                        : "text"
+                  }
+                  autoComplete="off"
+                />
               )}
-            </label>
-            {key === "description" ? (
-              <textarea {...props} rows={5} />
-            ) : (
-              <input
-                {...props}
-                required={key === "kennelName" && !optionalName}
-                inputMode={
-                  key === "startedYear"
-                    ? "numeric"
-                    : key === "website"
-                      ? "url"
-                      : "text"
-                }
-                autoComplete="off"
-              />
-            )}
-            <p
-              id={id + "-hint"}
-              className={errors[key] ? "field-error" : "muted"}
-            >
-              {errors[key] ??
-                (key === "website"
-                  ? "Адреса з http:// або https://"
-                  : key === "startedYear"
-                    ? "Від 1900 до поточного року"
-                    : key === "description"
-                      ? "Звичайний текст, до 5000 символів"
-                      : "До 160 символів")}
-            </p>
-          </div>
-        );
-      })}
+              <p
+                id={id + "-hint"}
+                className={errors[key] ? "field-error" : "muted"}
+              >
+                {errors[key] ??
+                  (key === "website"
+                    ? "Адреса з http:// або https://"
+                    : key === "startedYear"
+                      ? "Від 1900 до поточного року"
+                      : key === "description"
+                        ? "Звичайний текст, до 5000 символів"
+                        : "До 160 символів")}
+              </p>
+            </div>
+          );
+        })}
     </>
   );
 }

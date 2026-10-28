@@ -1,0 +1,66 @@
+.breeder-wizard [hidden] {
+  display: none !important;
+}
+.breeder-wizard {
+  min-width: 0;
+}
+.breeder-wizard progress {
+  width: 100%;
+  height: 0.4rem;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+  accent-color: var(--accent);
+  background: var(--surface);
+}
+.breeder-wizard progress::-webkit-progress-bar {
+  border-radius: 999px;
+  background: var(--border);
+}
+.breeder-wizard progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--accent);
+}
+.breeder-wizard progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--accent);
+}
+.wizard-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  list-style: none;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--color-muted, #736f65);
+}
+.wizard-progress li {
+  overflow-wrap: anywhere;
+}
+.wizard-progress [aria-current="step"] {
+  color: var(--color-primary, #426851);
+  font-weight: 700;
+}
+.breeder-wizard .account-actions {
+  flex-wrap: wrap;
+}
+.breeder-wizard .account-actions button {
+  min-height: 44px;
+}
+@media (max-width: 480px) {
+  .wizard-progress li:not([aria-current="step"]) {
+    display: none;
+  }
+}
+
+.wizard-contact-details {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.breeder-wizard .dashboard-card {
+  overflow-wrap: anywhere;
+}
