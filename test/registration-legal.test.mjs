@@ -279,7 +279,7 @@ test("API preserves only allowlisted structured legal codes, never arbitrary ser
     globalThis.fetch = saved;
   }
 });
-test("the generated small identity still matches actual source through the backend's original digest contract", () => {
+test("the generated small identity matches local source through the pinned legal digest contract", () => {
   execFileSync(
     process.execPath,
     ["scripts/sync-legal-integrity.mjs", "--check"],

@@ -1,5 +1,39 @@
 # Pet Platform frontend
 
+## Standalone production deployment (Vercel)
+
+Use Node.js **24.x**, framework preset **Next.js**, install command `npm ci`,
+build command `npm run build`, and the framework's default output directory.
+For this standalone Git repository, Root Directory is the repository root.
+Set `NEXT_PUBLIC_API_URL` to the deployed backend HTTPS URL including `/api/v1`
+before building. Authentication still requires the existing compatible same-site
+HTTPS frontend/API deployment and exact backend origin configuration.
+
+The normal build verifies local Terms/Privacy content against the checked-in
+SHA-256 identities before invoking Next.js. It needs neither a backend nor a
+documentation checkout. The `lapa-legal-v1` canonical JSON contract preserves NFC,
+LF, sorted object keys, ordered arrays and UTF-8 SHA-256. This build-time code is
+outside `src` and is not imported by the registration bundle.
+
+```sh
+npm run legal:check
+# Explicit release/local checks when independent repositories are available:
+npm run legal:check:cross-repo -- --backend-root ../pet-platform-backend
+npm run legal:check:docs
+```
+
+The cross-repository command fails if the backend is missing or its current
+registry/content/digest contract differs. The Markdown command requires the
+sibling docs checkout. Neither command is part of the standalone build. The
+backend's existing `verify-legal-content.mjs` remains the full release gate for
+manifest parity, immutable historical revisions and publication rules.
+
+After an explicitly reviewed legal revision, `node scripts/sync-legal-integrity.mjs --write`
+regenerates the local identity file; ordinary builds only check it and fail on
+missing or changed content. This deployment fix does not revise or approve legal
+documents: current versions remain `16g-draft.1`, DRAFT, with backend/manifest
+activation `DRAFT_ONLY` and no effective dates.
+
 Next.js 16 App Router, React Compiler, TypeScript and Tailwind CSS. Ukrainian product UI uses FSD-lite: app routes, widgets, auth features, user entities and shared API handling. The frontend consumes NestJS REST and never connects to PostgreSQL.
 
 ## Local development
