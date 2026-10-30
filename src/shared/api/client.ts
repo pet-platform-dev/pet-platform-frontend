@@ -1,7 +1,15 @@
 import type { User } from "@/entities/user/model";
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+function apiBaseUrl() {
+  if (process.env.NEXT_PUBLIC_API_PROXY_ENABLED === "true") {
+    if (typeof window !== "undefined") return "/api/v1";
+    // Public server rendering has no browser cookies and calls the backend directly.
+    const origin = process.env.API_PROXY_BACKEND_ORIGIN;
+    if (!origin) throw new Error("Missing API proxy backend origin");
+    return `${origin}/api/v1`;
+  }
+  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+}
 let accessToken: string | null = null;
 let accessUserId: string | null = null;
 let expiresAt = 0;
@@ -32,7 +40,7 @@ async function request<T>(
 ): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${baseUrl}${path}`, {
+    response = await fetch(`${apiBaseUrl()}${path}`, {
       ...options,
       signal: AbortSignal.any([
         AbortSignal.timeout(

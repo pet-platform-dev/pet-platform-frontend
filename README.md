@@ -6,8 +6,9 @@ Use Node.js **24.x**, framework preset **Next.js**, install command `npm ci`,
 build command `npm run build`, and the framework's default output directory.
 For this standalone Git repository, Root Directory is the repository root.
 Set `NEXT_PUBLIC_API_URL` to the deployed backend HTTPS URL including `/api/v1`
-before building. Authentication still requires the existing compatible same-site
-HTTPS frontend/API deployment and exact backend origin configuration.
+before building. For separate Vercel/Render sites, enable the same-origin HTTP
+proxy as documented in [staging API proxy](docs/staging-api-proxy.md). Direct
+browser authentication still requires compatible same-site HTTPS hosts.
 
 The normal build verifies local Terms/Privacy content against the checked-in
 SHA-256 identities before invoking Next.js. It needs neither a backend nor a
@@ -40,7 +41,7 @@ Next.js 16 App Router, React Compiler, TypeScript and Tailwind CSS. Ukrainian pr
 
 Install dependencies with npm install. NEXT_PUBLIC_API_URL defaults to http://localhost:4000/api/v1; use .env.local to override it and .env.example for the safe placeholder. Start the backend with matching FRONTEND_ORIGINS, then run npm run dev and open http://localhost:3000.
 
-Routes: /, /login, /register and protected /account. Registration and login authenticate the account; /account displays own profile fields. Access tokens remain in memory, refresh cookies are HttpOnly, and TanStack Query owns current-user state. Reload restores the session through the backend. Web Locks coordinate refresh across tabs; BroadcastChannel synchronizes logout without token values. Production needs same-site HTTPS frontend/API hosts. Auth policy and contracts live in the sibling pet-platform-docs architecture/auth.md and architecture/api.md.
+Routes: /, /login, /register and protected /account. Registration and login authenticate the account; /account displays own profile fields. Access tokens remain in memory, refresh cookies are HttpOnly, and TanStack Query owns current-user state. Reload restores the session through the backend. Web Locks coordinate refresh across tabs; BroadcastChannel synchronizes logout without token values. Production uses the same-origin proxy or compatible same-site HTTPS frontend/API hosts. Auth policy and contracts live in the sibling pet-platform-docs architecture/auth.md and architecture/api.md.
 
 ## Validation
 
