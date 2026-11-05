@@ -55,7 +55,9 @@ export const profileInputSchema = z.object({
     ),
 });
 export type ProfileInput = z.infer<typeof profileInputSchema>;
-export function messengerLinks(seller: Seller) {
+export function messengerLinks(
+  seller: Pick<Seller, "telegram" | "viber" | "whatsapp">,
+) {
   return [
     seller.telegram && {
       label: "Telegram",

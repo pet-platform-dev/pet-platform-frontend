@@ -4,6 +4,9 @@ export function navigationActive(
   publicBreeder = false,
 ): boolean {
   return (
+    (href === "/services" &&
+      (pathname === "/service-providers" ||
+        pathname.startsWith("/service-providers/"))) ||
     (href === "/breeders" &&
       publicBreeder &&
       /^\/sellers\/[^/]+$/.test(pathname)) ||

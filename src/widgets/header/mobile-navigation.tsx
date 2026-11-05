@@ -34,6 +34,7 @@ export function MobileNavigation({
         { href: "/listings", label: "Оголошення" },
         { href: "/mating", label: "В’язка" },
         { href: "/breeders", label: "Розплідники" },
+        { href: "/services", label: "Послуги" },
         { href: "/favorites", label: "Обране" },
         { href: "/my-listings", label: "Мої оголошення" },
         { href: "/pets", label: "Мої тварини" },
@@ -43,6 +44,7 @@ export function MobileNavigation({
         { href: "/listings", label: "Оголошення" },
         { href: "/mating", label: "В’язка" },
         { href: "/breeders", label: "Розплідники" },
+        { href: "/services", label: "Послуги" },
         ...(!pending
           ? [
               { href: "/login", label: "Увійти" },

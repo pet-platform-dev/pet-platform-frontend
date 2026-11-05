@@ -50,6 +50,18 @@ export function Header() {
           >
             Розплідники
           </Link>
+          <Link
+            className="nav-link"
+            href="/services"
+            aria-current={
+              pathname.startsWith("/services") ||
+              pathname.startsWith("/service-providers")
+                ? "page"
+                : undefined
+            }
+          >
+            Послуги
+          </Link>
           {isPending ? (
             <span className="muted">Зачекайте…</span>
           ) : data ? (
