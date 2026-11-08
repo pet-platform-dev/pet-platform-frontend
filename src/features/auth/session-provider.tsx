@@ -48,6 +48,7 @@ export function isSessionQuery({ queryKey }: { queryKey: readonly unknown[] }) {
     "favorite-batch",
     "email-change-pending",
     "seller-review-me",
+    "service-workspace",
   ].includes(String(queryKey[0]));
 }
 export function clearPrivateQueries(client: QueryClient) {
@@ -61,6 +62,7 @@ export function clearPrivateQueries(client: QueryClient) {
         "conversations",
         "pet-care",
         "favorite-toggle",
+        "service-workspace",
       ].includes(String(mutation.options.mutationKey?.[0]))
     )
       mutations.remove(mutation);

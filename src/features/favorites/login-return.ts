@@ -1,4 +1,5 @@
 import { safeAdminPath } from "@/features/admin/moderation/navigation";
+import { isWorkspacePath } from "@/features/services/workspace/navigation";
 /** Only existing discovery/management destinations are accepted after authentication. */
 export function favoriteLoginReturn(value: unknown): string {
   if (
@@ -22,6 +23,7 @@ export function favoriteLoginReturn(value: unknown): string {
     return "/account";
   if (
     url.pathname !== "/listings" &&
+    !isWorkspacePath(url.pathname) &&
     !safeAdminPath(url.pathname) &&
     url.pathname !== "/favorites" &&
     url.pathname !== "/messages" &&

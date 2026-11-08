@@ -37,6 +37,7 @@ export function MobileNavigation({
         { href: "/services", label: "Послуги" },
         { href: "/favorites", label: "Обране" },
         { href: "/my-listings", label: "Мої оголошення" },
+        { href: "/my-services", label: "Мої послуги" },
         { href: "/pets", label: "Мої тварини" },
         { href: "/account", label: "Мій профіль" },
       ]
